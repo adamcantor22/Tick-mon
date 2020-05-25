@@ -9,8 +9,8 @@ Created on Mon May 25 14:31:03 2020
 
 def main():
     const = 8
-    i = input("enter a number: ")
-    print(i < const)
+    i = int(input("enter a number: "))
+    print(i  > const)
     
     
     
