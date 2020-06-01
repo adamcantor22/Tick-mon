@@ -13,7 +13,6 @@ dependencies:
   google_maps_flutter:
   location:
 
-
   flutter:
     sdk: flutter
   cupertino_icons: ^0.1.3
