@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,7 +14,23 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: Text('Tick Tok Database Prototype'),
         ),
-        body: InputSection(),
+        body: MapPage(),
+      ),
+    );
+  }
+}
+
+class MapPage extends StatefulWidget {
+  @override
+  _MapPageState createState() => _MapPageState();
+}
+
+class _MapPageState extends State<MapPage> {
+  @override
+  Widget build(BuildContext context) {
+    return GoogleMap(
+      initialCameraPosition: CameraPosition(
+        target: LatLng(0.0, 0.0),
       ),
     );
   }
