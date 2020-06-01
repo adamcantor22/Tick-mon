@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'map.dart';
+import 'database.dart';
 
 void main() {
   runApp(MyApp());
@@ -10,119 +10,54 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Tick Tok Database Prototype'),
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final List<Widget> pages = [
+    MapPage(
+      key: PageStorageKey('MapPage'),
+    ),
+    InputSection(
+      key: PageStorageKey('InputPage'),
+    ),
+  ];
+
+  final PageStorageBucket bucket = PageStorageBucket();
+
+  int _selectedIndex = 0;
+
+  Widget _bottomNavBar(int selectedIndex) {
+    return BottomNavigationBar(
+      onTap: (int index) => setState(() => _selectedIndex = index),
+      currentIndex: selectedIndex,
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.map),
+          title: Text('Map'),
         ),
-        body: MapPage(),
-      ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.settings),
+          title: Text('Data'),
+        ),
+      ],
     );
   }
-}
-
-class MapPage extends StatefulWidget {
-  @override
-  _MapPageState createState() => _MapPageState();
-}
-
-class _MapPageState extends State<MapPage> {
-  @override
-  Widget build(BuildContext context) {
-    return GoogleMap(
-      initialCameraPosition: CameraPosition(
-        target: LatLng(0.0, 0.0),
-      ),
-    );
-  }
-}
-
-class InputSection extends StatefulWidget {
-  @override
-  _InputSectionState createState() => _InputSectionState();
-}
-
-class _InputSectionState extends State<InputSection> {
-  final _formKey = GlobalKey<FormState>();
-  final myController = TextEditingController();
-  bool showData = false;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        children: <Widget>[
-          Form(
-            key: _formKey,
-            child: Column(
-              children: <Widget>[
-                TextFormField(
-                  controller: myController,
-                  decoration: InputDecoration(
-                    labelText: 'Test Input Here',
-                  ),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please enter some text';
-                    }
-                    return null;
-                  },
-                ),
-                RaisedButton(
-                  onPressed: () {
-                    setState(
-                      () {
-                        if (_formKey.currentState.validate()) {
-                          String newUser = myController.text;
-                          Scaffold.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('submitting'),
-                            ),
-                          );
-                          Firestore.instance
-                              .collection('test_usernames')
-                              .document()
-                              .setData({'username': newUser});
-                        }
-                      },
-                    );
-                  },
-                  child: Text('Submit'),
-                ),
-              ],
-            ),
-          ),
-          RaisedButton(
-            onPressed: () {
-              setState(() {
-                showData = !showData;
-              });
-            },
-            child: Text('Toggle Showing Data'),
-          ),
-          if (showData)
-            StreamBuilder(
-              stream:
-                  Firestore.instance.collection('test_usernames').snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) return Text('Loading...');
-                return Expanded(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemExtent: 80.0,
-                    itemCount: snapshot.data.documents.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(
-                          snapshot.data.documents[index]['username'],
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-        ],
+    return Scaffold(
+      bottomNavigationBar: _bottomNavBar(_selectedIndex),
+      body: PageStorage(
+        child: pages[_selectedIndex],
+        bucket: bucket,
       ),
     );
   }
