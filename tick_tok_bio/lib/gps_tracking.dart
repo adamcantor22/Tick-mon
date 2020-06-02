@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
-
 class Maps extends StatefulWidget {
   const Maps({Key key}) : super(key: key);
 
@@ -17,21 +16,22 @@ class MapsState extends State<Maps> {
   var point;
   List coordinates = [];
   StreamSubscription subscription;
-  Marker marker;
-  static final initialPosition = CameraPosition(target: (LatLng(10.42, 16.45)),zoom: 18.0 );
+  Map<LatLng, Marker> markers = new Map<LatLng, Marker>();
+  static final initialPosition =
+      CameraPosition(target: (LatLng(10.42, 16.45)), zoom: 18.0);
   GoogleMapController _controller;
   Location _location = Location();
 
-
   addArrow() async {
-    ByteData image = await DefaultAssetBundle.of(context).load('images/blackarrow.png');
+    ByteData image =
+        await DefaultAssetBundle.of(context).load('images/blackarrow.png');
     return image.buffer.asUint8List();
   }
 
   updatePos(LocationData newLocalData, Uint8List imageData) {
     LatLng latLng = LatLng(newLocalData.latitude, newLocalData.longitude);
     this.setState(() {
-      marker = Marker(
+      markers[latLng] = Marker(
         markerId: MarkerId('position'),
         position: latLng,
         draggable: false,
@@ -41,9 +41,7 @@ class MapsState extends State<Maps> {
         flat: true,
       );
     });
-
   }
-
 
   void getCurrentLocation() async {
     try {
@@ -52,7 +50,8 @@ class MapsState extends State<Maps> {
       updatePos(_loc, imageData);
       subscription = _location.onLocationChanged.listen((event) {
         if (_controller != null) {
-          _controller.animateCamera(CameraUpdate.newCameraPosition(new CameraPosition(
+          _controller
+              .animateCamera(CameraUpdate.newCameraPosition(new CameraPosition(
             bearing: 192.83,
             target: LatLng(event.latitude, event.longitude),
             zoom: 16.0,
@@ -61,28 +60,23 @@ class MapsState extends State<Maps> {
           print(LatLng(event.latitude, event.longitude));
         }
       });
-
-      }
-    catch(e) {
+    } catch (e) {
       print(e);
     }
+  }
 
-    }
-
-    void cancelSub() {
+  void cancelSub() {
     if (subscription != null) {
       subscription.cancel();
     }
     super.dispose();
-    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Map Overview'
-        ),
+        title: Text('Map Overview'),
       ),
       body: GoogleMap(
         mapType: MapType.hybrid,
@@ -90,9 +84,8 @@ class MapsState extends State<Maps> {
         onMapCreated: (GoogleMapController controller) {
           _controller = controller;
         },
-        markers: Set.of((marker != null? marker: [])),
+        markers: markers.values.toSet(),
       ),
-
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.accessibility),
         backgroundColor: Colors.black,
@@ -103,4 +96,3 @@ class MapsState extends State<Maps> {
     );
   }
 }
-
