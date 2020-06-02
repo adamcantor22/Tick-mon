@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'map.dart';
 import 'database.dart';
+import 'gps_tracking.dart';
 
 void main() {
   runApp(MyApp());
@@ -28,11 +29,14 @@ class _HomePageState extends State<HomePage> {
     InputSection(
       key: PageStorageKey('InputPage'),
     ),
+    Maps(
+      key: PageStorageKey('GPSPage'),
+    ),
   ];
 
   final PageStorageBucket bucket = PageStorageBucket();
 
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
 
   Widget _bottomNavBar(int selectedIndex) {
     return BottomNavigationBar(
@@ -46,6 +50,10 @@ class _HomePageState extends State<HomePage> {
         BottomNavigationBarItem(
           icon: Icon(Icons.settings),
           title: Text('Data'),
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.satellite),
+          title: Text('Updated Map')
         ),
       ],
     );
