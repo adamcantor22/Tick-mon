@@ -12,6 +12,7 @@ dependencies:
   cloud_firestore:
   google_maps_flutter:
   location:
+  gpx:
 
   flutter:
     sdk: flutter
