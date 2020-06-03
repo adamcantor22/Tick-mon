@@ -24,6 +24,7 @@ class MapsState extends State<Maps> {
   Set<Polyline> _polylines = Set<Polyline>();
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints;
+  StreamSubscription<LocationData> locationSubscription;
   bool trackingRoute = false;
 
   void startNewRoute() {
@@ -38,22 +39,21 @@ class MapsState extends State<Maps> {
   void finishRoute() {
     setState(() {
       trackingRoute = false;
+      locationSubscription.cancel();
     });
   }
 
   void updateLocation() {
-    if (trackingRoute) {
-      setState(() {
-        location.onLocationChanged.listen((LocationData cLoc) {
-          currentLocation = cLoc;
-          LatLng pos =
-              new LatLng(currentLocation.latitude, currentLocation.longitude);
-          polylineCoordinates.add(pos);
-          debugPrint(polylineCoordinates.toString());
-          updatePolyline();
-        });
+    setState(() {
+      locationSubscription =
+          location.onLocationChanged.listen((LocationData cLoc) {
+        currentLocation = cLoc;
+        LatLng pos =
+            new LatLng(currentLocation.latitude, currentLocation.longitude);
+        polylineCoordinates.add(pos);
+        updatePolyline();
       });
-    }
+    });
   }
 
   void updatePolyline() {
@@ -78,6 +78,7 @@ class MapsState extends State<Maps> {
       ),
       body: GoogleMap(
         myLocationEnabled: true,
+        myLocationButtonEnabled: true,
         compassEnabled: true,
         markers: _markers,
         polylines: _polylines,
@@ -93,7 +94,9 @@ class MapsState extends State<Maps> {
         onPressed: () {
           if (!trackingRoute) {
             startNewRoute();
-          } else {}
+          } else {
+            finishRoute();
+          }
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
