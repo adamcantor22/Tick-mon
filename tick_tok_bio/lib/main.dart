@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'map.dart';
 import 'database.dart';
 import 'gps_tracking.dart';
+import 'metadata_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -32,29 +33,43 @@ class _HomePageState extends State<HomePage> {
     Maps(
       key: PageStorageKey('GPSPage'),
     ),
+    MetadataSection(
+      key: PageStorageKey('MetadataPage'),
+    ),
   ];
 
   final PageStorageBucket bucket = PageStorageBucket();
 
-  int _selectedIndex = 2;
+  int _selectedIndex = 0;
+
+  BottomNavigationBarItem navBarItem(IconData icon, String title) {
+    return BottomNavigationBarItem(
+      icon: Icon(
+        icon,
+        color: Colors.white,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      backgroundColor: Colors.blue,
+    );
+  }
 
   Widget _bottomNavBar(int selectedIndex) {
     return BottomNavigationBar(
       onTap: (int index) => setState(() => _selectedIndex = index),
       currentIndex: selectedIndex,
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.map),
-          title: Text('Map'),
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.settings),
-          title: Text('Data'),
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.satellite),
-          title: Text('Updated Map')
-        ),
+      backgroundColor: Colors.blue,
+      type: BottomNavigationBarType.shifting,
+      items: <BottomNavigationBarItem>[
+        navBarItem(Icons.map, 'Map'),
+        navBarItem(Icons.settings, 'Data'),
+        navBarItem(Icons.satellite, 'Updated Map'),
+        navBarItem(Icons.sd_storage, 'MetaData'),
       ],
     );
   }
