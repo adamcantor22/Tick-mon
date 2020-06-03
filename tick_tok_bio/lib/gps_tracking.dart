@@ -27,17 +27,33 @@ class MapsState extends State<Maps> {
   bool trackingRoute = false;
 
   void startNewRoute() {
-    location = new Location();
-    polylinePoints = PolylinePoints();
-    trackingRoute = true;
-    location.onLocationChanged.listen((LocationData cLoc) {
-      currentLocation = cLoc;
-      LatLng pos =
-          new LatLng(currentLocation.latitude, currentLocation.longitude);
-      polylineCoordinates.add(pos);
-      debugPrint(polylineCoordinates.toString());
-      updatePolyline();
+    setState(() {
+      location = new Location();
+      polylinePoints = PolylinePoints();
+      trackingRoute = true;
+      updateLocation();
     });
+  }
+
+  void finishRoute() {
+    setState(() {
+      trackingRoute = false;
+    });
+  }
+
+  void updateLocation() {
+    if (trackingRoute) {
+      setState(() {
+        location.onLocationChanged.listen((LocationData cLoc) {
+          currentLocation = cLoc;
+          LatLng pos =
+              new LatLng(currentLocation.latitude, currentLocation.longitude);
+          polylineCoordinates.add(pos);
+          debugPrint(polylineCoordinates.toString());
+          updatePolyline();
+        });
+      });
+    }
   }
 
   void updatePolyline() {
@@ -72,12 +88,12 @@ class MapsState extends State<Maps> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: trackingRoute ? Icon(Icons.stop) : Icon(Icons.play_arrow),
         backgroundColor: Colors.blueAccent,
         onPressed: () {
           if (!trackingRoute) {
             startNewRoute();
-          }
+          } else {}
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
