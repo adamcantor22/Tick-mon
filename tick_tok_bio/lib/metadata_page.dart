@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
+import 'metadata_viewinginfo.dart';
 
 class MetadataSection extends StatefulWidget {
   const MetadataSection({Key key}) : super(key: key);
@@ -14,29 +15,32 @@ class _MetadataSectionState extends State<MetadataSection> {
     return Card(
         margin: EdgeInsets.all(10.0),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Text(
               time,
               style: TextStyle(
                 fontSize: 25.0,
               ),),
-            SizedBox(
-              width: 10.0,
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.mode_edit,
-                size: 50.0,),
-              onPressed: () {},
-            ),
-            SizedBox(
-              width: 10.0,
-            ),
+              IconButton(
+                icon: Icon(
+                  Icons.mode_edit,
+                  size: 40.0,),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pushNamed(context, 'MapPage');
+                  });
+                },
+              ),
             IconButton(
               icon: Icon(Icons.pageview,
-              size: 50.0,),
+              size: 40.0,),
               onPressed: () {
-                
+                setState(() {
+
+
+                });
+
               },
               ),
           ],
@@ -48,7 +52,10 @@ class _MetadataSectionState extends State<MetadataSection> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Previous Drags'),
+        title: Text('Previous Drags',
+        style: TextStyle(
+          fontSize: 25.0,
+        ),),
         centerTitle: true,
       ),
       body: ListView(
