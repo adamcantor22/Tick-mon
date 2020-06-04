@@ -32,86 +32,111 @@ class _UserPageState extends State<UserPage> {
   Widget loginPage() {
     return Container(
       color: Colors.grey[200],
+      height: double.maxFinite,
       child: Form(
         key: _formKey,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
-          child: Column(
-            children: <Widget>[
-              Center(
-                child: Text(
-                  'You are not logged in. Login to start.',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22.0,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
+            child: Column(
+              children: <Widget>[
+                Center(
+                  child: Text(
+                    'You are not logged in. Login to start.',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22.0,
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
-                child: Column(
-                  children: <Widget>[
-                    TextFormField(
-                      controller: userController,
-                      decoration: InputDecoration(
-                        hintText: 'Username',
-                      ),
-                    ),
-                    TextFormField(
-                      controller: pwdController,
-                      decoration: InputDecoration(
-                        hintText: 'Password',
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    RaisedButton(
-                      color: Colors.blue,
-                      onPressed: () async {
-                        print('***PRESSED***');
-                        validateLogin(userController.text.trim(),
-                                pwdController.text.trim())
-                            .then((response) {
-                          if (response) {
-                            print('***LOGIN SUCCESS***');
-                            setState(() {
-                              user = userController.text.trim();
-                            });
-                          } else {
-                            print('***LOGIN FAILURE***');
-                          }
-                        });
-                      },
-                      child: Text(
-                        'Login',
-                        style: TextStyle(
-                          color: Colors.white,
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
+                  child: Column(
+                    children: <Widget>[
+                      TextFormField(
+                        controller: userController,
+                        decoration: InputDecoration(
+                          hintText: 'Username',
                         ),
                       ),
-                    ),
-                    RaisedButton(
-                      color: Colors.white,
-                      onPressed: () {
-                        setState(() {
-                          creatingAccount = true;
-                        });
-                      },
-                      child: Text(
-                        'Create Account',
-                        style: TextStyle(
-                          color: Colors.blue,
+                      TextFormField(
+                        controller: pwdController,
+                        decoration: InputDecoration(
+                          hintText: 'Password',
                         ),
                       ),
-                    ),
-                  ],
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      RaisedButton(
+                        color: Colors.blue,
+                        onPressed: () async {
+                          print('***PRESSED***');
+                          inputTrim();
+                          validateLogin(userController.text, pwdController.text)
+                              .then((response) {
+                            if (response) {
+                              print('***LOGIN SUCCESS***');
+                              setState(() {
+                                user = userController.text.trim();
+                              });
+                            } else {
+                              print('***LOGIN FAILURE***');
+                            }
+                          });
+                        },
+                        child: Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(0.0, 45.0, 0.0, 15.0),
+                        child: Text(
+                          'OR',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.0,
+                          ),
+                        ),
+                      ),
+                      RaisedButton(
+                        color: Colors.white,
+                        onPressed: () {
+                          setState(() {
+                            creatingAccount = true;
+                            inputClear();
+                          });
+                        },
+                        child: Text(
+                          'Create Account',
+                          style: TextStyle(
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  void inputTrim() {
+    userController.text = userController.text.trim();
+    pwdController.text = pwdController.text.trim();
+  }
+
+  void inputClear() {
+    userController.clear();
+    pwdController.clear();
   }
 
   Future<bool> validateLogin(String name, String pwd) {
@@ -133,13 +158,24 @@ class _UserPageState extends State<UserPage> {
   }
 
   Widget createAccountPage() {
-    return Center(
+    return Container(
+      color: Colors.grey[200],
       child: Padding(
-        padding: EdgeInsets.all(20.0),
+        padding: EdgeInsets.all(40.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: <Widget>[
+              Text(
+                'Create New Account',
+                style: TextStyle(
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
               TextFormField(
                 controller: userController,
                 decoration: InputDecoration(
@@ -164,43 +200,68 @@ class _UserPageState extends State<UserPage> {
                   return null;
                 },
               ),
-              RaisedButton(
-                color: Colors.blue,
-                onPressed: () {
-                  if (_formKey.currentState.validate()) {
-                    usernameAvailable(userController.text.trim())
-                        .then((response) {
-                      print(response);
-                      if (!response) {
-                        userController.text = '';
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return message('Username Unavailable');
-                          },
-                        );
-                      } else {
-                        Firestore.instance
-                            .collection('users')
-                            .document()
-                            .setData({
-                          'username': userController.text,
-                          'password': pwdController.text,
-                        });
-                        setState(() {
-                          creatingAccount = false;
-                          user = userController.text;
+              SizedBox(
+                height: 20.0,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  RaisedButton(
+                    color: Colors.white,
+                    onPressed: () {
+                      setState(() {
+                        creatingAccount = false;
+                      });
+                    },
+                    child: Text(
+                      'Back',
+                      style: TextStyle(
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 50.0,
+                  ),
+                  RaisedButton(
+                    color: Colors.blue,
+                    onPressed: () {
+                      inputTrim();
+                      if (_formKey.currentState.validate()) {
+                        usernameAvailable(userController.text).then((response) {
+                          print(response);
+                          if (!response) {
+                            inputClear();
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return message('Username Unavailable');
+                              },
+                            );
+                          } else {
+                            Firestore.instance
+                                .collection('users')
+                                .document()
+                                .setData({
+                              'username': userController.text,
+                              'password': pwdController.text,
+                            });
+                            setState(() {
+                              creatingAccount = false;
+                              user = userController.text;
+                            });
+                          }
                         });
                       }
-                    });
-                  }
-                },
-                child: Text(
-                  'Create Account',
-                  style: TextStyle(
-                    color: Colors.white,
+                    },
+                    child: Text(
+                      'Create Account',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
