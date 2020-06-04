@@ -23,15 +23,22 @@ class _MetadataSectionState extends State<MetadataSection> {
             SizedBox(
               width: 10.0,
             ),
-            Icon(
-              Icons.mode_edit,
-              size: 50.0,),
+            IconButton(
+              icon: Icon(
+                Icons.mode_edit,
+                size: 50.0,),
+              onPressed: () {},
+            ),
             SizedBox(
               width: 10.0,
             ),
-            Icon(
-              Icons.pageview,
+            IconButton(
+              icon: Icon(Icons.pageview,
               size: 50.0,),
+              onPressed: () {
+                
+              },
+              ),
           ],
         ));
   }
