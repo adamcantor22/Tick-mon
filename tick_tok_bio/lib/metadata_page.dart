@@ -15,7 +15,7 @@ class _MetadataSectionState extends State<MetadataSection> {
       child: FlatButton(
         color: Colors.red,
         onPressed: () {
-          HomePage.changePageIndex(2);
+          return;
         },
       ),
     );
