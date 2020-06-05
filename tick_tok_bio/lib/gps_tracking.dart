@@ -6,6 +6,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:gpx/gpx.dart';
+import 'main.dart';
+
 
 class Maps extends StatefulWidget {
   const Maps({Key key}) : super(key: key);
@@ -121,6 +123,9 @@ class MapsState extends State<Maps> {
             startNewRoute();
           } else {
             finishRoute();
+            setState(() {
+              HomePageState().pageNavigator(3);
+            });
           }
         },
       ),

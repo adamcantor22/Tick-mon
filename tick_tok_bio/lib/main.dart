@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tick_tok_bio/metadata_viewinginfo.dart';
 import 'package:tick_tok_bio/user_page.dart';
 import 'map.dart';
 import 'database.dart';
@@ -20,10 +21,10 @@ class MyApp extends StatelessWidget {
 
 class HomePage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   final List<Widget> pages = [
     UserPage(
       key: PageStorageKey('UserPage'),
@@ -37,11 +38,20 @@ class _HomePageState extends State<HomePage> {
     MetadataSection(
       key: PageStorageKey('MetadataPage'),
     ),
+    MetaDataDisplay(
+      key: PageStorageKey('DataDisplay'),
+    )
   ];
 
   final PageStorageBucket bucket = PageStorageBucket();
 
   int _selectedIndex = 0;
+
+  void pageNavigator(int i) {
+      _selectedIndex = i;
+      _bottomNavBar(i);
+
+  }
 
   BottomNavigationBarItem navBarItem(IconData icon, String title) {
     return BottomNavigationBarItem(
@@ -71,6 +81,7 @@ class _HomePageState extends State<HomePage> {
         navBarItem(Icons.settings, 'Data'),
         navBarItem(Icons.satellite, 'Updated Map'),
         navBarItem(Icons.sd_storage, 'MetaData'),
+        navBarItem(Icons.remove_red_eye, 'DataView'),
       ],
     );
   }
