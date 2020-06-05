@@ -14,6 +14,8 @@ dependencies:
   flutter_polyline_points:
   location:
   gpx:
+  firebase_storage:
+  path_provider:
 
   flutter:
     sdk: flutter

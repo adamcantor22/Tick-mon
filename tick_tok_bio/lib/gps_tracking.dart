@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +8,9 @@ import 'package:location/location.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:gpx/gpx.dart';
 import 'main.dart';
-
+import 'package:path_provider/path_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class Maps extends StatefulWidget {
   const Maps({Key key}) : super(key: key);
@@ -35,6 +38,18 @@ class MapsState extends State<Maps> {
     g.rtes.add(route);
     String gpxStr = writer.asString(g);
     print(gpxStr);
+    String filename = gpxStr.hashCode.toString();
+    final fileRef = writeContent(filename, gpxStr);
+    fileRef.then((file) {
+      print(file.path);
+    });
+  }
+
+  Future<File> writeContent(String filename, String fileContent) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final path = directory.path;
+    final file = File('$path/gpx$filename.gpx');
+    return file.writeAsString(fileContent);
   }
 
   void startNewRoute() {
