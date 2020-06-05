@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tick_tok_bio/editing_metadata.dart';
 import 'package:tick_tok_bio/metadata_viewinginfo.dart';
 import 'package:tick_tok_bio/user_page.dart';
 import 'map.dart';
@@ -37,6 +38,9 @@ class HomePageState extends State<HomePage> {
     ),
     MetadataSection(
       key: PageStorageKey('MetadataPage'),
+    ),
+    DataInput(
+      key: PageStorageKey('EditMetaData'),
     ),
     MetaDataDisplay(
       key: PageStorageKey('DataDisplay'),
@@ -80,7 +84,8 @@ class HomePageState extends State<HomePage> {
         navBarItem(Icons.person, 'User'),
         navBarItem(Icons.settings, 'Data'),
         navBarItem(Icons.satellite, 'Updated Map'),
-        navBarItem(Icons.sd_storage, 'MetaData'),
+        navBarItem(Icons.sd_storage, 'DragHistory'),
+        navBarItem(Icons.edit, 'EditData'),
         navBarItem(Icons.remove_red_eye, 'DataView'),
       ],
     );

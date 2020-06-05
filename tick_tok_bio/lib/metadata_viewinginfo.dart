@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'metadata_page.dart';
 
-
 class MetaDataDisplay extends StatefulWidget {
   const MetaDataDisplay({Key key}) : super(key: key);
-
 
   @override
   _MetaDataDisplayState createState() => _MetaDataDisplayState();
@@ -21,17 +19,20 @@ class _MetaDataDisplayState extends State<MetaDataDisplay> {
   String habitatType = 'rainforest';
   int numNymphs = 34;
   int numBlackLegged = 12;
-  Widget infoRow(String category,  value,) {
+  Widget infoRow(
+    String category,
+    value,
+  ) {
     return Expanded(
       child: Row(
         children: <Widget>[
           Padding(
             padding: EdgeInsets.all(10.0),
             child: Expanded(
-              child: Text('$category: $value',
-                style: TextStyle(
-                    fontSize: 20.0
-                ),),
+              child: Text(
+                '$category: $value',
+                style: TextStyle(fontSize: 20.0),
+              ),
             ),
           ),
           IconButton(
@@ -47,8 +48,8 @@ class _MetaDataDisplayState extends State<MetaDataDisplay> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-        '$time $date',
-      ),
+          '$time $date',
+        ),
       ),
       body: Column(
         children: <Widget>[

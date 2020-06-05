@@ -28,7 +28,7 @@ class _MetadataSectionState extends State<MetadataSection> {
                   size: 40.0,),
                 onPressed: () {
                   setState(() {
-                    Navigator.pushNamed(context, 'MapPage');
+
                   });
                 },
               ),
