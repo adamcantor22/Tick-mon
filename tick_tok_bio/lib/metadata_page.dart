@@ -71,13 +71,7 @@ class _MetadataSectionState extends State<MetadataSection> {
           children: <Widget>[
             dragMenu('2:30:50 6/4/20'),
             dragMenu('2:30:50 6/4/20'),
-            dragMenu('2:30:50 6/4/20'),
-            dragMenu('2:30:50 6/4/20'),
-            dragMenu('2:30:50 6/4/20'),
-            dragMenu('2:30:50 6/4/20'),
-            dragMenu('2:30:50 6/4/20'),
-            dragMenu('2:30:50 6/4/20'),
-            dragMenu('2:30:50 6/4/20')
+            
           ],
         )
     );
@@ -112,7 +106,16 @@ class _MetadataSectionState extends State<MetadataSection> {
                 editingData = true;
                 viewingData = false;
               });
-          },)
+          },),
+          IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {
+              setState(() {
+                viewingData = false;
+                viewingDrags = true;
+              });
+            },
+          ),
         ],
       ),
       body: Column(
@@ -147,6 +150,14 @@ class _MetadataSectionState extends State<MetadataSection> {
     return Scaffold(
         appBar: AppBar(
         title: Text(DateTime.now().toString()),
+          actions: <Widget>[
+            IconButton(icon: Icon(Icons.close), onPressed: () {
+              setState(() {
+                editingData = false;
+                viewingDrags = true;
+              });
+            })
+          ],
     ),
     body: ListView(
     children: [
