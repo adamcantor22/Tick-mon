@@ -11,7 +11,9 @@ environment:
 dependencies:
   cloud_firestore:
   google_maps_flutter:
+  flutter_polyline_points:
   location:
+  gpx:
 
   flutter:
     sdk: flutter
@@ -23,4 +25,12 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - images/blackarrow.png
+
+
+
+
+
 
