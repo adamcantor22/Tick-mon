@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tick_tok_bio/metadata_viewinginfo.dart';
+import 'package:tick_tok_bio/user_page.dart';
 import 'map.dart';
 import 'database.dart';
 import 'gps_tracking.dart';
@@ -25,8 +26,8 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   final List<Widget> pages = [
-    MapPage(
-      key: PageStorageKey('MapPage'),
+    UserPage(
+      key: PageStorageKey('UserPage'),
     ),
     InputSection(
       key: PageStorageKey('InputPage'),
@@ -76,7 +77,7 @@ class HomePageState extends State<HomePage> {
       backgroundColor: Colors.blue,
       type: BottomNavigationBarType.shifting,
       items: <BottomNavigationBarItem>[
-        navBarItem(Icons.map, 'Map'),
+        navBarItem(Icons.person, 'User'),
         navBarItem(Icons.settings, 'Data'),
         navBarItem(Icons.satellite, 'Updated Map'),
         navBarItem(Icons.sd_storage, 'MetaData'),
