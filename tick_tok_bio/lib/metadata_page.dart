@@ -1,7 +1,24 @@
+//import 'dart:html';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'metadata_viewinginfo.dart';
 import 'decorationInfo.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+bool viewingDrags = true;
+bool viewingData = false;
+bool editingData = false;
+String date;
+String time;
+String site;
+String name;
+String temperature;
+String humidity;
+String groundMoisture;
+String habitatType;
+String numNymphs;
+String numBlackLegged;
+List lis;
 
 class MetadataSection extends StatefulWidget {
   const MetadataSection({Key key}) : super(key: key);
@@ -11,19 +28,7 @@ class MetadataSection extends StatefulWidget {
 }
 
 class _MetadataSectionState extends State<MetadataSection> {
-  bool viewingDrags = true;
-  bool viewingData = false;
-  bool editingData = false;
-  String date = '06/4/20';
-  String time = '02:34:34';
-  String site = 'GQ';
-  String name = 'Jonah';
-  String temperature = '55';
-  String humidity = '70%';
-  String groundMoisture = 'damp';
-  String habitatType = 'rainforest';
-  int numNymphs = 34;
-  int numBlackLegged = 12;
+
 
   Widget pageBody() {
     if (viewingDrags == true) {
@@ -66,30 +71,26 @@ class _MetadataSectionState extends State<MetadataSection> {
               fontSize: 25.0,
             ),),
           centerTitle: true,
+          actions: <Widget>[
+            IconButton(icon: Icon(Icons.add), onPressed: () {
+              setState(() {
+                viewingDrags = false;
+                editingData = true;
+              });
+            })
+          ],
         ),
         body: ListView(
           children: <Widget>[
             dragMenu('2:30:50 6/4/20'),
             dragMenu('2:30:50 6/4/20'),
-            
+
           ],
         )
     );
   }
 
-  Widget infoRow(String category, value,) {
-    return Row(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Text(
-            '$category: $value',
-            style: TextStyle(fontSize: 20.0),
-          ),
-        ),
-      ],
-    );
-  }
+
 
 
   Widget viewData() {
@@ -113,37 +114,56 @@ class _MetadataSectionState extends State<MetadataSection> {
               setState(() {
                 viewingData = false;
                 viewingDrags = true;
+
               });
             },
           ),
         ],
       ),
       body: Column(
-        children: <Widget>[
-          infoRow('Site', site),
+        children: [
           infoRow('Name', name),
+          infoRow('Site', site),
           infoRow('Temperature', temperature),
           infoRow('Humidity', humidity),
           infoRow('Ground Moisture', groundMoisture),
-          infoRow('Type of Habitat', habitatType),
-          infoRow('Nymphs', numNymphs),
-          infoRow('BlackLegged', numBlackLegged)
+          infoRow('Habitat Type', habitatType),
+          infoRow('Nymphs Collected', numNymphs),
+          infoRow('BlackLegged Ticks Collected', numBlackLegged)
         ],
       ),
     );
   }
 
-  Widget dataField(String hText, variable) {
-    return Padding(
-      padding: EdgeInsets.only(top: 10.0),
-      child: TextField(
-        decoration: kTextFieldDecoration.copyWith(hintText: hText),
-        onChanged: (value) {
-          variable = value;
-        },
-      ),
+    infoRow(key, value) {
+    return Row(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.all(10.0),
+          child: Text(
+            '$key: $value',
+            style: TextStyle(fontSize: 20.0),
+          ),
+        ),
+      ],
     );
   }
+
+//  Widget dataField(String hText, variable) {
+//
+//    return Padding(
+//      padding: EdgeInsets.only(top: 10.0),
+//      child: TextField(
+//        decoration: kTextFieldDecoration.copyWith(hintText: hText),
+//        onChanged: (value) {
+//          setState(() {
+//            variable = value;
+//            print(site);
+//          });
+//        },
+//      ),
+//    );
+//  }
 
 
   Widget editDrag() {
@@ -161,21 +181,128 @@ class _MetadataSectionState extends State<MetadataSection> {
     ),
     body: ListView(
     children: [
-    dataField('Enter Name', name),
-    dataField('Enter Site Code', site),
-    dataField('Enter Temperature', temperature),
-    dataField('Enter Humidity', humidity),
-    dataField('Enter Ground Moisture Level', groundMoisture),
-    dataField('Enter Habitat Type', habitatType),
-    dataField('Enter Number of Nymphs Collected', numNymphs),
-    dataField('Enter Number of BlackLegged Ticks Collected', numBlackLegged)
+    Padding(
+    padding: EdgeInsets.only(top: 10.0),
+      child: TextField(
+        decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Name'),
+        onChanged: (value) {
+          setState(() {
+            name = value;
+          });
+        },
+      ),
+    ),
+      Padding(
+        padding: EdgeInsets.only(top: 10.0),
+        child: TextField(
+          decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Site'),
+          onChanged: (value) {
+            setState(() {
+              site = value;
+              print(site);
+            });
+          },
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.only(top: 10.0),
+        child: TextField(
+          decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Temperature'),
+          onChanged: (value) {
+            setState(() {
+              temperature = value;
+            });
+          },
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.only(top: 10.0),
+        child: TextField(
+          decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Humidity'),
+          onChanged: (value) {
+            setState(() {
+              humidity = value;
+            });
+          },
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.only(top: 10.0),
+        child: TextField(
+          decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Ground Moisture'),
+          onChanged: (value) {
+            setState(() {
+              groundMoisture = value;
+            });
+          },
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.only(top: 10.0),
+        child: TextField(
+          decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Habitat Type'),
+          onChanged: (value) {
+            setState(() {
+              habitatType = value;
+            });
+          },
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.only(top: 10.0),
+        child: TextField(
+          decoration: kTextFieldDecoration.copyWith(hintText: 'Enter # of Nymphs Caught'),
+          onChanged: (value) {
+            setState(() {
+              numNymphs = value;
+            });
+          },
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.only(top: 10.0),
+        child: TextField(
+          decoration: kTextFieldDecoration.copyWith(hintText: 'Enter # of Blackleggeds Caught'),
+          onChanged: (value) {
+            setState(() {
+              numBlackLegged = value;
+            });
+          },
+        ),
+      ),
+      FlatButton(onPressed: () {
+        setState(() {
+          editingData = false;
+          viewingData = true;
+        });
+      }, child: Text(
+        'Save Drag Data'
+      )
+      )
     ]
     ),);
 
   }
+
+ void saveData(var key, var value) async {
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setString(key, value);
+ }
+
 
   @override
   Widget build(BuildContext context) {
     return pageBody();
   }
 }
+
+//void setNum() async {
+//    var prefs = await SharedPreferences.getInstance();
+//    prefs.setInt('number', 11);
+//  }
+//
+//  void getNum() async {
+//    var prefs = await SharedPreferences.getInstance();
+//    int num = prefs.getInt('number');
+//    print(num);
+//  }
