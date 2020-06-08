@@ -33,13 +33,24 @@ class MapsState extends State<Maps> {
   StreamSubscription<LocationData> locationSubscription;
   bool trackingRoute = false;
 
+  String currentTime() {
+    String ret = '';
+    DateTime now = DateTime.now();
+    ret += now.year.toString() + '-';
+    ret += now.month.toString() + '-';
+    ret += now.day.toString() + '_';
+    ret += now.hour.toString() + ':';
+    ret += now.minute.toString();
+    return ret;
+  }
+
   void storeRouteInformation(Rte route) async {
     GpxWriter writer = new GpxWriter();
     Gpx g = new Gpx();
     g.rtes.add(route);
     String gpxStr = writer.asString(g);
     print(gpxStr);
-    String filename = gpxStr.hashCode.toString();
+    String filename = currentTime() + '.gpx';
     final fileRef = writeContent(filename, gpxStr);
     fileRef.then((file) {
       print(file.path);
