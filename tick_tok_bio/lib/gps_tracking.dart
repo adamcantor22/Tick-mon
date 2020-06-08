@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:gpx/gpx.dart';
 import 'main.dart';
@@ -12,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'file_uploader.dart';
+import 'package:geolocator/geolocator.dart';
 
 class Maps extends StatefulWidget {
   const Maps({Key key}) : super(key: key);
@@ -24,13 +24,13 @@ class MapsState extends State<Maps> {
   static final initialPosition =
       CameraPosition(target: (LatLng(10.42, 16.45)), zoom: 18.0);
   GoogleMapController _controller;
-  LocationData currentLocation;
-  Location location;
+  Position currentPosition;
+  Geolocator locator;
   Set<Marker> _markers = Set<Marker>();
   Set<Polyline> _polylines = Set<Polyline>();
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints;
-  StreamSubscription<LocationData> locationSubscription;
+  StreamSubscription<Position> positionSubscription;
   bool trackingRoute = false;
 
   String currentTime() {
@@ -70,7 +70,7 @@ class MapsState extends State<Maps> {
 
   void startNewRoute() {
     setState(() {
-      location = new Location();
+      locator = new Geolocator();
       polylinePoints = PolylinePoints();
       trackingRoute = true;
       updateLocation();
@@ -97,18 +97,20 @@ class MapsState extends State<Maps> {
 
     setState(() {
       trackingRoute = false;
-      locationSubscription.cancel();
+      positionSubscription.cancel();
       polylineCoordinates.clear();
     });
   }
 
   void updateLocation() async {
     setState(() {
-      locationSubscription =
-          location.onLocationChanged.listen((LocationData cLoc) {
-        currentLocation = cLoc;
+      LocationOptions options =
+          LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 0);
+      positionSubscription =
+          locator.getPositionStream(options).listen((Position cPos) {
+        currentPosition = cPos;
         LatLng pos =
-            new LatLng(currentLocation.latitude, currentLocation.longitude);
+            new LatLng(currentPosition.latitude, currentPosition.longitude);
         polylineCoordinates.add(pos);
         updatePolyline();
       });
