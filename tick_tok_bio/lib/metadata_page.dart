@@ -1,4 +1,6 @@
 //import 'dart:html';
+//  import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'metadata_viewinginfo.dart';
@@ -8,10 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 bool viewingDrags = true;
 bool viewingData = false;
 bool editingData = false;
-String date;
-String time;
-String site;
+String dateTime = DateTime.now().toString();
 String name;
+String site;
 String temperature;
 String humidity;
 String groundMoisture;
@@ -29,6 +30,28 @@ class MetadataSection extends StatefulWidget {
 
 class _MetadataSectionState extends State<MetadataSection> {
 
+  var prefs = SharedPreferences.getInstance();
+
+  var myController0 = TextEditingController();
+  var myController1 = TextEditingController();
+  var myController2 = TextEditingController();
+  var myController3 = TextEditingController();
+  var myController4 = TextEditingController();
+  var myController5 = TextEditingController();
+  var myController6 = TextEditingController();
+  var myController7 = TextEditingController();
+
+  @override
+  void dispose() {
+    myController1.dispose();
+    myController2.dispose();
+    myController3.dispose();
+    myController4.dispose();
+    myController5.dispose();
+    myController6.dispose();
+    myController7.dispose();
+    super.dispose();
+  }
 
   Widget pageBody() {
     if (viewingDrags == true) {
@@ -97,7 +120,8 @@ class _MetadataSectionState extends State<MetadataSection> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '$time $date',
+
+          ''
         ),
         actions: <Widget>[
           IconButton(
@@ -123,7 +147,16 @@ class _MetadataSectionState extends State<MetadataSection> {
       body: Column(
         children: [
           infoRow('Name', name),
-          infoRow('Site', site),
+          Row(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(10.0),
+              child: Text(
+                'Site: '
+              )
+              ),
+            ],
+          ),
           infoRow('Temperature', temperature),
           infoRow('Humidity', humidity),
           infoRow('Ground Moisture', groundMoisture),
@@ -169,7 +202,7 @@ class _MetadataSectionState extends State<MetadataSection> {
   Widget editDrag() {
     return Scaffold(
         appBar: AppBar(
-        title: Text(DateTime.now().toString()),
+        title: Text(dateTime),
           actions: <Widget>[
             IconButton(icon: Icon(Icons.close), onPressed: () {
               setState(() {
@@ -181,97 +214,88 @@ class _MetadataSectionState extends State<MetadataSection> {
     ),
     body: ListView(
     children: [
+
     Padding(
-    padding: EdgeInsets.only(top: 10.0),
+      padding: EdgeInsets.only(top: 10.0),
       child: TextField(
         decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Name'),
-        onChanged: (value) {
-          setState(() {
-            name = value;
-          });
-        },
+        controller: myController0,
       ),
     ),
       Padding(
         padding: EdgeInsets.only(top: 10.0),
         child: TextField(
           decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Site'),
-          onChanged: (value) {
-            setState(() {
-              site = value;
-              print(site);
-            });
-          },
+          controller: myController1,
         ),
       ),
       Padding(
         padding: EdgeInsets.only(top: 10.0),
         child: TextField(
           decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Temperature'),
-          onChanged: (value) {
-            setState(() {
-              temperature = value;
-            });
-          },
+          controller: myController2,
         ),
       ),
       Padding(
         padding: EdgeInsets.only(top: 10.0),
         child: TextField(
           decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Humidity'),
-          onChanged: (value) {
-            setState(() {
-              humidity = value;
-            });
-          },
+          controller: myController3,
         ),
       ),
       Padding(
         padding: EdgeInsets.only(top: 10.0),
         child: TextField(
           decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Ground Moisture'),
-          onChanged: (value) {
-            setState(() {
-              groundMoisture = value;
-            });
-          },
+          controller: myController4,
         ),
       ),
       Padding(
         padding: EdgeInsets.only(top: 10.0),
         child: TextField(
           decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Habitat Type'),
-          onChanged: (value) {
-            setState(() {
-              habitatType = value;
-            });
-          },
+          controller: myController5,
         ),
       ),
       Padding(
         padding: EdgeInsets.only(top: 10.0),
         child: TextField(
           decoration: kTextFieldDecoration.copyWith(hintText: 'Enter # of Nymphs Caught'),
-          onChanged: (value) {
-            setState(() {
-              numNymphs = value;
-            });
-          },
+          controller: myController6,
         ),
       ),
       Padding(
         padding: EdgeInsets.only(top: 10.0),
         child: TextField(
           decoration: kTextFieldDecoration.copyWith(hintText: 'Enter # of Blackleggeds Caught'),
-          onChanged: (value) {
-            setState(() {
-              numBlackLegged = value;
-            });
-          },
+          controller: myController7,
         ),
       ),
-      FlatButton(onPressed: () {
+      FlatButton(onPressed: () async {
+        print(myController0.text);
+        print(myController1.text);
+        print(myController2.text);
+        print(myController3.text);
+        print(myController4.text);
+        print(myController5.text);
+        print(myController6.text);
+        print(myController7.text);
+        
+        saveData('drag', lis);
+
+
+        getData('drag');
+        
         setState(() {
+          site = myController0.text;
+          name = myController1.text;
+          temperature = myController2.text;
+          humidity = myController3.text;
+          groundMoisture = myController4.text;
+          habitatType = myController5.text;
+          numNymphs = myController6.text;
+          numBlackLegged = myController7.text;
+
           editingData = false;
           viewingData = true;
         });
@@ -286,9 +310,14 @@ class _MetadataSectionState extends State<MetadataSection> {
 
  void saveData(var key, var value) async {
     var prefs = await SharedPreferences.getInstance();
-    prefs.setString(key, value);
+    prefs.setStringList(key,value);
  }
-
+ 
+ dynamic getData(var key) async {
+   var prefs = await SharedPreferences.getInstance();
+   List lista = prefs.getStringList('drag');
+   print(lista);
+ }
 
   @override
   Widget build(BuildContext context) {
