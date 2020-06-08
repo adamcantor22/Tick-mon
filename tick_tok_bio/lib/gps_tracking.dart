@@ -11,6 +11,7 @@ import 'main.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'file_uploader.dart';
 
 class Maps extends StatefulWidget {
   const Maps({Key key}) : super(key: key);
@@ -32,7 +33,7 @@ class MapsState extends State<Maps> {
   StreamSubscription<LocationData> locationSubscription;
   bool trackingRoute = false;
 
-  void storeRouteInformation(Rte route) {
+  void storeRouteInformation(Rte route) async {
     GpxWriter writer = new GpxWriter();
     Gpx g = new Gpx();
     g.rtes.add(route);
@@ -42,6 +43,10 @@ class MapsState extends State<Maps> {
     final fileRef = writeContent(filename, gpxStr);
     fileRef.then((file) {
       print(file.path);
+      FileUploader uploader = new FileUploader();
+      final url = uploader.fileUpload(file, filename).then((val) {
+        print(val);
+      });
     });
   }
 
