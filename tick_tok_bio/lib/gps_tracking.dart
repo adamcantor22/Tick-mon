@@ -44,10 +44,13 @@ class MapsState extends State<Maps> {
     return ret;
   }
 
-  void storeRouteInformation(Rte route) async {
+  void storeRouteInformation(Trkseg seg) async {
     GpxWriter writer = new GpxWriter();
     Gpx g = new Gpx();
-    g.rtes.add(route);
+    List<Trkseg> segs = new List<Trkseg>();
+    segs.add(seg);
+    Trk trk = new Trk(trksegs: segs);
+    g.trks.add(trk);
     String gpxStr = writer.asString(g);
     print(gpxStr);
     String filename = currentTime() + '.gpx';
@@ -78,9 +81,9 @@ class MapsState extends State<Maps> {
   }
 
   void finishRoute() async {
-    List<Wpt> rtepts = new List<Wpt>();
+    List<Wpt> trkpts = new List<Wpt>();
     for (int i = 0; i < polylineCoordinates.length; i++) {
-      rtepts.add(
+      trkpts.add(
         new Wpt(
           lat: polylineCoordinates[i].latitude,
           lon: polylineCoordinates[i].longitude,
@@ -89,11 +92,10 @@ class MapsState extends State<Maps> {
       );
     }
 
-    Rte route = new Rte(
-      name: 'new route',
-      rtepts: rtepts,
+    Trkseg seg = new Trkseg(
+      trkpts: trkpts,
     );
-    storeRouteInformation(route);
+    storeRouteInformation(seg);
 
     setState(() {
       trackingRoute = false;
