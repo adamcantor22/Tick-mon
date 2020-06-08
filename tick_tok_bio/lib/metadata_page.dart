@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'main.dart';
 import 'metadata_viewinginfo.dart';
 import 'decorationInfo.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+//import 'package:path_provider/path_provider.dart';
+
 
 bool viewingDrags = true;
 bool viewingData = false;
@@ -30,7 +31,6 @@ class MetadataSection extends StatefulWidget {
 
 class _MetadataSectionState extends State<MetadataSection> {
 
-  var prefs = SharedPreferences.getInstance();
 
   var myController0 = TextEditingController();
   var myController1 = TextEditingController();
@@ -135,7 +135,8 @@ class _MetadataSectionState extends State<MetadataSection> {
           IconButton(
             icon: Icon(Icons.close),
             onPressed: () {
-              setState(() {
+              setState(() async {
+
                 viewingData = false;
                 viewingDrags = true;
 
@@ -147,16 +148,7 @@ class _MetadataSectionState extends State<MetadataSection> {
       body: Column(
         children: [
           infoRow('Name', name),
-          Row(
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.all(10.0),
-              child: Text(
-                'Site: '
-              )
-              ),
-            ],
-          ),
+          infoRow('Site', site),
           infoRow('Temperature', temperature),
           infoRow('Humidity', humidity),
           infoRow('Ground Moisture', groundMoisture),
@@ -271,7 +263,7 @@ class _MetadataSectionState extends State<MetadataSection> {
           controller: myController7,
         ),
       ),
-      FlatButton(onPressed: () async {
+      FlatButton(onPressed: ()  {
         print(myController0.text);
         print(myController1.text);
         print(myController2.text);
@@ -280,15 +272,28 @@ class _MetadataSectionState extends State<MetadataSection> {
         print(myController5.text);
         print(myController6.text);
         print(myController7.text);
-        
-        saveData('drag', lis);
+
+//      lis.add(myController0.text);
+//      lis.add(myController1.text);
+//      lis.add(myController2.text);
+//      lis.add(myController3.text);
+//      lis.add(myController4.text);
+//      lis.add(myController5.text);
+//      lis.add(myController6.text);
+//      lis.add(myController7.text);
+//      print(lis);
+//
+//
+//        var pref = await SharedPreferences.getInstance();
+//        pref.setStringList('drag', lis);
+        //saveData('drag', lis);
 
 
-        getData('drag');
+        //getData('drag');
         
         setState(() {
-          site = myController0.text;
-          name = myController1.text;
+          name = myController0.text;
+          site = myController1.text;
           temperature = myController2.text;
           humidity = myController3.text;
           groundMoisture = myController4.text;
@@ -308,16 +313,7 @@ class _MetadataSectionState extends State<MetadataSection> {
 
   }
 
- void saveData(var key, var value) async {
-    var prefs = await SharedPreferences.getInstance();
-    prefs.setStringList(key,value);
- }
- 
- dynamic getData(var key) async {
-   var prefs = await SharedPreferences.getInstance();
-   List lista = prefs.getStringList('drag');
-   print(lista);
- }
+
 
   @override
   Widget build(BuildContext context) {

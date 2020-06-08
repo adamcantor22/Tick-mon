@@ -6,6 +6,7 @@ import 'map.dart';
 import 'database.dart';
 import 'gps_tracking.dart';
 import 'metadata_page.dart';
+import 'file_creation_testing.dart';
 
 void main() {
   runApp(MyApp());
@@ -39,9 +40,9 @@ class HomePageState extends State<HomePage> {
     MetadataSection(
       key: PageStorageKey('MetadataPage'),
     ),
-//    DataInput(
-//      key: PageStorageKey('EditMetaData'),
-//    ),
+    FileCreation(
+      key: PageStorageKey('FileMaker'),
+    ),
 //    MetaDataDisplay(
 //      key: PageStorageKey('DataDisplay'),
 //    )
@@ -85,6 +86,7 @@ class HomePageState extends State<HomePage> {
         navBarItem(Icons.settings, 'Data'),
         navBarItem(Icons.satellite, 'Updated Map'),
         navBarItem(Icons.sd_storage, 'DragHistory'),
+        navBarItem(Icons.insert_drive_file, 'File Creator')
         //navBarItem(Icons.edit, 'EditData'),
         //navBarItem(Icons.remove_red_eye, 'DataView'),
       ],

@@ -14,7 +14,7 @@ dependencies:
   flutter_polyline_points:
   location:
   gpx:
-  shared_preferences: ^0.5.7+3
+  path_provider:
 
   flutter:
     sdk: flutter
