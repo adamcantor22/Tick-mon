@@ -15,6 +15,7 @@ dependencies:
   location:
   gpx:
   path_provider:
+  convert: ^2.1.1
 
   flutter:
     sdk: flutter

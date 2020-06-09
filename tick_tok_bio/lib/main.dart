@@ -7,6 +7,7 @@ import 'database.dart';
 import 'gps_tracking.dart';
 import 'metadata_page.dart';
 import 'file_creation_testing.dart';
+import 'json_storage.dart';
 
 void main() {
   runApp(MyApp());
@@ -42,7 +43,11 @@ class HomePageState extends State<HomePage> {
     ),
     FileCreation(
       key: PageStorageKey('FileMaker'),
+      storage: Storage(),
     ),
+    JSONStorage(
+      key: PageStorageKey('JSON')
+    )
 //    MetaDataDisplay(
 //      key: PageStorageKey('DataDisplay'),
 //    )
@@ -86,7 +91,8 @@ class HomePageState extends State<HomePage> {
         navBarItem(Icons.settings, 'Data'),
         navBarItem(Icons.satellite, 'Updated Map'),
         navBarItem(Icons.sd_storage, 'DragHistory'),
-        navBarItem(Icons.insert_drive_file, 'File Creator')
+        navBarItem(Icons.insert_drive_file, 'File Creator'),
+        navBarItem(Icons.attach_file, 'JSON Storage')
         //navBarItem(Icons.edit, 'EditData'),
         //navBarItem(Icons.remove_red_eye, 'DataView'),
       ],

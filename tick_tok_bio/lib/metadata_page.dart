@@ -5,7 +5,11 @@ import 'package:flutter/material.dart';
 import 'main.dart';
 import 'metadata_viewinginfo.dart';
 import 'decorationInfo.dart';
-//import 'package:path_provider/path_provider.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'dart:convert';
+import 'json_storage_funcs.dart';
+import 'file_creation_testing.dart';
 
 
 bool viewingDrags = true;
@@ -30,6 +34,55 @@ class MetadataSection extends StatefulWidget {
 }
 
 class _MetadataSectionState extends State<MetadataSection> {
+  File jsonFile;
+  Directory dir;
+  String fileName = 'myfile12.json';
+  bool fileExists = false;
+  Map fileContent;
+
+  @override
+  void initState() {
+    super.initState();
+    getApplicationDocumentsDirectory().then((Directory directory) async {
+      dir = directory;
+      jsonFile = new File(dir.path + "/" + fileName);
+      fileExists = await jsonFile.exists();
+      if(fileExists) {
+        setState(() {
+          fileContent = json.decode(jsonFile.readAsStringSync());
+        });
+      }
+    });
+  }
+
+  void createFile(Map content, Directory dir, String fileName) {
+    print('Creating File');
+    File file = new File(dir.path + '/' + fileName);
+    file.createSync();
+    fileExists = true;
+    file.writeAsStringSync(json.encode(content));
+
+  }
+
+  void writeToFile(String key, String value, String key1, String value1,String key2, String value2, String key3, String value3,String key4, String value4, String key5, String value5,String key6, String value6, String key7, String value7) {
+    print('Writing to File');
+    Map<String, String> content = {key: value, key1: value1, key2: value2, key3: value3, key4: value4, key5: value5, key6: value6, key7: value7};
+    if (fileExists) {
+      print('File Exists');
+      Map<String, dynamic> jsonFileContents = json.decode(jsonFile.readAsStringSync());
+
+      jsonFileContents.addAll(content);
+      jsonFile.writeAsStringSync(json.encode(jsonFileContents));
+    }
+    else {
+      print('FIle Does not exist');
+      createFile(content, dir, fileName);
+    }
+    this.setState(() {
+      fileContent = json.decode(jsonFile.readAsStringSync());
+      print(fileContent);
+    });
+  }
 
 
   var myController0 = TextEditingController();
@@ -52,6 +105,8 @@ class _MetadataSectionState extends State<MetadataSection> {
     myController7.dispose();
     super.dispose();
   }
+
+
 
   Widget pageBody() {
     if (viewingDrags == true) {
@@ -264,42 +319,18 @@ class _MetadataSectionState extends State<MetadataSection> {
         ),
       ),
       FlatButton(onPressed: ()  {
-        print(myController0.text);
-        print(myController1.text);
-        print(myController2.text);
-        print(myController3.text);
-        print(myController4.text);
-        print(myController5.text);
-        print(myController6.text);
-        print(myController7.text);
 
-//      lis.add(myController0.text);
-//      lis.add(myController1.text);
-//      lis.add(myController2.text);
-//      lis.add(myController3.text);
-//      lis.add(myController4.text);
-//      lis.add(myController5.text);
-//      lis.add(myController6.text);
-//      lis.add(myController7.text);
-//      print(lis);
-//
-//
-//        var pref = await SharedPreferences.getInstance();
-//        pref.setStringList('drag', lis);
-        //saveData('drag', lis);
-
-
-        //getData('drag');
-        
         setState(() {
-          name = myController0.text;
-          site = myController1.text;
-          temperature = myController2.text;
-          humidity = myController3.text;
-          groundMoisture = myController4.text;
-          habitatType = myController5.text;
-          numNymphs = myController6.text;
-          numBlackLegged = myController7.text;
+          writeToFile('Name', myController0.text, 'Site', myController1.text, 'Temp', myController2.text, 'Humidity', myController3.text, 'GroundMoisture',myController4.text, 'HabitatType', myController5.text, 'NumNymphs', myController6.text, 'NumBlacklegged', myController7.text);
+
+          name = fileContent['Name'].toString();
+          site = fileContent['Site'].toString();
+          temperature = fileContent['Temp'].toString();
+          humidity = fileContent['Humidity'].toString();
+          groundMoisture = fileContent['GroundMoisture'].toString();
+          habitatType = fileContent['HabitayType'].toString();
+          numNymphs = fileContent['NumNymphs'].toString();
+          numBlackLegged = fileContent['NumBlacklegged'].toString();
 
           editingData = false;
           viewingData = true;
@@ -320,14 +351,3 @@ class _MetadataSectionState extends State<MetadataSection> {
     return pageBody();
   }
 }
-
-//void setNum() async {
-//    var prefs = await SharedPreferences.getInstance();
-//    prefs.setInt('number', 11);
-//  }
-//
-//  void getNum() async {
-//    var prefs = await SharedPreferences.getInstance();
-//    int num = prefs.getInt('number');
-//    print(num);
-//  }
