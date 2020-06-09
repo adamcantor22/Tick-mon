@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:gpx/gpx.dart';
+import 'package:tick_tok_bio/super_listener.dart';
 import 'main.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -162,7 +163,7 @@ class MapsState extends State<Maps> {
           } else {
             finishRoute();
             setState(() {
-              HomePageState().pageNavigator(3);
+              SuperListener.navigateTo(3);
             });
           }
         },

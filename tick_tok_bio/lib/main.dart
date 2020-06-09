@@ -5,6 +5,7 @@ import 'database.dart';
 import 'gps_tracking.dart';
 import 'metadata_page.dart';
 import 'json_storage.dart';
+import 'super_listener.dart';
 
 void main() {
   runApp(MyApp());
@@ -42,11 +43,25 @@ class HomePageState extends State<HomePage> {
 
   final PageStorageBucket bucket = PageStorageBucket();
 
+  @override
+  void initState() {
+    super.initState();
+    setListeners();
+  }
+
+  void setListeners() {
+    SuperListener.setPages(
+      hPage: this,
+      mPage: pages[2],
+    );
+  }
+
   int _selectedIndex = 0;
 
   void pageNavigator(int i) {
-    _selectedIndex = i;
-    _bottomNavBar(i);
+    setState(() {
+      _selectedIndex = i;
+    });
   }
 
   BottomNavigationBarItem navBarItem(IconData icon, String title) {
