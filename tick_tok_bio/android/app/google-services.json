@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "996115475531",
+    "firebase_url": "https://tickemon-go.firebaseio.com",
+    "project_id": "tickemon-go",
+    "storage_bucket": "tickemon-go.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:996115475531:android:bd885f129b854d5aae31ce",
+        "android_client_info": {
+          "package_name": "edu.muhlenberg.tick_tok_bio"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "996115475531-g9q6h7jp97c8742ts050up06se2ch9b0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBtiotxVGZJUEjhKw9qPZx2xcP1-FVTek"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "996115475531-g9q6h7jp97c8742ts050up06se2ch9b0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "996115475531-b2t8ie5njei294tae9otknbak5g4mbsc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "edu.muhlenberg.tickTokBio"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

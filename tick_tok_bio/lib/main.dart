@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:tick_tok_bio/metadata_viewinginfo.dart';
+import 'package:tick_tok_bio/decorationInfo.dart';
 import 'package:tick_tok_bio/user_page.dart';
 import 'map.dart';
 import 'database.dart';
 import 'gps_tracking.dart';
 import 'metadata_page.dart';
+import 'json_storage.dart';
 
 void main() {
   runApp(MyApp());
@@ -38,9 +39,6 @@ class HomePageState extends State<HomePage> {
     MetadataSection(
       key: PageStorageKey('MetadataPage'),
     ),
-    MetaDataDisplay(
-      key: PageStorageKey('DataDisplay'),
-    )
   ];
 
   final PageStorageBucket bucket = PageStorageBucket();
@@ -80,8 +78,9 @@ class HomePageState extends State<HomePage> {
         navBarItem(Icons.person, 'User'),
         navBarItem(Icons.settings, 'Data'),
         navBarItem(Icons.satellite, 'Updated Map'),
-        navBarItem(Icons.sd_storage, 'MetaData'),
-        navBarItem(Icons.remove_red_eye, 'DataView'),
+        navBarItem(Icons.sd_storage, 'DragHistory'),
+        //navBarItem(Icons.edit, 'EditData'),
+        //navBarItem(Icons.remove_red_eye, 'DataView'),
       ],
     );
   }
