@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tick_tok_bio/decorationInfo.dart';
 import 'package:tick_tok_bio/user_page.dart';
-import 'map.dart';
 import 'database.dart';
 import 'gps_tracking.dart';
 import 'metadata_page.dart';
@@ -46,9 +45,8 @@ class HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   void pageNavigator(int i) {
-      _selectedIndex = i;
-      _bottomNavBar(i);
-
+    _selectedIndex = i;
+    _bottomNavBar(i);
   }
 
   BottomNavigationBarItem navBarItem(IconData icon, String title) {
