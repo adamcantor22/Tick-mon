@@ -16,15 +16,15 @@ bool viewingDrags = true;
 bool viewingData = false;
 bool editingData = false;
 String dateTime = DateTime.now().toString();
-String name;
-String site;
-String temperature;
-String humidity;
-String groundMoisture;
-String habitatType;
-String numNymphs;
-String numBlackLegged;
-List lis;
+//String name;
+//String site;
+//String temperature;
+//String humidity;
+//String groundMoisture;
+//String habitatType;
+//String numNymphs;
+//String numBlackLegged;
+//List lis;
 
 class MetadataSection extends StatefulWidget {
   const MetadataSection({Key key}) : super(key: key);
@@ -36,7 +36,7 @@ class MetadataSection extends StatefulWidget {
 class _MetadataSectionState extends State<MetadataSection> {
   File jsonFile;
   Directory dir;
-  String fileName = 'myfile12.json';
+  String fileName = 'myfile10.json';
   bool fileExists = false;
   Map fileContent;
 
@@ -190,7 +190,7 @@ class _MetadataSectionState extends State<MetadataSection> {
           IconButton(
             icon: Icon(Icons.close),
             onPressed: () {
-              setState(() async {
+              setState(() {
 
                 viewingData = false;
                 viewingDrags = true;
@@ -202,14 +202,14 @@ class _MetadataSectionState extends State<MetadataSection> {
       ),
       body: Column(
         children: [
-          infoRow('Name', name),
-          infoRow('Site', site),
-          infoRow('Temperature', temperature),
-          infoRow('Humidity', humidity),
-          infoRow('Ground Moisture', groundMoisture),
-          infoRow('Habitat Type', habitatType),
-          infoRow('Nymphs Collected', numNymphs),
-          infoRow('BlackLegged Ticks Collected', numBlackLegged)
+          infoRow('Name', fileContent['Name'].toString()),
+          infoRow('Site', fileContent['Site'].toString()),
+          infoRow('Temperature', fileContent['Temp'].toString()),
+          infoRow('Humidity', fileContent['Humidity'].toString()),
+          infoRow('Ground Moisture', fileContent['GroundMoisture'].toString()),
+          infoRow('Habitat Type', fileContent['HabitatType'].toString()),
+          infoRow('Nymphs Collected', fileContent['NumNymphs'].toString()),
+          infoRow('BlackLegged Ticks Collected', fileContent['NumBlacklegged'].toString())
         ],
       ),
     );
@@ -322,15 +322,6 @@ class _MetadataSectionState extends State<MetadataSection> {
 
         setState(() {
           writeToFile('Name', myController0.text, 'Site', myController1.text, 'Temp', myController2.text, 'Humidity', myController3.text, 'GroundMoisture',myController4.text, 'HabitatType', myController5.text, 'NumNymphs', myController6.text, 'NumBlacklegged', myController7.text);
-
-          name = fileContent['Name'].toString();
-          site = fileContent['Site'].toString();
-          temperature = fileContent['Temp'].toString();
-          humidity = fileContent['Humidity'].toString();
-          groundMoisture = fileContent['GroundMoisture'].toString();
-          habitatType = fileContent['HabitayType'].toString();
-          numNymphs = fileContent['NumNymphs'].toString();
-          numBlackLegged = fileContent['NumBlacklegged'].toString();
 
           editingData = false;
           viewingData = true;
