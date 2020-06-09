@@ -29,6 +29,7 @@ class MapsState extends State<Maps> {
   Set<Marker> _markers = Set<Marker>();
   Set<Polyline> _polylines = Set<Polyline>();
   List<LatLng> polylineCoordinates = [];
+  List<Wpt> wpts = new List<Wpt>();
   PolylinePoints polylinePoints;
   StreamSubscription<Position> positionSubscription;
   bool trackingRoute = false;
@@ -50,6 +51,11 @@ class MapsState extends State<Maps> {
     List<Trkseg> segs = new List<Trkseg>();
     segs.add(seg);
     Trk trk = new Trk(trksegs: segs);
+    g.creator = 'TickTok-Flutter';
+    g.metadata = Metadata(
+      time: DateTime.now(),
+      keywords: 'Flutter TickTok Tickémon-Go',
+    );
     g.trks.add(trk);
     String gpxStr = writer.asString(g);
     print(gpxStr);
@@ -74,6 +80,7 @@ class MapsState extends State<Maps> {
   void startNewRoute() {
     setState(() {
       locator = new Geolocator();
+      wpts = new List<Wpt>();
       polylinePoints = PolylinePoints();
       trackingRoute = true;
       updateLocation();
@@ -81,19 +88,8 @@ class MapsState extends State<Maps> {
   }
 
   void finishRoute() async {
-    List<Wpt> trkpts = new List<Wpt>();
-    for (int i = 0; i < polylineCoordinates.length; i++) {
-      trkpts.add(
-        new Wpt(
-          lat: polylineCoordinates[i].latitude,
-          lon: polylineCoordinates[i].longitude,
-          name: ('pt' + i.toString()),
-        ),
-      );
-    }
-
     Trkseg seg = new Trkseg(
-      trkpts: trkpts,
+      trkpts: wpts,
     );
     storeRouteInformation(seg);
 
@@ -113,6 +109,13 @@ class MapsState extends State<Maps> {
         currentPosition = cPos;
         LatLng pos =
             new LatLng(currentPosition.latitude, currentPosition.longitude);
+        Wpt pt = new Wpt(
+          lat: currentPosition.latitude,
+          lon: currentPosition.longitude,
+          ele: currentPosition.altitude,
+          time: DateTime.now(),
+        );
+        wpts.add(pt);
         polylineCoordinates.add(pos);
         updatePolyline();
       });
