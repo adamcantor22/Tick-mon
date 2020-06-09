@@ -3,13 +3,10 @@
 
 import 'package:flutter/material.dart';
 import 'main.dart';
-import 'metadata_viewinginfo.dart';
 import 'decorationInfo.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:convert';
-import 'json_storage_funcs.dart';
-import 'file_creation_testing.dart';
 
 
 bool viewingDrags = true;
