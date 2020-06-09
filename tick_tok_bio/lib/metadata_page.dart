@@ -58,20 +58,44 @@ class _MetadataSectionState extends State<MetadataSection> {
     file.createSync();
     fileExists = true;
     file.writeAsStringSync(json.encode(content));
-
   }
 
-  void writeToFile(String key, String value, String key1, String value1,String key2, String value2, String key3, String value3,String key4, String value4, String key5, String value5,String key6, String value6, String key7, String value7) {
+  void writeToFile(
+      String key,
+      String value,
+      String key1,
+      String value1,
+      String key2,
+      String value2,
+      String key3,
+      String value3,
+      String key4,
+      String value4,
+      String key5,
+      String value5,
+      String key6,
+      String value6,
+      String key7,
+      String value7) {
     print('Writing to File');
-    Map<String, String> content = {key: value, key1: value1, key2: value2, key3: value3, key4: value4, key5: value5, key6: value6, key7: value7};
+    Map<String, String> content = {
+      key: value,
+      key1: value1,
+      key2: value2,
+      key3: value3,
+      key4: value4,
+      key5: value5,
+      key6: value6,
+      key7: value7
+    };
     if (fileExists) {
       print('File Exists');
-      Map<String, dynamic> jsonFileContents = json.decode(jsonFile.readAsStringSync());
+      Map<String, dynamic> jsonFileContents =
+          json.decode(jsonFile.readAsStringSync());
 
       jsonFileContents.addAll(content);
       jsonFile.writeAsStringSync(json.encode(jsonFileContents));
-    }
-    else {
+    } else {
       print('FIle Does not exist');
       createFile(content, dir, fileName);
     }
@@ -80,7 +104,6 @@ class _MetadataSectionState extends State<MetadataSection> {
       print(fileContent);
     });
   }
-
 
   var myController0 = TextEditingController();
   var myController1 = TextEditingController();
@@ -103,16 +126,12 @@ class _MetadataSectionState extends State<MetadataSection> {
     super.dispose();
   }
 
-
-
   Widget pageBody() {
     if (viewingDrags == true) {
       return viewDrags();
-    }
-    else if (viewingData == true) {
+    } else if (viewingData == true) {
       return viewData();
-    }
-    else if (editingData == true) {
+    } else if (editingData == true) {
       return editDrag();
     }
   }
@@ -132,66 +151,61 @@ class _MetadataSectionState extends State<MetadataSection> {
               time,
               style: TextStyle(
                 fontSize: 25.0,
-              ),),
+              ),
+            ),
           )),
     );
   }
 
-
   Widget viewDrags() {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Previous Drags',
+          title: Text(
+            'Previous Drags',
             style: TextStyle(
               fontSize: 25.0,
-            ),),
+            ),
+          ),
           centerTitle: true,
           actions: <Widget>[
-            IconButton(icon: Icon(Icons.add), onPressed: () {
-              setState(() {
-                viewingDrags = false;
-                editingData = true;
-              });
-            })
+            IconButton(
+                icon: Icon(Icons.add),
+                onPressed: () {
+                  setState(() {
+                    viewingDrags = false;
+                    editingData = true;
+                  });
+                })
           ],
         ),
         body: ListView(
           children: <Widget>[
             dragMenu('2:30:50 6/4/20'),
             dragMenu('2:30:50 6/4/20'),
-
           ],
-        )
-    );
+        ));
   }
-
-
-
 
   Widget viewData() {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-
-          ''
-        ),
+        title: Text(''),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.edit),
-          onPressed: () {
+            onPressed: () {
               setState(() {
                 editingData = true;
                 viewingData = false;
               });
-          },),
+            },
+          ),
           IconButton(
             icon: Icon(Icons.close),
             onPressed: () {
               setState(() {
-
                 viewingData = false;
                 viewingDrags = true;
-
               });
             },
           ),
@@ -206,13 +220,14 @@ class _MetadataSectionState extends State<MetadataSection> {
           infoRow('Ground Moisture', fileContent['GroundMoisture'].toString()),
           infoRow('Habitat Type', fileContent['HabitatType'].toString()),
           infoRow('Nymphs Collected', fileContent['NumNymphs'].toString()),
-          infoRow('BlackLegged Ticks Collected', fileContent['NumBlacklegged'].toString())
+          infoRow('BlackLegged Ticks Collected',
+              fileContent['NumBlacklegged'].toString())
         ],
       ),
     );
   }
 
-    infoRow(key, value) {
+  infoRow(key, value) {
     return Row(
       children: <Widget>[
         Padding(
@@ -242,97 +257,113 @@ class _MetadataSectionState extends State<MetadataSection> {
 //    );
 //  }
 
-
   Widget editDrag() {
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
         title: Text(dateTime),
-          actions: <Widget>[
-            IconButton(icon: Icon(Icons.close), onPressed: () {
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () {
+                setState(() {
+                  editingData = false;
+                  viewingDrags = true;
+                });
+              })
+        ],
+      ),
+      body: ListView(children: [
+        Padding(
+          padding: EdgeInsets.only(top: 10.0),
+          child: TextField(
+            decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Name'),
+            controller: myController0,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 10.0),
+          child: TextField(
+            decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Site'),
+            controller: myController1,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 10.0),
+          child: TextField(
+            decoration:
+                kTextFieldDecoration.copyWith(hintText: 'Enter Temperature'),
+            controller: myController2,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 10.0),
+          child: TextField(
+            decoration:
+                kTextFieldDecoration.copyWith(hintText: 'Enter Humidity'),
+            controller: myController3,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 10.0),
+          child: TextField(
+            decoration: kTextFieldDecoration.copyWith(
+                hintText: 'Enter Ground Moisture'),
+            controller: myController4,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 10.0),
+          child: TextField(
+            decoration:
+                kTextFieldDecoration.copyWith(hintText: 'Enter Habitat Type'),
+            controller: myController5,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 10.0),
+          child: TextField(
+            decoration: kTextFieldDecoration.copyWith(
+                hintText: 'Enter # of Nymphs Caught'),
+            controller: myController6,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 10.0),
+          child: TextField(
+            decoration: kTextFieldDecoration.copyWith(
+                hintText: 'Enter # of Blackleggeds Caught'),
+            controller: myController7,
+          ),
+        ),
+        FlatButton(
+            onPressed: () {
               setState(() {
+                writeToFile(
+                    'Name',
+                    myController0.text,
+                    'Site',
+                    myController1.text,
+                    'Temp',
+                    myController2.text,
+                    'Humidity',
+                    myController3.text,
+                    'GroundMoisture',
+                    myController4.text,
+                    'HabitatType',
+                    myController5.text,
+                    'NumNymphs',
+                    myController6.text,
+                    'NumBlacklegged',
+                    myController7.text);
+
                 editingData = false;
-                viewingDrags = true;
+                viewingData = true;
               });
-            })
-          ],
-    ),
-    body: ListView(
-    children: [
-
-    Padding(
-      padding: EdgeInsets.only(top: 10.0),
-      child: TextField(
-        decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Name'),
-        controller: myController0,
-      ),
-    ),
-      Padding(
-        padding: EdgeInsets.only(top: 10.0),
-        child: TextField(
-          decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Site'),
-          controller: myController1,
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.only(top: 10.0),
-        child: TextField(
-          decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Temperature'),
-          controller: myController2,
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.only(top: 10.0),
-        child: TextField(
-          decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Humidity'),
-          controller: myController3,
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.only(top: 10.0),
-        child: TextField(
-          decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Ground Moisture'),
-          controller: myController4,
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.only(top: 10.0),
-        child: TextField(
-          decoration: kTextFieldDecoration.copyWith(hintText: 'Enter Habitat Type'),
-          controller: myController5,
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.only(top: 10.0),
-        child: TextField(
-          decoration: kTextFieldDecoration.copyWith(hintText: 'Enter # of Nymphs Caught'),
-          controller: myController6,
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.only(top: 10.0),
-        child: TextField(
-          decoration: kTextFieldDecoration.copyWith(hintText: 'Enter # of Blackleggeds Caught'),
-          controller: myController7,
-        ),
-      ),
-      FlatButton(onPressed: ()  {
-
-        setState(() {
-          writeToFile('Name', myController0.text, 'Site', myController1.text, 'Temp', myController2.text, 'Humidity', myController3.text, 'GroundMoisture',myController4.text, 'HabitatType', myController5.text, 'NumNymphs', myController6.text, 'NumBlacklegged', myController7.text);
-
-          editingData = false;
-          viewingData = true;
-        });
-      }, child: Text(
-        'Save Drag Data'
-      )
-      )
-    ]
-    ),);
-
+            },
+            child: Text('Save Drag Data'))
+      ]),
+    );
   }
-
-
 
   @override
   Widget build(BuildContext context) {
