@@ -13,15 +13,7 @@ bool viewingDrags = true;
 bool viewingData = false;
 bool editingData = false;
 String dateTime = DateTime.now().toString();
-//String name;
-//String site;
-//String temperature;
-//String humidity;
-//String groundMoisture;
-//String habitatType;
-//String numNymphs;
-//String numBlackLegged;
-//List lis;
+
 
 class MetadataSection extends StatefulWidget {
   const MetadataSection({Key key}) : super(key: key);
@@ -33,14 +25,19 @@ class MetadataSection extends StatefulWidget {
 class _MetadataSectionState extends State<MetadataSection> {
   File jsonFile;
   Directory dir;
-  String fileName = 'myfile10.json';
+  String fileName = 'drag1.json';
   bool fileExists = false;
   Map fileContent;
+  String currentFile;
+  int dragNum = 0;
 
   @override
   void initState() {
     super.initState();
     getApplicationDocumentsDirectory().then((Directory directory) async {
+
+      print(dragNum);
+
       dir = directory;
       jsonFile = new File(dir.path + "/" + fileName);
       fileExists = await jsonFile.exists();
@@ -51,6 +48,7 @@ class _MetadataSectionState extends State<MetadataSection> {
       }
     });
   }
+
 
   void createFile(Map content, Directory dir, String fileName) {
     print('Creating File');
@@ -136,10 +134,11 @@ class _MetadataSectionState extends State<MetadataSection> {
     }
   }
 
-  Widget dragMenu(String time) {
+  Widget dragMenu(String time, String dragNum) {
     return GestureDetector(
       onTap: () {
         setState(() {
+          getFile(dragNum);
           viewingData = true;
           viewingDrags = false;
         });
@@ -157,6 +156,53 @@ class _MetadataSectionState extends State<MetadataSection> {
     );
   }
 
+
+
+  infoRow(key, value) {
+    return Row(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.all(10.0),
+          child: Text(
+            '$key: $value',
+            style: TextStyle(fontSize: 20.0),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String updateFile() {
+    setState(() {
+      currentFile = 'drag' + (dragNum + 1).toString() + '.json';
+      print(dragNum);
+    });
+    return currentFile;
+  }
+
+  void getFile(String fileNum) {
+    setState(() {
+      currentFile = 'drag' + fileNum + '.json';
+    });
+
+  }
+
+//  Widget dataField(String hText, variable) {
+//
+//    return Padding(
+//      padding: EdgeInsets.only(top: 10.0),
+//      child: TextField(
+//        decoration: kTextFieldDecoration.copyWith(hintText: hText),
+//        onChanged: (value) {
+//          setState(() {
+//            variable = value;
+//            print(site);
+//          });
+//        },
+//      ),
+//    );
+//  }
+
   Widget viewDrags() {
     return Scaffold(
         appBar: AppBar(
@@ -172,6 +218,7 @@ class _MetadataSectionState extends State<MetadataSection> {
                 icon: Icon(Icons.add),
                 onPressed: () {
                   setState(() {
+                    //fileName = updateFile();
                     viewingDrags = false;
                     editingData = true;
                   });
@@ -180,8 +227,7 @@ class _MetadataSectionState extends State<MetadataSection> {
         ),
         body: ListView(
           children: <Widget>[
-            dragMenu('2:30:50 6/4/20'),
-            dragMenu('2:30:50 6/4/20'),
+            dragMenu('2:30:50 6/4/20', '1')
           ],
         ));
   }
@@ -213,49 +259,19 @@ class _MetadataSectionState extends State<MetadataSection> {
       ),
       body: Column(
         children: [
-          infoRow('Name', fileContent['Name'].toString()),
+          //infoRow('Name', json.decode(File(dir.path + "/" + fileName).readAsStringSync())['Name'].toString()),
           infoRow('Site', fileContent['Site'].toString()),
           infoRow('Temperature', fileContent['Temp'].toString()),
           infoRow('Humidity', fileContent['Humidity'].toString()),
           infoRow('Ground Moisture', fileContent['GroundMoisture'].toString()),
           infoRow('Habitat Type', fileContent['HabitatType'].toString()),
           infoRow('Nymphs Collected', fileContent['NumNymphs'].toString()),
-          infoRow('BlackLegged Ticks Collected',
-              fileContent['NumBlacklegged'].toString())
+          infoRow('BlackLegged Ticks Collected', fileContent['NumBlacklegged'].toString())
         ],
       ),
     );
   }
 
-  infoRow(key, value) {
-    return Row(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Text(
-            '$key: $value',
-            style: TextStyle(fontSize: 20.0),
-          ),
-        ),
-      ],
-    );
-  }
-
-//  Widget dataField(String hText, variable) {
-//
-//    return Padding(
-//      padding: EdgeInsets.only(top: 10.0),
-//      child: TextField(
-//        decoration: kTextFieldDecoration.copyWith(hintText: hText),
-//        onChanged: (value) {
-//          setState(() {
-//            variable = value;
-//            print(site);
-//          });
-//        },
-//      ),
-//    );
-//  }
 
   Widget editDrag() {
     return Scaffold(
@@ -354,7 +370,8 @@ class _MetadataSectionState extends State<MetadataSection> {
                     'NumNymphs',
                     myController6.text,
                     'NumBlacklegged',
-                    myController7.text);
+                    myController7.text
+                );
 
                 editingData = false;
                 viewingData = true;
