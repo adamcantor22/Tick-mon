@@ -13,6 +13,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'file_uploader.dart';
 import 'package:geolocator/geolocator.dart';
+import 'helper.dart';
 
 class Maps extends StatefulWidget {
   const Maps({Key key}) : super(key: key);
@@ -79,13 +80,22 @@ class MapsState extends State<Maps> {
   }
 
   void startNewRoute() {
-    setState(() {
-      locator = new Geolocator();
-      wpts = new List<Wpt>();
-      polylinePoints = PolylinePoints();
-      trackingRoute = true;
-      updateLocation();
-    });
+    if (SuperListener.getUser() != null) {
+      setState(() {
+        locator = new Geolocator();
+        wpts = new List<Wpt>();
+        polylinePoints = PolylinePoints();
+        trackingRoute = true;
+        updateLocation();
+      });
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return Helper().message('Login to start new drag!', context);
+        },
+      );
+    }
   }
 
   void finishRoute() async {

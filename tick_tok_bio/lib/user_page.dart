@@ -1,23 +1,36 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tick_tok_bio/super_listener.dart';
 import 'gps_tracking.dart';
 import 'package:location/location.dart';
+import 'helper.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({Key key}) : super(key: key);
 
   @override
-  _UserPageState createState() => _UserPageState();
+  UserPageState createState() => UserPageState();
 }
 
-class _UserPageState extends State<UserPage> {
+class UserPageState extends State<UserPage> {
   final _formKey = GlobalKey<FormState>();
   final userController = TextEditingController();
   final pwdController = TextEditingController();
 
   bool creatingAccount = false;
-  String user = null;
+  String user;
+
+  String getUser() {
+    return user;
+  }
+
+  void initState() {
+    super.initState();
+    SuperListener.setPages(
+      uPage: this,
+    );
+  }
 
   Widget userPageBody() {
     if (user == null) {
@@ -235,7 +248,8 @@ class _UserPageState extends State<UserPage> {
                             showDialog(
                               context: context,
                               builder: (context) {
-                                return message('Username Unavailable');
+                                return Helper()
+                                    .message('Username Unavailable', context);
                               },
                             );
                           } else {
@@ -267,20 +281,6 @@ class _UserPageState extends State<UserPage> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget message(String m) {
-    return AlertDialog(
-      title: Text(m),
-      actions: <Widget>[
-        FlatButton(
-          child: Text('OK'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        )
-      ],
     );
   }
 
