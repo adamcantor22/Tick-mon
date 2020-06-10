@@ -175,7 +175,7 @@ class MapsState extends State<Maps> {
         builder: (context, snapshot) {
           if (initialPosition == null) {
             return Center(
-              child: Text('Loading Map...'),
+              child: CircularProgressIndicator(),
             );
           } else {
             return GoogleMap(
