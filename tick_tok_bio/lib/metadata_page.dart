@@ -29,20 +29,42 @@ class _MetadataSectionState extends State<MetadataSection> {
   bool fileExists = false;
   Map fileContent;
   String currentFile;
-  int dragNum = 0;
 
+  var myController0 = TextEditingController();
+  var myController1 = TextEditingController();
+  var myController2 = TextEditingController();
+  var myController3 = TextEditingController();
+  var myController4 = TextEditingController();
+  var myController5 = TextEditingController();
+  var myController6 = TextEditingController();
+  var myController7 = TextEditingController();
+
+  @override
+  void dispose() {
+    myController1.dispose();
+    myController2.dispose();
+    myController3.dispose();
+    myController4.dispose();
+    myController5.dispose();
+    myController6.dispose();
+    myController7.dispose();
+    super.dispose();
+  }
+//intital state is set to give the dir variable the proper directory which can be used throughout the page.
   @override
   void initState() {
     super.initState();
     getApplicationDocumentsDirectory().then((Directory directory) async {
 
-      print(dragNum);
-
+      print(fileName);
       dir = directory;
       jsonFile = new File(dir.path + "/" + fileName);
       fileExists = await jsonFile.exists();
       if(fileExists) {
         setState(() {
+          viewingDrags = true;
+          viewingData = false;
+          editingData = false;
           fileContent = json.decode(jsonFile.readAsStringSync());
         });
       }
@@ -58,6 +80,7 @@ class _MetadataSectionState extends State<MetadataSection> {
     file.writeAsStringSync(json.encode(content));
   }
 
+  //This function is used to write the data which has been entered into the textfields and put it into the JSON file.
   void writeToFile(
       String key,
       String value,
@@ -103,27 +126,35 @@ class _MetadataSectionState extends State<MetadataSection> {
     });
   }
 
-  var myController0 = TextEditingController();
-  var myController1 = TextEditingController();
-  var myController2 = TextEditingController();
-  var myController3 = TextEditingController();
-  var myController4 = TextEditingController();
-  var myController5 = TextEditingController();
-  var myController6 = TextEditingController();
-  var myController7 = TextEditingController();
-
-  @override
-  void dispose() {
-    myController1.dispose();
-    myController2.dispose();
-    myController3.dispose();
-    myController4.dispose();
-    myController5.dispose();
-    myController6.dispose();
-    myController7.dispose();
-    super.dispose();
+  //This function should either modity the current file to one which already exists or to create a new JSON file for a new drag.
+  void getFile(String fileNum) {
+    getApplicationDocumentsDirectory().then((Directory directory) async {
+      dir = directory;
+      fileName = "drag$fileNum.json";
+      print(fileName);
+      jsonFile = File(dir.path + "/" + "drag$fileNum.json");
+      fileExists = await jsonFile.exists();
+      if(fileExists) {
+        setState(() {
+          fileContent = json.decode(jsonFile.readAsStringSync());
+        });
+      }
+      else {
+        File file = File(dir.path + "/drag$fileNum.json");
+        file.createSync();
+        fileExists = true;
+       // Map contents = {'Name': ' ', 'Site': " ", 'Temperature': ' '};
+        Map contents = {};
+        file.writeAsStringSync(json.encode(contents));
+        setState(() {
+          fileContent = json.decode(file.readAsStringSync());
+        });
+      }
+    }
+    );
   }
 
+//This function is the actual home of the scaffold and controls which screens will be seen on the app.
   Widget pageBody() {
     if (viewingDrags == true) {
       return viewDrags();
@@ -134,6 +165,7 @@ class _MetadataSectionState extends State<MetadataSection> {
     }
   }
 
+  //This function allows for the creation of cards to represnt each drag's data.
   Widget dragMenu(String time, String dragNum) {
     return GestureDetector(
       onTap: () {
@@ -157,7 +189,7 @@ class _MetadataSectionState extends State<MetadataSection> {
   }
 
 
-
+//This function is used to populate the viewing data for a drag screen.
   infoRow(key, value) {
     return Row(
       children: <Widget>[
@@ -172,20 +204,7 @@ class _MetadataSectionState extends State<MetadataSection> {
     );
   }
 
-  String updateFile() {
-    setState(() {
-      currentFile = 'drag' + (dragNum + 1).toString() + '.json';
-      print(dragNum);
-    });
-    return currentFile;
-  }
 
-  void getFile(String fileNum) {
-    setState(() {
-      currentFile = 'drag' + fileNum + '.json';
-    });
-
-  }
 
 //  Widget dataField(String hText, variable) {
 //
@@ -203,6 +222,7 @@ class _MetadataSectionState extends State<MetadataSection> {
 //    );
 //  }
 
+  //This is the screen that appears if on clicks over to the metaData tag.
   Widget viewDrags() {
     return Scaffold(
         appBar: AppBar(
@@ -227,11 +247,15 @@ class _MetadataSectionState extends State<MetadataSection> {
         ),
         body: ListView(
           children: <Widget>[
-            dragMenu('2:30:50 6/4/20', '1')
+            dragMenu('2:30:50 6/4/20', '1'),
+            dragMenu('OPton2', '2'),
+            dragMenu('OPton2', '3'),
+            dragMenu('option 4', '4'),
+
           ],
         ));
   }
-
+//This function is used to display a the specific data for the specific drag.
   Widget viewData() {
     return Scaffold(
       appBar: AppBar(
@@ -260,6 +284,7 @@ class _MetadataSectionState extends State<MetadataSection> {
       body: Column(
         children: [
           //infoRow('Name', json.decode(File(dir.path + "/" + fileName).readAsStringSync())['Name'].toString()),
+          infoRow('Name', fileContent['Name'].toString()),
           infoRow('Site', fileContent['Site'].toString()),
           infoRow('Temperature', fileContent['Temp'].toString()),
           infoRow('Humidity', fileContent['Humidity'].toString()),
@@ -272,7 +297,7 @@ class _MetadataSectionState extends State<MetadataSection> {
     );
   }
 
-
+//This function is used to change the metadata for a specific drag which has been done.
   Widget editDrag() {
     return Scaffold(
       appBar: AppBar(
