@@ -23,11 +23,10 @@ class Maps extends StatefulWidget {
 }
 
 class MapsState extends State<Maps> {
-  static final initialPosition =
-      CameraPosition(target: (LatLng(10.42, 16.45)), zoom: 18.0);
+  Geolocator locator;
+  CameraPosition initialPosition;
   GoogleMapController _controller;
   Position currentPosition;
-  Geolocator locator;
   Set<Marker> _markers = Set<Marker>();
   Set<Polyline> _polylines = Set<Polyline>();
   List<LatLng> polylineCoordinates = [];
@@ -35,6 +34,19 @@ class MapsState extends State<Maps> {
   PolylinePoints polylinePoints;
   StreamSubscription<Position> positionSubscription;
   bool trackingRoute = false;
+
+  void initState() {
+    super.initState();
+  }
+
+  Future<CameraPosition> getInitialPos() async {
+    Position tmpP = await Geolocator().getCurrentPosition();
+    final cPos = CameraPosition(
+      target: LatLng(tmpP.latitude, tmpP.longitude),
+      zoom: 18.0,
+    );
+    return cPos;
+  }
 
   String currentTime() {
     String ret = '';
@@ -146,22 +158,39 @@ class MapsState extends State<Maps> {
     });
   }
 
+  Future<CameraPosition> googleMap() async {
+    final initPos = await getInitialPos();
+    initialPosition = initPos;
+    return initialPosition;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Map Overview'),
       ),
-      body: GoogleMap(
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
-        compassEnabled: true,
-        markers: _markers,
-        polylines: _polylines,
-        mapType: MapType.hybrid,
-        initialCameraPosition: initialPosition,
-        onMapCreated: (GoogleMapController controller) {
-          _controller = controller;
+      body: FutureBuilder<CameraPosition>(
+        future: googleMap(),
+        builder: (context, snapshot) {
+          if (initialPosition == null) {
+            return Center(
+              child: Text('Loading Map...'),
+            );
+          } else {
+            return GoogleMap(
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              compassEnabled: true,
+              markers: _markers,
+              polylines: _polylines,
+              mapType: MapType.hybrid,
+              initialCameraPosition: initialPosition,
+              onMapCreated: (GoogleMapController controller) {
+                _controller = controller;
+              },
+            );
+          }
         },
       ),
       floatingActionButton: FloatingActionButton(
