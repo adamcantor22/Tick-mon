@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:tick_tok_bio/decorationInfo.dart';
 import 'package:tick_tok_bio/user_page.dart';
-import 'map.dart';
 import 'database.dart';
 import 'gps_tracking.dart';
 import 'metadata_page.dart';
 import 'json_storage.dart';
+import 'super_listener.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,9 +30,6 @@ class HomePageState extends State<HomePage> {
     UserPage(
       key: PageStorageKey('UserPage'),
     ),
-    InputSection(
-      key: PageStorageKey('InputPage'),
-    ),
     Maps(
       key: PageStorageKey('GPSPage'),
     ),
@@ -43,12 +40,25 @@ class HomePageState extends State<HomePage> {
 
   final PageStorageBucket bucket = PageStorageBucket();
 
+  @override
+  void initState() {
+    super.initState();
+    setListeners();
+  }
+
+  void setListeners() {
+    SuperListener.setPages(
+      hPage: this,
+      mPage: pages[2],
+    );
+  }
+
   int _selectedIndex = 0;
 
   void pageNavigator(int i) {
+    setState(() {
       _selectedIndex = i;
-      _bottomNavBar(i);
-
+    });
   }
 
   BottomNavigationBarItem navBarItem(IconData icon, String title) {

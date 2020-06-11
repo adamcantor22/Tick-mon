@@ -1,3 +1,7 @@
+/*
+    Old page for testing the realtime database. Defunct as of 6/11.
+ */
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

@@ -1,3 +1,9 @@
+/*
+    The map page which controls tracking of the user's drag. The user is currently
+    able to start and stop a drag, and upon stopping the data will be sent to a
+    gpx file stored on both the local device and Cloud Storage.
+ */
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
@@ -6,12 +12,14 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:gpx/gpx.dart';
+import 'package:tick_tok_bio/super_listener.dart';
 import 'main.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'file_uploader.dart';
 import 'package:geolocator/geolocator.dart';
+import 'helper.dart';
 
 class Maps extends StatefulWidget {
   const Maps({Key key}) : super(key: key);
@@ -21,11 +29,10 @@ class Maps extends StatefulWidget {
 }
 
 class MapsState extends State<Maps> {
-  static final initialPosition =
-      CameraPosition(target: (LatLng(10.42, 16.45)), zoom: 18.0);
+  Geolocator locator;
+  CameraPosition initialPosition;
   GoogleMapController _controller;
   Position currentPosition;
-  Geolocator locator;
   Set<Marker> _markers = Set<Marker>();
   Set<Polyline> _polylines = Set<Polyline>();
   List<LatLng> polylineCoordinates = [];
@@ -34,6 +41,18 @@ class MapsState extends State<Maps> {
   StreamSubscription<Position> positionSubscription;
   bool trackingRoute = false;
 
+  //A method which allows the map to start at the user's location, rather than
+  // a random hardcoded spot
+  Future<CameraPosition> getInitialPos() async {
+    Position tmpP = await Geolocator().getCurrentPosition();
+    final cPos = CameraPosition(
+      target: LatLng(tmpP.latitude, tmpP.longitude),
+      zoom: 18.0,
+    );
+    return cPos;
+  }
+
+  //This is the filename for the gpx files, created to be the current datetime
   String currentTime() {
     String ret = '';
     DateTime now = DateTime.now();
@@ -45,6 +64,7 @@ class MapsState extends State<Maps> {
     return ret;
   }
 
+  //Write information to gpx file, record to local disk and send to FileUploader
   void storeRouteInformation(Trkseg seg) async {
     GpxWriter writer = new GpxWriter();
     Gpx g = new Gpx();
@@ -70,6 +90,7 @@ class MapsState extends State<Maps> {
     });
   }
 
+  //Write the content to the local disk
   Future<File> writeContent(String filename, String fileContent) async {
     final directory = await getApplicationDocumentsDirectory();
     final path = directory.path;
@@ -77,16 +98,27 @@ class MapsState extends State<Maps> {
     return file.writeAsString(fileContent);
   }
 
+  //Set up location tracking subscription and polyline creation
   void startNewRoute() {
-    setState(() {
-      locator = new Geolocator();
-      wpts = new List<Wpt>();
-      polylinePoints = PolylinePoints();
-      trackingRoute = true;
-      updateLocation();
-    });
+    if (SuperListener.getUser() != null) {
+      setState(() {
+        locator = new Geolocator();
+        wpts = new List<Wpt>();
+        polylinePoints = PolylinePoints();
+        trackingRoute = true;
+        updateLocation();
+      });
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return Helper().message('Login to start new drag!', context);
+        },
+      );
+    }
   }
 
+  //Cancel location tracking and sent the list of waypoints to be stored as gpx
   void finishRoute() async {
     Trkseg seg = new Trkseg(
       trkpts: wpts,
@@ -100,10 +132,13 @@ class MapsState extends State<Maps> {
     });
   }
 
+  //Tracking location subscription, update every point as it comes up
   void updateLocation() async {
     setState(() {
-      LocationOptions options =
-          LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 0);
+      LocationOptions options = LocationOptions(
+        accuracy: LocationAccuracy.best,
+        distanceFilter: 1, //Testing at distanceFilter: 1? was previously 0
+      );
       positionSubscription =
           locator.getPositionStream(options).listen((Position cPos) {
         currentPosition = cPos;
@@ -122,6 +157,7 @@ class MapsState extends State<Maps> {
     });
   }
 
+  //Adds new segments to the polyline. Can probably be optimized?
   void updatePolyline() async {
     setState(() {
       _polylines.add(
@@ -135,22 +171,40 @@ class MapsState extends State<Maps> {
     });
   }
 
+  //This is a bit spaghetti, but calls the function that gets the initialPosition
+  Future<CameraPosition> googleMap() async {
+    final initPos = await getInitialPos();
+    initialPosition = initPos;
+    return initialPosition;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Map Overview'),
       ),
-      body: GoogleMap(
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
-        compassEnabled: true,
-        markers: _markers,
-        polylines: _polylines,
-        mapType: MapType.hybrid,
-        initialCameraPosition: initialPosition,
-        onMapCreated: (GoogleMapController controller) {
-          _controller = controller;
+      body: FutureBuilder<CameraPosition>(
+        future: googleMap(),
+        builder: (context, snapshot) {
+          if (initialPosition == null) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            return GoogleMap(
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              compassEnabled: true,
+              markers: _markers,
+              polylines: _polylines,
+              mapType: MapType.hybrid,
+              initialCameraPosition: initialPosition,
+              onMapCreated: (GoogleMapController controller) {
+                _controller = controller;
+              },
+            );
+          }
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -162,7 +216,7 @@ class MapsState extends State<Maps> {
           } else {
             finishRoute();
             setState(() {
-              HomePageState().pageNavigator(3);
+              SuperListener.navigateTo(3);
             });
           }
         },
