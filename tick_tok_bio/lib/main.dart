@@ -53,7 +53,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
 
   void pageNavigator(int i) {
     setState(() {
@@ -86,7 +86,6 @@ class HomePageState extends State<HomePage> {
       type: BottomNavigationBarType.shifting,
       items: <BottomNavigationBarItem>[
         navBarItem(Icons.person, 'User'),
-        navBarItem(Icons.settings, 'Data'),
         navBarItem(Icons.satellite, 'Updated Map'),
         navBarItem(Icons.sd_storage, 'DragHistory'),
         //navBarItem(Icons.edit, 'EditData'),
