@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'super_listener.dart';
 
 //These are the three boolean values used to determine which screen we are currently on
 bool viewingDrags = true;
@@ -19,10 +20,10 @@ class MetadataSection extends StatefulWidget {
   const MetadataSection({Key key}) : super(key: key);
 
   @override
-  _MetadataSectionState createState() => _MetadataSectionState();
+  MetadataSectionState createState() => MetadataSectionState();
 }
 
-class _MetadataSectionState extends State<MetadataSection> {
+class MetadataSectionState extends State<MetadataSection> {
   File jsonFile;
   Directory dir;
   String fileName = 'drag1.json';
@@ -59,6 +60,7 @@ class _MetadataSectionState extends State<MetadataSection> {
   @override
   void initState() {
     super.initState();
+    SuperListener.setPages(dPage: this);
     drags();
     getApplicationDocumentsDirectory().then((Directory directory) async {
       print(fileName);
@@ -174,6 +176,7 @@ class _MetadataSectionState extends State<MetadataSection> {
 
   //This function allows for the creation of cards to represent each drag's data.
   Widget dragMenu(String time, int dragNum) {
+    getFile(dragNum);
     return FlatButton(
       onPressed: () {
         setState(() {
@@ -257,6 +260,17 @@ class _MetadataSectionState extends State<MetadataSection> {
     print(dragList.length);
   }
 
+  void createNewDrag() {
+    setState(() {
+      dragList.add(dragMenu(
+        'New Drag',
+        dragList.length + 1,
+      ));
+      viewingDrags = false;
+      editingData = true;
+    });
+  }
+
   //This is the screen that appears if on clicks over to the metaData tag.
   //It is populated with a bunch of clickable cards, each represents a drag which has been done.
   Widget viewDrags() {
@@ -271,17 +285,18 @@ class _MetadataSectionState extends State<MetadataSection> {
         centerTitle: true,
         actions: <Widget>[
           IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-                setState(() {
-                  dragList.add(dragMenu(
-                    'New Drag',
-                    dragList.length + 1,
-                  ));
-                  viewingDrags = false;
-                  editingData = true;
-                });
-              })
+            icon: Icon(Icons.add),
+            onPressed: () {
+              setState(() {
+                dragList.add(dragMenu(
+                  'New Drag',
+                  dragList.length + 1,
+                ));
+                viewingDrags = false;
+                editingData = true;
+              });
+            },
+          ),
         ],
       ),
       body: Padding(

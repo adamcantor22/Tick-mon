@@ -40,6 +40,8 @@ class HomePageState extends State<HomePage> {
 
   final PageStorageBucket bucket = PageStorageBucket();
 
+  int _selectedIndex = 2;
+
   @override
   void initState() {
     super.initState();
@@ -53,7 +55,14 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  int _selectedIndex = 2;
+  void checkEmpty() {
+    int empty = SuperListener.emptyRef();
+    if (empty >= 0) {
+      setState(() {
+        _selectedIndex = empty;
+      });
+    }
+  }
 
   void pageNavigator(int i) {
     setState(() {
@@ -96,6 +105,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    checkEmpty();
     return Scaffold(
       bottomNavigationBar: _bottomNavBar(_selectedIndex),
       body: PageStorage(

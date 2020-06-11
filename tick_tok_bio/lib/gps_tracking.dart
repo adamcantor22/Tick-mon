@@ -20,6 +20,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'file_uploader.dart';
 import 'package:geolocator/geolocator.dart';
 import 'helper.dart';
+import 'super_listener.dart';
 
 class Maps extends StatefulWidget {
   const Maps({Key key}) : super(key: key);
@@ -216,7 +217,7 @@ class MapsState extends State<Maps> {
           } else {
             finishRoute();
             setState(() {
-              SuperListener.navigateTo(3);
+              SuperListener.moveAndCreateDrag();
             });
           }
         },
