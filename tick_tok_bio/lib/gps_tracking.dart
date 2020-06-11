@@ -101,7 +101,8 @@ class MapsState extends State<Maps> {
 
   //Set up location tracking subscription and polyline creation
   void startNewRoute() {
-    if (SuperListener.getUser() != null) {
+    //FIXME: DO NOT LEAVE THE TRUE IN HERE, IT IS FOR TESTING CONVENIENCE
+    if (true || SuperListener.getUser() != null) {
       setState(() {
         locator = new Geolocator();
         wpts = new List<Wpt>();
@@ -131,6 +132,9 @@ class MapsState extends State<Maps> {
       positionSubscription.cancel();
       polylineCoordinates.clear();
     });
+
+    print('***MAPPAGE MAKING NEW DRAG***');
+    SuperListener.moveAndCreateDrag();
   }
 
   //Tracking location subscription, update every point as it comes up
@@ -216,9 +220,6 @@ class MapsState extends State<Maps> {
             startNewRoute();
           } else {
             finishRoute();
-            setState(() {
-              SuperListener.moveAndCreateDrag();
-            });
           }
         },
       ),

@@ -262,6 +262,7 @@ class MetadataSectionState extends State<MetadataSection> {
 
   void createNewDrag() {
     setState(() {
+      print('***DATAPAGE MAKING NEW DRAG***');
       dragList.add(dragMenu(
         'New Drag',
         dragList.length + 1,

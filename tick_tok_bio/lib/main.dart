@@ -6,6 +6,7 @@ import 'gps_tracking.dart';
 import 'metadata_page.dart';
 import 'json_storage.dart';
 import 'super_listener.dart';
+import 'dart:async';
 
 void main() {
   runApp(MyApp());
@@ -41,11 +42,14 @@ class HomePageState extends State<HomePage> {
   final PageStorageBucket bucket = PageStorageBucket();
 
   int _selectedIndex = 2;
+  bool _loading = true;
+  Timer _loadTimer;
 
   @override
   void initState() {
     super.initState();
     setListeners();
+    startLoadTimer();
   }
 
   void setListeners() {
@@ -55,11 +59,27 @@ class HomePageState extends State<HomePage> {
     );
   }
 
+  void startLoadTimer() {
+    _loadTimer = Timer.periodic(
+      Duration(seconds: 2),
+      (timer) {
+        if (_loading)
+          build(context);
+        else
+          timer.cancel();
+      },
+    );
+  }
+
   void checkEmpty() {
     int empty = SuperListener.emptyRef();
     if (empty >= 0) {
       setState(() {
         _selectedIndex = empty;
+      });
+    } else {
+      setState(() {
+        _loading = false;
       });
     }
   }
@@ -97,15 +117,40 @@ class HomePageState extends State<HomePage> {
         navBarItem(Icons.person, 'User'),
         navBarItem(Icons.satellite, 'Updated Map'),
         navBarItem(Icons.sd_storage, 'DragHistory'),
-        //navBarItem(Icons.edit, 'EditData'),
-        //navBarItem(Icons.remove_red_eye, 'DataView'),
       ],
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    checkEmpty();
+  Widget loadingScreen() {
+    return Center(
+      child: Container(
+        width: 700.0,
+        height: 700.0,
+        color: Colors.white,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              CircularProgressIndicator(),
+              SizedBox(
+                height: 50.0,
+              ),
+              Text(
+                'Loading App...',
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 23.0,
+                  fontStyle: FontStyle.normal,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget mainBody() {
     return Scaffold(
       bottomNavigationBar: _bottomNavBar(_selectedIndex),
       body: PageStorage(
@@ -113,5 +158,19 @@ class HomePageState extends State<HomePage> {
         bucket: bucket,
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      checkEmpty();
+      return Stack(
+        children: <Widget>[
+          mainBody(),
+          loadingScreen(),
+        ],
+      );
+    }
+    return mainBody();
   }
 }

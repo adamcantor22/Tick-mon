@@ -22,22 +22,10 @@ class SuperListener {
     UserPageState uPage,
     MetadataSectionState dPage,
   }) {
-    print('setting');
     if (hPage != null) homePage = hPage;
     if (mPage != null) mapPage = mPage;
     if (uPage != null) userPage = uPage;
     if (dPage != null) dataPage = dPage;
-    print('HomePage: ' +
-        homePage.toString() +
-        '\n' +
-        'MapPage: ' +
-        mapPage.toString() +
-        '\n' +
-        'UserPage: ' +
-        userPage.toString() +
-        '\n' +
-        'DataPage: ' +
-        dataPage.toString());
   }
 
   //Navigates to the page as specified in the home index
@@ -51,6 +39,7 @@ class SuperListener {
   }
 
   static void moveAndCreateDrag() {
+    print('***SUPERLISTENER MAKING NEW DRAG***');
     navigateTo(2);
     dataPage.createNewDrag();
   }
