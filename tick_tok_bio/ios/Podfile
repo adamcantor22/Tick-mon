@@ -4,6 +4,11 @@ platform :ios, '8.0'
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
+pre_install do |installer|
+  # workaround for https://github.com/CocoaPods/CocoaPods/issues/3289
+  Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
+end
+
 project 'Runner', {
   'Debug' => :debug,
   'Profile' => :release,
@@ -33,7 +38,7 @@ def parse_KV_file(file, separator='=')
 end
 
 target 'Runner' do
-  use_frameworks!
+  #use_frameworks!
   use_modular_headers!
 
   # Flutter Pod
