@@ -1,3 +1,10 @@
+/*
+    This class defines the user page of the app. Upon startup, it shows the
+    login page. If the user successfully logs in, it will display the user's
+    personal page. The user can also choose to create an account, and upon
+    having done so the user will also be sent to their new personal page.
+ */
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,6 +32,7 @@ class UserPageState extends State<UserPage> {
     return user;
   }
 
+  //Sets up this page to be controllable through SuperListener
   void initState() {
     super.initState();
     SuperListener.setPages(
@@ -32,6 +40,7 @@ class UserPageState extends State<UserPage> {
     );
   }
 
+  //Main body controller, uses bools to determine what page should be shown
   Widget userPageBody() {
     if (user == null) {
       if (creatingAccount) {
@@ -42,6 +51,7 @@ class UserPageState extends State<UserPage> {
     return userScreen();
   }
 
+  //Startup page. Scrollable, includes login and create account buttons
   Widget loginPage() {
     return Container(
       color: Colors.grey[200],
@@ -142,16 +152,19 @@ class UserPageState extends State<UserPage> {
     );
   }
 
+  //Helper function to trim input
   void inputTrim() {
     userController.text = userController.text.trim();
     pwdController.text = pwdController.text.trim();
   }
 
+  //Helper function to clear input
   void inputClear() {
     userController.clear();
     pwdController.clear();
   }
 
+  //Returns a future, populates true if the login is valid, else false
   Future<bool> validateLogin(String name, String pwd) {
     final myFuture = Future<bool>(() {
       Future<QuerySnapshot> q =
@@ -170,6 +183,7 @@ class UserPageState extends State<UserPage> {
     return myFuture;
   }
 
+  //Returns the create account page. very similar to login, with different functionality
   Widget createAccountPage() {
     return Container(
       color: Colors.grey[200],
@@ -284,6 +298,7 @@ class UserPageState extends State<UserPage> {
     );
   }
 
+  //Similar to validateLogin(), returns a future that populates true if the username is available
   Future<bool> usernameAvailable(String name) {
     final myFuture = Future<bool>(() {
       Future<QuerySnapshot> q =
@@ -300,6 +315,7 @@ class UserPageState extends State<UserPage> {
     return myFuture;
   }
 
+  //Returns the user's (currently bare bones) personal page
   Widget userScreen() {
     return Center(
       child: Padding(

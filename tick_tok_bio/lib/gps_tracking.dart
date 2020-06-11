@@ -1,3 +1,9 @@
+/*
+    The map page which controls tracking of the user's drag. The user is currently
+    able to start and stop a drag, and upon stopping the data will be sent to a
+    gpx file stored on both the local device and Cloud Storage.
+ */
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
@@ -35,10 +41,8 @@ class MapsState extends State<Maps> {
   StreamSubscription<Position> positionSubscription;
   bool trackingRoute = false;
 
-  void initState() {
-    super.initState();
-  }
-
+  //A method which allows the map to start at the user's location, rather than
+  // a random hardcoded spot
   Future<CameraPosition> getInitialPos() async {
     Position tmpP = await Geolocator().getCurrentPosition();
     final cPos = CameraPosition(
@@ -48,6 +52,7 @@ class MapsState extends State<Maps> {
     return cPos;
   }
 
+  //This is the filename for the gpx files, created to be the current datetime
   String currentTime() {
     String ret = '';
     DateTime now = DateTime.now();
@@ -59,6 +64,7 @@ class MapsState extends State<Maps> {
     return ret;
   }
 
+  //Write information to gpx file, record to local disk and send to FileUploader
   void storeRouteInformation(Trkseg seg) async {
     GpxWriter writer = new GpxWriter();
     Gpx g = new Gpx();
@@ -84,6 +90,7 @@ class MapsState extends State<Maps> {
     });
   }
 
+  //Write the content to the local disk
   Future<File> writeContent(String filename, String fileContent) async {
     final directory = await getApplicationDocumentsDirectory();
     final path = directory.path;
@@ -91,6 +98,7 @@ class MapsState extends State<Maps> {
     return file.writeAsString(fileContent);
   }
 
+  //Set up location tracking subscription and polyline creation
   void startNewRoute() {
     if (SuperListener.getUser() != null) {
       setState(() {
@@ -110,6 +118,7 @@ class MapsState extends State<Maps> {
     }
   }
 
+  //Cancel location tracking and sent the list of waypoints to be stored as gpx
   void finishRoute() async {
     Trkseg seg = new Trkseg(
       trkpts: wpts,
@@ -123,10 +132,13 @@ class MapsState extends State<Maps> {
     });
   }
 
+  //Tracking location subscription, update every point as it comes up
   void updateLocation() async {
     setState(() {
-      LocationOptions options =
-          LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 0);
+      LocationOptions options = LocationOptions(
+        accuracy: LocationAccuracy.best,
+        distanceFilter: 1, //Testing at distanceFilter: 1? was previously 0
+      );
       positionSubscription =
           locator.getPositionStream(options).listen((Position cPos) {
         currentPosition = cPos;
@@ -145,6 +157,7 @@ class MapsState extends State<Maps> {
     });
   }
 
+  //Adds new segments to the polyline. Can probably be optimized?
   void updatePolyline() async {
     setState(() {
       _polylines.add(
@@ -158,6 +171,7 @@ class MapsState extends State<Maps> {
     });
   }
 
+  //This is a bit spaghetti, but calls the function that gets the initialPosition
   Future<CameraPosition> googleMap() async {
     final initPos = await getInitialPos();
     initialPosition = initPos;

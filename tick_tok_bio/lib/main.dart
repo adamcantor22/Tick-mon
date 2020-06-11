@@ -30,9 +30,6 @@ class HomePageState extends State<HomePage> {
     UserPage(
       key: PageStorageKey('UserPage'),
     ),
-    InputSection(
-      key: PageStorageKey('InputPage'),
-    ),
     Maps(
       key: PageStorageKey('GPSPage'),
     ),
@@ -56,7 +53,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  int _selectedIndex = 2;
+  int _selectedIndex = 0;
 
   void pageNavigator(int i) {
     setState(() {
