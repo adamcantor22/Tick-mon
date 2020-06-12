@@ -95,18 +95,14 @@ class UserPageState extends State<UserPage> {
                       RaisedButton(
                         color: Colors.blue,
                         onPressed: () async {
-                          print('***PRESSED***');
                           inputTrim();
                           validateLogin(userController.text, pwdController.text)
                               .then((response) {
                             if (response) {
-                              print('***LOGIN SUCCESS***');
                               setState(() {
                                 user = userController.text.trim();
                               });
-                            } else {
-                              print('***LOGIN FAILURE***');
-                            }
+                            } else {}
                           });
                         },
                         child: Text(
@@ -256,7 +252,6 @@ class UserPageState extends State<UserPage> {
                       inputTrim();
                       if (_formKey.currentState.validate()) {
                         usernameAvailable(userController.text).then((response) {
-                          print(response);
                           if (!response) {
                             inputClear();
                             showDialog(
