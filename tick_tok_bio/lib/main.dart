@@ -7,6 +7,8 @@ import 'metadata_page.dart';
 import 'json_storage.dart';
 import 'super_listener.dart';
 
+
+
 void main() {
   runApp(MyApp());
 }
@@ -25,18 +27,23 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage> {
-  final List<Widget> pages = [
-    UserPage(
-      key: PageStorageKey('UserPage'),
-    ),
-    Maps(
-      key: PageStorageKey('GPSPage'),
-    ),
-    MetadataSection(
-      key: PageStorageKey('MetadataPage'),
-    ),
-  ];
+class HomePageState extends State<HomePage>{
+  int pageIndex = 0;
+  //static int _widgetIndex;
+
+
+
+//  final List<Widget> pages = [
+//    UserPage(
+//      key: PageStorageKey('UserPage'),
+//    ),
+//    Maps(
+//      key: PageStorageKey('GPSPage'),
+//    ),
+//    MetadataSection(
+//      key: PageStorageKey('MetadataPage'),
+//    ),
+//  ];
 
   final PageStorageBucket bucket = PageStorageBucket();
 
@@ -49,15 +56,14 @@ class HomePageState extends State<HomePage> {
   void setListeners() {
     SuperListener.setPages(
       hPage: this,
-      mPage: pages[2],
+      //mPage: pages,
     );
   }
 
-  int _selectedIndex = 0;
 
-  void pageNavigator(int i) {
+  void pageNavigator(int num) {
     setState(() {
-      _selectedIndex = i;
+      pageIndex = num;
     });
   }
 
@@ -78,19 +84,16 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _bottomNavBar(int selectedIndex) {
+  Widget _bottomNavBar() {
     return BottomNavigationBar(
-      onTap: (int index) => setState(() => _selectedIndex = index),
-      currentIndex: selectedIndex,
+      onTap: (int index) => setState(() => pageIndex = index),
+      currentIndex: pageIndex,
       backgroundColor: Colors.blue,
       type: BottomNavigationBarType.shifting,
       items: <BottomNavigationBarItem>[
         navBarItem(Icons.person, 'User'),
-        navBarItem(Icons.settings, 'Data'),
         navBarItem(Icons.satellite, 'Updated Map'),
         navBarItem(Icons.sd_storage, 'DragHistory'),
-        //navBarItem(Icons.edit, 'EditData'),
-        //navBarItem(Icons.remove_red_eye, 'DataView'),
       ],
     );
   }
@@ -98,11 +101,22 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: _bottomNavBar(_selectedIndex),
-      body: PageStorage(
-        child: pages[_selectedIndex],
-        bucket: bucket,
-      ),
+      bottomNavigationBar: _bottomNavBar(),
+      body:
+        Column(
+          children: <Widget>[
+            Expanded(
+                child: IndexedStack(
+                  index: pageIndex,
+                  children: <Widget>[
+                    UserPage(),
+                    Maps(),
+                    MetadataSection(),
+                  ],
+                ),
+            ),
+          ],
+        ),
     );
   }
 }
