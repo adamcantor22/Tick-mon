@@ -61,7 +61,7 @@ class HomePageState extends State<HomePage> {
 
   void startLoadTimer() {
     _loadTimer = Timer.periodic(
-      Duration(seconds: 2),
+      Duration(seconds: 3),
       (timer) {
         if (_loading)
           build(context);

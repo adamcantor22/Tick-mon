@@ -191,13 +191,19 @@ class MetadataSectionState extends State<MetadataSection> {
           padding: EdgeInsets.symmetric(vertical: 4.0),
           child: Card(
             elevation: 6.0,
-            child: Center(
-              child: Text(
-                time,
-                style: TextStyle(
-                  fontSize: 22.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Text(
+                  time,
+                  style: TextStyle(
+                    fontSize: 22.0,
+                  ),
                 ),
-              ),
+                Icon(
+                  Icons.file_upload,
+                ),
+              ],
             ),
           ),
         ),
