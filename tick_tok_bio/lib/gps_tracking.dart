@@ -22,7 +22,7 @@ import 'package:geolocator/geolocator.dart';
 import 'helper.dart';
 import 'super_listener.dart';
 
-class Maps extends StatefulWidget{
+class Maps extends StatefulWidget {
   @override
   bool get wantKeepAlive => true;
   const Maps({Key key}) : super(key: key);
@@ -31,7 +31,7 @@ class Maps extends StatefulWidget{
   MapsState createState() => MapsState();
 }
 
-class MapsState extends State<Maps>{
+class MapsState extends State<Maps> {
   Geolocator locator;
   CameraPosition initialPosition;
   GoogleMapController _controller;
@@ -44,7 +44,10 @@ class MapsState extends State<Maps>{
   StreamSubscription<Position> positionSubscription;
   bool trackingRoute = false;
 
-
+  void initState() {
+    super.initState();
+    SuperListener.setPages(mPage: this);
+  }
 
   //A method which allows the map to start at the user's location, rather than
   // a random hardcoded spot
@@ -224,8 +227,7 @@ class MapsState extends State<Maps>{
             startNewRoute();
           } else {
             finishRoute();
-            setState(() {
-            });
+            setState(() {});
           }
         },
       ),

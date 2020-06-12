@@ -23,7 +23,8 @@ class MetadataSection extends StatefulWidget {
   MetadataSectionState createState() => MetadataSectionState();
 }
 
-class _MetadataSectionState extends State<MetadataSection> with AutomaticKeepAliveClientMixin<MetadataSection>{
+class MetadataSectionState extends State<MetadataSection>
+    with AutomaticKeepAliveClientMixin<MetadataSection> {
   File jsonFile;
   Directory dir;
   String fileName = 'drag1.json';
@@ -193,19 +194,33 @@ class _MetadataSectionState extends State<MetadataSection> with AutomaticKeepAli
           padding: EdgeInsets.symmetric(vertical: 4.0),
           child: Card(
             elevation: 6.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Text(
-                  time,
-                  style: TextStyle(
-                    fontSize: 22.0,
+            child: Padding(
+              padding: EdgeInsets.only(left: 20.0),
+              child: Row(
+                children: <Widget>[
+                  Flexible(
+                    fit: FlexFit.loose,
+                    flex: 5,
+                    child: Center(
+                      child: Text(
+                        time,
+                        style: TextStyle(
+                          fontSize: 22.0,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                Icon(
-                  Icons.file_upload,
-                ),
-              ],
+                  Flexible(
+                    fit: FlexFit.loose,
+                    flex: 1,
+                    child: Center(
+                      child: Icon(
+                        Icons.file_upload,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

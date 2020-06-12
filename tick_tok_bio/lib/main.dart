@@ -8,8 +8,6 @@ import 'json_storage.dart';
 import 'super_listener.dart';
 import 'dart:async';
 
-
-
 void main() {
   runApp(MyApp());
 }
@@ -28,11 +26,9 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage>{
-  int pageIndex = 0;
+class HomePageState extends State<HomePage> {
+  int pageIndex = 2;
   //static int _widgetIndex;
-
-
 
 //  final List<Widget> pages = [
 //    UserPage(
@@ -62,7 +58,6 @@ class HomePageState extends State<HomePage>{
   void setListeners() {
     SuperListener.setPages(
       hPage: this,
-      //mPage: pages,
     );
   }
 
@@ -70,22 +65,22 @@ class HomePageState extends State<HomePage>{
     _loadTimer = Timer.periodic(
       Duration(seconds: 3),
       (timer) {
-        if (_loading)
-          build(context);
-        else
-          timer.cancel();
+        build(context);
+        if (!_loading) timer.cancel();
       },
     );
   }
 
   void checkEmpty() {
     int empty = SuperListener.emptyRef();
+    print('EMPTY: $empty');
     if (empty >= 0) {
       setState(() {
         _selectedIndex = empty;
       });
     } else {
       setState(() {
+        print('STOP LOADING');
         _loading = false;
       });
     }
@@ -93,6 +88,7 @@ class HomePageState extends State<HomePage>{
 
   void pageNavigator(int num) {
     setState(() {
+      print('WE SHOULD BE CHANGIONG PAGES');
       pageIndex = num;
     });
   }
@@ -160,35 +156,35 @@ class HomePageState extends State<HomePage>{
   Widget mainBody() {
     return Scaffold(
       bottomNavigationBar: _bottomNavBar(),
-      body:
-        Column(
-          children: <Widget>[
-            Expanded(
-                child: IndexedStack(
-                  index: pageIndex,
-                  children: <Widget>[
-                    UserPage(),
-                    Maps(),
-                    MetadataSection(),
-                  ],
-                ),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: IndexedStack(
+              index: pageIndex,
+              children: <Widget>[
+                UserPage(),
+                Maps(),
+                MetadataSection(),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      checkEmpty();
-      return Stack(
-        children: <Widget>[
-          mainBody(),
-          loadingScreen(),
-        ],
-      );
-    }
+//    if (_loading) {
+//      checkEmpty();
+//      return Stack(
+//        children: <Widget>[
+//          mainBody(),
+//          loadingScreen(),
+//        ],
+//      );
+//    }
+//    print('NO LONGER SHOWING LOADING SCREEN');
     return mainBody();
   }
 }
