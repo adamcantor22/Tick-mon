@@ -30,7 +30,7 @@ class SuperListener {
 
   //Navigates to the page as specified in the home index
   static void navigateTo(int page) {
-    homePage.pageNavigator(page);
+    //homePage.pageNavigator(page);
   }
 
   //Returns the active user, null if null

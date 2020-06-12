@@ -8,6 +8,8 @@ import 'json_storage.dart';
 import 'super_listener.dart';
 import 'dart:async';
 
+
+
 void main() {
   runApp(MyApp());
 }
@@ -26,18 +28,23 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage> {
-  final List<Widget> pages = [
-    UserPage(
-      key: PageStorageKey('UserPage'),
-    ),
-    Maps(
-      key: PageStorageKey('GPSPage'),
-    ),
-    MetadataSection(
-      key: PageStorageKey('MetadataPage'),
-    ),
-  ];
+class HomePageState extends State<HomePage>{
+  int pageIndex = 0;
+  //static int _widgetIndex;
+
+
+
+//  final List<Widget> pages = [
+//    UserPage(
+//      key: PageStorageKey('UserPage'),
+//    ),
+//    Maps(
+//      key: PageStorageKey('GPSPage'),
+//    ),
+//    MetadataSection(
+//      key: PageStorageKey('MetadataPage'),
+//    ),
+//  ];
 
   final PageStorageBucket bucket = PageStorageBucket();
 
@@ -55,7 +62,7 @@ class HomePageState extends State<HomePage> {
   void setListeners() {
     SuperListener.setPages(
       hPage: this,
-      mPage: pages[2],
+      //mPage: pages,
     );
   }
 
@@ -84,9 +91,9 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  void pageNavigator(int i) {
+  void pageNavigator(int num) {
     setState(() {
-      _selectedIndex = i;
+      pageIndex = num;
     });
   }
 
@@ -107,10 +114,10 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _bottomNavBar(int selectedIndex) {
+  Widget _bottomNavBar() {
     return BottomNavigationBar(
-      onTap: (int index) => setState(() => _selectedIndex = index),
-      currentIndex: selectedIndex,
+      onTap: (int index) => setState(() => pageIndex = index),
+      currentIndex: pageIndex,
       backgroundColor: Colors.blue,
       type: BottomNavigationBarType.shifting,
       items: <BottomNavigationBarItem>[
@@ -152,11 +159,22 @@ class HomePageState extends State<HomePage> {
 
   Widget mainBody() {
     return Scaffold(
-      bottomNavigationBar: _bottomNavBar(_selectedIndex),
-      body: PageStorage(
-        child: pages[_selectedIndex],
-        bucket: bucket,
-      ),
+      bottomNavigationBar: _bottomNavBar(),
+      body:
+        Column(
+          children: <Widget>[
+            Expanded(
+                child: IndexedStack(
+                  index: pageIndex,
+                  children: <Widget>[
+                    UserPage(),
+                    Maps(),
+                    MetadataSection(),
+                  ],
+                ),
+            ),
+          ],
+        ),
     );
   }
 
