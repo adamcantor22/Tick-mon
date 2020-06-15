@@ -38,10 +38,10 @@ class SuperListener {
     return userPage.getUser();
   }
 
-  static void moveAndCreateDrag() {
+  static void moveAndCreateDrag(String filename) {
     print('***SUPERLISTENER MAKING NEW DRAG***');
     navigateTo(2);
-    dataPage.createNewDrag();
+    dataPage.createNewDrag(filename);
   }
 
   static int emptyRef() {
