@@ -20,8 +20,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'file_uploader.dart';
 import 'package:geolocator/geolocator.dart';
 import 'helper.dart';
+import 'super_listener.dart';
+import 'package:date_format/date_format.dart';
 
 class Maps extends StatefulWidget {
+  bool get wantKeepAlive => true;
   const Maps({Key key}) : super(key: key);
 
   @override
@@ -40,6 +43,13 @@ class MapsState extends State<Maps> {
   PolylinePoints polylinePoints;
   StreamSubscription<Position> positionSubscription;
   bool trackingRoute = false;
+  double currentVal = 0;
+  String latestFilename;
+
+  void initState() {
+    super.initState();
+    SuperListener.setPages(mPage: this);
+  }
 
   //A method which allows the map to start at the user's location, rather than
   // a random hardcoded spot
@@ -54,13 +64,14 @@ class MapsState extends State<Maps> {
 
   //This is the filename for the gpx files, created to be the current datetime
   String currentTime() {
-    String ret = '';
     DateTime now = DateTime.now();
-    ret += now.year.toString() + '-';
-    ret += now.month.toString() + '-';
-    ret += now.day.toString() + '_';
-    ret += now.hour.toString() + ':';
-    ret += now.minute.toString();
+    // NOTE '꞉' is not a colon, as colons cannot appear in all filenames.
+    //  it is a similar-looking unicode character 'Modified Letter Colon' U+A789
+    String ret = formatDate(
+        now, [yyyy, '-', mm, '-', dd, '_', hh, '꞉', nn, '꞉', ss, '꞉', SSS]);
+    latestFilename = ret;
+    //intentionally in this order
+    ret += '.gpx';
     return ret;
   }
 
@@ -79,7 +90,7 @@ class MapsState extends State<Maps> {
     g.trks.add(trk);
     String gpxStr = writer.asString(g);
     print(gpxStr);
-    String filename = currentTime() + '.gpx';
+    String filename = currentTime();
     final fileRef = writeContent(filename, gpxStr);
     fileRef.then((file) {
       print(file.path);
@@ -93,14 +104,15 @@ class MapsState extends State<Maps> {
   //Write the content to the local disk
   Future<File> writeContent(String filename, String fileContent) async {
     final directory = await getApplicationDocumentsDirectory();
-    final path = directory.path;
-    final file = File('$path/gpx$filename.gpx');
+    final path = directory.path + '/gpx';
+    final file = File('$path/$filename');
     return file.writeAsString(fileContent);
   }
 
   //Set up location tracking subscription and polyline creation
   void startNewRoute() {
-    if (SuperListener.getUser() != null) {
+    //FIXME: DO NOT LEAVE THE TRUE IN HERE, IT IS FOR TESTING CONVENIENCE
+    if (true || SuperListener.getUser() != null) {
       setState(() {
         locator = new Geolocator();
         wpts = new List<Wpt>();
@@ -130,6 +142,9 @@ class MapsState extends State<Maps> {
       positionSubscription.cancel();
       polylineCoordinates.clear();
     });
+
+    print('***MAPPAGE MAKING NEW DRAG***');
+    SuperListener.moveAndCreateDrag(latestFilename);
   }
 
   //Tracking location subscription, update every point as it comes up
@@ -178,36 +193,9 @@ class MapsState extends State<Maps> {
     return initialPosition;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Map Overview'),
-      ),
-      body: FutureBuilder<CameraPosition>(
-        future: googleMap(),
-        builder: (context, snapshot) {
-          if (initialPosition == null) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else {
-            return GoogleMap(
-              myLocationEnabled: true,
-              myLocationButtonEnabled: true,
-              compassEnabled: true,
-              markers: _markers,
-              polylines: _polylines,
-              mapType: MapType.hybrid,
-              initialCameraPosition: initialPosition,
-              onMapCreated: (GoogleMapController controller) {
-                _controller = controller;
-              },
-            );
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
+  Widget startStop() {
+    if (trackingRoute == false) {
+      return FloatingActionButton(
         child: trackingRoute ? Icon(Icons.stop) : Icon(Icons.play_arrow),
         backgroundColor: Colors.blueAccent,
         onPressed: () {
@@ -215,13 +203,86 @@ class MapsState extends State<Maps> {
             startNewRoute();
           } else {
             finishRoute();
-            setState(() {
-              SuperListener.navigateTo(3);
-            });
+            setState(() {});
           }
         },
+      );
+    }
+    else if (trackingRoute == true) {
+      return SliderTheme(
+        data: SliderThemeData(
+          trackShape: RoundedRectSliderTrackShape(),
+          trackHeight: 50.0,
+        ),
+        child: new Slider(
+          value: currentVal,
+          onChanged: (double val) {
+            if (val == 10.0) {
+              setState(() {
+                currentVal = 0;
+              });
+              print('DONE');
+              finishRoute();
+            }
+            else {
+              setState(() {
+                currentVal = val;
+              });
+            }
+          },
+          min: 0.0,
+          max: 10.0,
+        ),
+      );
+    }
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Map Overview'),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      body: Column(
+        children: [FutureBuilder<CameraPosition>(
+          future: googleMap(),
+          builder: (context, snapshot) {
+            if (initialPosition == null) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return Expanded(
+                flex: 6,
+                child: SizedBox(
+                  //width: MediaQuery.of(context).size.width,
+                  //height: MediaQuery.of(context).size.height,
+                  child: GoogleMap(
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                    compassEnabled: true,
+                    markers: _markers,
+                    polylines: _polylines,
+                    mapType: MapType.hybrid,
+                    initialCameraPosition: initialPosition,
+                    onMapCreated: (GoogleMapController controller) {
+                      _controller = controller;
+                    },
+                  ),
+                ),
+              );
+            }
+          },
+        ),
+          Expanded(
+            flex: 1,
+          child: Row(
+            children: <Widget>[
+
+            ],
+    ),
+      ),
+    ],
+      )
     );
   }
 }

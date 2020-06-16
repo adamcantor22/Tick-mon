@@ -6,6 +6,7 @@ import 'gps_tracking.dart';
 import 'metadata_page.dart';
 import 'json_storage.dart';
 import 'super_listener.dart';
+import 'dart:async';
 
 void main() {
   runApp(MyApp());
@@ -25,39 +26,59 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage> {
-  final List<Widget> pages = [
-    UserPage(
-      key: PageStorageKey('UserPage'),
-    ),
-    Maps(
-      key: PageStorageKey('GPSPage'),
-    ),
-    MetadataSection(
-      key: PageStorageKey('MetadataPage'),
-    ),
-  ];
+class HomePageState extends State<HomePage>{
+  MetadataSection metadataSection = MetadataSection();
+  Maps maps = Maps();
+  UserPage userPage = UserPage();
 
-  final PageStorageBucket bucket = PageStorageBucket();
+  int pageIndex = 0;
+
+  int _selectedIndex = 0;
+  bool _loading = true;
+  Timer _loadTimer;
 
   @override
   void initState() {
     super.initState();
     setListeners();
+    startLoadTimer();
   }
 
   void setListeners() {
     SuperListener.setPages(
       hPage: this,
-      mPage: pages[2],
     );
   }
 
-  int _selectedIndex = 0;
+  void startLoadTimer() {
+    _loadTimer = Timer.periodic(
+      Duration(seconds: 3),
+      (timer) {
+        build(context);
+        if (!_loading) timer.cancel();
+      },
+    );
+  }
 
-  void pageNavigator(int i) {
+  void checkEmpty() {
+    int empty = SuperListener.emptyRef();
+    print('EMPTY: $empty');
+    if (empty >= 0) {
+      setState(() {
+        _selectedIndex = empty;
+      });
+    } else {
+      setState(() {
+        print('STOP LOADING');
+        _loading = false;
+      });
+    }
+  }
+
+  void pageNavigator(int num) {
     setState(() {
-      _selectedIndex = i;
+      print('WE SHOULD BE CHANGIONG PAGES');
+      pageIndex = num;
     });
   }
 
@@ -78,31 +99,83 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _bottomNavBar(int selectedIndex) {
+  Widget _bottomNavBar() {
     return BottomNavigationBar(
-      onTap: (int index) => setState(() => _selectedIndex = index),
-      currentIndex: selectedIndex,
+      onTap: (int index) => setState(() => pageIndex = index),
+      currentIndex: pageIndex,
       backgroundColor: Colors.blue,
       type: BottomNavigationBarType.shifting,
       items: <BottomNavigationBarItem>[
         navBarItem(Icons.person, 'User'),
-        navBarItem(Icons.settings, 'Data'),
         navBarItem(Icons.satellite, 'Updated Map'),
         navBarItem(Icons.sd_storage, 'DragHistory'),
-        //navBarItem(Icons.edit, 'EditData'),
-        //navBarItem(Icons.remove_red_eye, 'DataView'),
       ],
+    );
+  }
+
+  Widget loadingScreen() {
+    return Center(
+      child: Container(
+        width: 700.0,
+        height: 700.0,
+        color: Colors.white,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              CircularProgressIndicator(),
+              SizedBox(
+                height: 50.0,
+              ),
+              Text(
+                'Loading App...',
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 23.0,
+                  fontStyle: FontStyle.normal,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget mainBody() {
+    return Scaffold(
+      bottomNavigationBar: _bottomNavBar(),
+      body:
+        Column(
+          children: <Widget>[
+            Expanded(
+                child: IndexedStack(
+                  index: pageIndex,
+                  children: <Widget>[
+                    userPage,
+                    maps,
+                    metadataSection,
+                  ],
+                ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: _bottomNavBar(_selectedIndex),
-      body: PageStorage(
-        child: pages[_selectedIndex],
-        bucket: bucket,
-      ),
-    );
+//    if (_loading) {
+//      checkEmpty();
+//      return Stack(
+//        children: <Widget>[
+//          mainBody(),
+//          loadingScreen(),
+//        ],
+//      );
+//    }
+//    print('NO LONGER SHOWING LOADING SCREEN');
+    return mainBody();
   }
 }
