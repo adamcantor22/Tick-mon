@@ -21,9 +21,9 @@ import 'file_uploader.dart';
 import 'package:geolocator/geolocator.dart';
 import 'helper.dart';
 import 'super_listener.dart';
+import 'package:date_format/date_format.dart';
 
-class Maps extends StatefulWidget{
-  @override
+class Maps extends StatefulWidget {
   bool get wantKeepAlive => true;
   const Maps({Key key}) : super(key: key);
 
@@ -31,7 +31,7 @@ class Maps extends StatefulWidget{
   MapsState createState() => MapsState();
 }
 
-class MapsState extends State<Maps>{
+class MapsState extends State<Maps> {
   Geolocator locator;
   CameraPosition initialPosition;
   GoogleMapController _controller;
@@ -44,8 +44,12 @@ class MapsState extends State<Maps>{
   StreamSubscription<Position> positionSubscription;
   bool trackingRoute = false;
   double currentVal = 0;
+  String latestFilename;
 
-
+  void initState() {
+    super.initState();
+    SuperListener.setPages(mPage: this);
+  }
 
   //A method which allows the map to start at the user's location, rather than
   // a random hardcoded spot
@@ -60,13 +64,14 @@ class MapsState extends State<Maps>{
 
   //This is the filename for the gpx files, created to be the current datetime
   String currentTime() {
-    String ret = '';
     DateTime now = DateTime.now();
-    ret += now.year.toString() + '-';
-    ret += now.month.toString() + '-';
-    ret += now.day.toString() + '_';
-    ret += now.hour.toString() + ':';
-    ret += now.minute.toString();
+    // NOTE '꞉' is not a colon, as colons cannot appear in all filenames.
+    //  it is a similar-looking unicode character 'Modified Letter Colon' U+A789
+    String ret = formatDate(
+        now, [yyyy, '-', mm, '-', dd, '_', hh, '꞉', nn, '꞉', ss, '꞉', SSS]);
+    latestFilename = ret;
+    //intentionally in this order
+    ret += '.gpx';
     return ret;
   }
 
@@ -85,7 +90,7 @@ class MapsState extends State<Maps>{
     g.trks.add(trk);
     String gpxStr = writer.asString(g);
     print(gpxStr);
-    String filename = currentTime() + '.gpx';
+    String filename = currentTime();
     final fileRef = writeContent(filename, gpxStr);
     fileRef.then((file) {
       print(file.path);
@@ -99,8 +104,8 @@ class MapsState extends State<Maps>{
   //Write the content to the local disk
   Future<File> writeContent(String filename, String fileContent) async {
     final directory = await getApplicationDocumentsDirectory();
-    final path = directory.path;
-    final file = File('$path/gpx$filename.gpx');
+    final path = directory.path + '/gpx';
+    final file = File('$path/$filename');
     return file.writeAsString(fileContent);
   }
 
@@ -139,7 +144,7 @@ class MapsState extends State<Maps>{
     });
 
     print('***MAPPAGE MAKING NEW DRAG***');
-    SuperListener.moveAndCreateDrag();
+    SuperListener.moveAndCreateDrag(latestFilename);
   }
 
   //Tracking location subscription, update every point as it comes up
@@ -196,6 +201,9 @@ class MapsState extends State<Maps>{
         onPressed: () {
           if (!trackingRoute) {
             startNewRoute();
+          } else {
+            finishRoute();
+            setState(() {});
           }
         },
       );

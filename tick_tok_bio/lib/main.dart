@@ -8,8 +8,6 @@ import 'json_storage.dart';
 import 'super_listener.dart';
 import 'dart:async';
 
-
-
 void main() {
   runApp(MyApp());
 }
@@ -29,30 +27,11 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage>{
-
-
   MetadataSection metadataSection = MetadataSection();
   Maps maps = Maps();
   UserPage userPage = UserPage();
 
   int pageIndex = 0;
-  //static int _widgetIndex;
-
-
-
-//  final List<Widget> pages = [
-//    UserPage(
-//      key: PageStorageKey('UserPage'),
-//    ),
-//    Maps(
-//      key: PageStorageKey('GPSPage'),
-//    ),
-//    MetadataSection(
-//      key: PageStorageKey('MetadataPage'),
-//    ),
-//  ];
-
-  final PageStorageBucket bucket = PageStorageBucket();
 
   int _selectedIndex = 0;
   bool _loading = true;
@@ -68,7 +47,6 @@ class HomePageState extends State<HomePage>{
   void setListeners() {
     SuperListener.setPages(
       hPage: this,
-      //mPage: pages,
     );
   }
 
@@ -76,22 +54,22 @@ class HomePageState extends State<HomePage>{
     _loadTimer = Timer.periodic(
       Duration(seconds: 3),
       (timer) {
-        if (_loading)
-          build(context);
-        else
-          timer.cancel();
+        build(context);
+        if (!_loading) timer.cancel();
       },
     );
   }
 
   void checkEmpty() {
     int empty = SuperListener.emptyRef();
+    print('EMPTY: $empty');
     if (empty >= 0) {
       setState(() {
         _selectedIndex = empty;
       });
     } else {
       setState(() {
+        print('STOP LOADING');
         _loading = false;
       });
     }
@@ -99,6 +77,7 @@ class HomePageState extends State<HomePage>{
 
   void pageNavigator(int num) {
     setState(() {
+      print('WE SHOULD BE CHANGIONG PAGES');
       pageIndex = num;
     });
   }
@@ -179,22 +158,24 @@ class HomePageState extends State<HomePage>{
                   ],
                 ),
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      checkEmpty();
-      return Stack(
-        children: <Widget>[
-          mainBody(),
-          //loadingScreen(),
-        ],
-      );
-    }
+//    if (_loading) {
+//      checkEmpty();
+//      return Stack(
+//        children: <Widget>[
+//          mainBody(),
+//          loadingScreen(),
+//        ],
+//      );
+//    }
+//    print('NO LONGER SHOWING LOADING SCREEN');
     return mainBody();
   }
 }

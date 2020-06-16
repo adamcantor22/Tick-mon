@@ -11,14 +11,14 @@ import 'metadata_page.dart';
 
 class SuperListener {
   static HomePageState homePage;
-  static Widget mapPage;
+  static MapsState mapPage;
   static UserPageState userPage;
   static MetadataSectionState dataPage;
 
   //Essentially a static constructor, can take any number of arguments
   static void setPages({
     HomePageState hPage,
-    Widget mPage,
+    MapsState mPage,
     UserPageState uPage,
     MetadataSectionState dPage,
   }) {
@@ -30,7 +30,7 @@ class SuperListener {
 
   //Navigates to the page as specified in the home index
   static void navigateTo(int page) {
-    //homePage.pageNavigator(page);
+    homePage.pageNavigator(page);
   }
 
   //Returns the active user, null if null
@@ -38,10 +38,10 @@ class SuperListener {
     return userPage.getUser();
   }
 
-  static void moveAndCreateDrag() {
+  static void moveAndCreateDrag(String filename) {
     print('***SUPERLISTENER MAKING NEW DRAG***');
     navigateTo(2);
-    dataPage.createNewDrag();
+    dataPage.createNewDrag(filename);
   }
 
   static int emptyRef() {

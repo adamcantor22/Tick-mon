@@ -23,14 +23,22 @@ class MetadataSection extends StatefulWidget {
   MetadataSectionState createState() => MetadataSectionState();
 }
 
-class MetadataSectionState extends State<MetadataSection>{
+class MetadataSectionState extends State<MetadataSection>
+    with AutomaticKeepAliveClientMixin<MetadataSection> {
   File jsonFile;
   Directory dir;
+  Directory gpxDir;
+  Directory jsonDir;
+  List fileList;
   String fileName = 'drag1.json';
   bool fileExists = false;
   Map fileContent;
   String currentFile;
   List dragList;
+  String editingFilename;
+
+  @override
+  bool get wantKeepAlive => true;
 
   var myController0 = TextEditingController();
   var myController1 = TextEditingController();
@@ -61,21 +69,59 @@ class MetadataSectionState extends State<MetadataSection>{
   void initState() {
     super.initState();
     SuperListener.setPages(dPage: this);
-    drags();
-    getApplicationDocumentsDirectory().then((Directory directory) async {
-      print(fileName);
-      dir = directory;
-      jsonFile = new File(dir.path + "/" + fileName);
-      fileExists = await jsonFile.exists();
-      if (fileExists) {
-        setState(() {
-          viewingDrags = true;
-          viewingData = false;
-          editingData = false;
-          fileContent = json.decode(jsonFile.readAsStringSync());
-        });
-      }
+    getDirList().then((d) {
+      dir = d;
+      createFilePaths();
+      drags();
+      //deleteFiles(); //careful with this
     });
+
+    setState(() {
+      viewingDrags = true;
+      viewingData = false;
+      editingData = false;
+    });
+  }
+
+  void deleteFiles() async {
+    for (FileSystemEntity f in fileList) {
+      String p = f.path;
+      if (p.substring(p.length - 4, p.length) == '.gpx') {
+        print('DELETING: $p');
+        f.deleteSync(recursive: true);
+      }
+    }
+  }
+
+  void createFilePaths() async {
+    bool gpxExists = false;
+    bool jsonExists = false;
+    for (FileSystemEntity f in fileList) {
+      String p = f.path;
+      print(p);
+      if (p.substring(p.length - 4, p.length) == '/gpx') {
+        gpxExists = true;
+        gpxDir = f;
+      } else if (p.substring(p.length - 5, p.length) == '/json') {
+        jsonExists = true;
+        jsonDir = f;
+      }
+    }
+    String newPath;
+    if (!gpxExists) {
+      newPath = '${dir.path}/gpx';
+      gpxDir = await new Directory(newPath).create(recursive: true);
+    }
+    if (!jsonExists) {
+      newPath = '${dir.path}/json';
+      jsonDir = await new Directory(newPath).create(recursive: true);
+    }
+  }
+
+  Future<Directory> getDirList() async {
+    final d = await getApplicationDocumentsDirectory();
+    fileList = d.listSync();
+    return d;
   }
 
 //I believe that this program is unnecessary as I kind of put its function in the getFile function
@@ -91,6 +137,7 @@ class MetadataSectionState extends State<MetadataSection>{
   //this is done by updating the content in the var fileContent.
 
   void writeToFile(
+    String filename,
     String key,
     String value,
     String key1,
@@ -128,7 +175,8 @@ class MetadataSectionState extends State<MetadataSection>{
       jsonFileContents.addAll(content);
       jsonFile.writeAsStringSync(json.encode(jsonFileContents));
     } else {
-      print('FIle Does not exist');
+      print('File Does not exist');
+      print(jsonEncode(content));
     }
     this.setState(() {
       fileContent = json.decode(jsonFile.readAsStringSync());
@@ -138,19 +186,19 @@ class MetadataSectionState extends State<MetadataSection>{
 
   //This function should either modify the current file to one which already exists or to create a new JSON file for a new drag.
   //This is done in accordance with the var fileNum. This is the integer placed at the end of the names like drag4.json.
-  void getFile(int fileNum) {
+  void getFile(String thisFilename) {
+    fileName = '$thisFilename.json';
     getApplicationDocumentsDirectory().then((Directory directory) async {
-      dir = directory;
-      fileName = "drag${fileNum.toString()}.json";
+      dir = Directory(directory.path + '/json');
       print(fileName);
-      jsonFile = File(dir.path + "/" + "drag${fileNum.toString()}.json");
+      jsonFile = File(dir.path + '/' + fileName);
       fileExists = await jsonFile.exists();
       if (fileExists) {
         setState(() {
           fileContent = json.decode(jsonFile.readAsStringSync());
         });
       } else {
-        File file = File(dir.path + "/drag$fileNum.json");
+        File file = File(dir.path + '/' + fileName);
         file.createSync();
         fileExists = true;
         Map contents = {};
@@ -169,18 +217,20 @@ class MetadataSectionState extends State<MetadataSection>{
     } else if (viewingData == true) {
       return viewData();
     } else if (editingData == true) {
-      return editDrag();
+      return editDrag(editingFilename);
     }
     return Container(); //On Error, essentially
   }
 
   //This function allows for the creation of cards to represent each drag's data.
-  Widget dragMenu(String time, int dragNum) {
-    getFile(dragNum);
+  Widget dragMenu(String name) {
+    editingFilename = name;
+    getFile(name);
     return FlatButton(
       onPressed: () {
         setState(() {
-          getFile(dragNum);
+          editingFilename = name;
+          getFile(name);
           viewingData = true;
           viewingDrags = false;
         });
@@ -191,19 +241,33 @@ class MetadataSectionState extends State<MetadataSection>{
           padding: EdgeInsets.symmetric(vertical: 4.0),
           child: Card(
             elevation: 6.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Text(
-                  time,
-                  style: TextStyle(
-                    fontSize: 22.0,
+            child: Padding(
+              padding: EdgeInsets.only(left: 20.0),
+              child: Row(
+                children: <Widget>[
+                  Flexible(
+                    fit: FlexFit.loose,
+                    flex: 5,
+                    child: Center(
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                          fontSize: 22.0,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                Icon(
-                  Icons.file_upload,
-                ),
-              ],
+                  Flexible(
+                    fit: FlexFit.loose,
+                    flex: 1,
+                    child: Center(
+                      child: Icon(
+                        Icons.file_upload,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -239,42 +303,50 @@ class MetadataSectionState extends State<MetadataSection>{
 
   void drags() {
     setState(() {
-      dragList = <Widget>[
-        //dragMenu(fileContent['time'].toString(), 1, visibilityList[0]),
-        dragMenu(
-          DateTime.now().toString(),
-          2,
-        ),
-        dragMenu(
-          DateTime.now().toString(),
-          3,
-        ),
-        dragMenu(
-          DateTime.now().toString(),
-          4,
-        ),
-        dragMenu(
-          DateTime.now().toString(),
-          5,
-        ),
-        dragMenu(
-          DateTime.now().toString(),
-          30,
-        ),
-      ];
+      final jsonList = jsonDir.listSync();
+      dragList = new List<Widget>();
+      for (FileSystemEntity f in jsonList) {
+        String p = f.path;
+        dragList.add(dragMenu(
+          p.substring(p.length - 28, p.length - 5),
+        ));
+      }
+//      dragList = <Widget>[
+//        //dragMenu(fileContent['time'].toString(), 1, visibilityList[0]),
+//        dragMenu(
+//          'TESTDATA' + DateTime.now().toString(),
+//          2,
+//        ),
+//        dragMenu(
+//          'TESTDATA' + DateTime.now().toString(),
+//          3,
+//        ),
+//        dragMenu(
+//          'TESTDATA' + DateTime.now().toString(),
+//          4,
+//        ),
+//        dragMenu(
+//          'TESTDATA' + DateTime.now().toString(),
+//          5,
+//        ),
+//        dragMenu(
+//          'TESTDATA' + DateTime.now().toString(),
+//          30,
+//        ),
+//      ];
     });
     print(dragList.length);
   }
 
-  void createNewDrag() {
+  void createNewDrag(String newFilename) {
     setState(() {
       print('***DATAPAGE MAKING NEW DRAG***');
       dragList.add(dragMenu(
-        'New Drag',
-        dragList.length + 1,
+        newFilename,
       ));
       viewingDrags = false;
       editingData = true;
+      editingFilename = newFilename;
     });
   }
 
@@ -297,10 +369,10 @@ class MetadataSectionState extends State<MetadataSection>{
               setState(() {
                 dragList.add(dragMenu(
                   'New Drag',
-                  dragList.length + 1,
                 ));
                 viewingDrags = false;
                 editingData = true;
+                editingFilename = 'TESTDATA_' + DateTime.now().toString();
               });
             },
           ),
@@ -361,7 +433,7 @@ class MetadataSectionState extends State<MetadataSection>{
 
 //This function is used to change the metadata for a specific drag which has been done.
   //It is populated with Text Fields
-  Widget editDrag() {
+  Widget editDrag(String thisFilename) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Title'),
@@ -405,22 +477,24 @@ class MetadataSectionState extends State<MetadataSection>{
               onPressed: () {
                 setState(() {
                   writeToFile(
-                      'Name',
-                      myController0.text,
-                      'Site',
-                      myController1.text,
-                      'Temp',
-                      myController2.text,
-                      'Humidity',
-                      myController3.text,
-                      'GroundMoisture',
-                      myController4.text,
-                      'HabitatType',
-                      myController5.text,
-                      'NumNymphs',
-                      myController6.text,
-                      'NumBlacklegged',
-                      myController7.text);
+                    thisFilename,
+                    'Name',
+                    myController0.text,
+                    'Site',
+                    myController1.text,
+                    'Temp',
+                    myController2.text,
+                    'Humidity',
+                    myController3.text,
+                    'GroundMoisture',
+                    myController4.text,
+                    'HabitatType',
+                    myController5.text,
+                    'NumNymphs',
+                    myController6.text,
+                    'NumBlacklegged',
+                    myController7.text,
+                  );
 
                   editingData = false;
                   viewingData = true;
