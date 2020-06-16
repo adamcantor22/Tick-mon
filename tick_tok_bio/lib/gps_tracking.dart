@@ -143,7 +143,6 @@ class MapsState extends State<Maps> {
       polylineCoordinates.clear();
     });
 
-    print('***MAPPAGE MAKING NEW DRAG***');
     SuperListener.moveAndCreateDrag(latestFilename);
   }
 
@@ -194,7 +193,7 @@ class MapsState extends State<Maps> {
   }
 
   Widget startStop() {
-    if (trackingRoute == false) {
+    if (true || trackingRoute == false) {
       return FloatingActionButton(
         child: trackingRoute ? Icon(Icons.stop) : Icon(Icons.play_arrow),
         backgroundColor: Colors.blueAccent,
@@ -208,34 +207,34 @@ class MapsState extends State<Maps> {
         },
       );
     }
-    else if (trackingRoute == true) {
-      return SliderTheme(
-        data: SliderThemeData(
-          trackShape: RoundedRectSliderTrackShape(),
-          trackHeight: 50.0,
-        ),
-        child: new Slider(
-          value: currentVal,
-          onChanged: (double val) {
-            if (val == 10.0) {
-              setState(() {
-                currentVal = 0;
-              });
-              print('DONE');
-              finishRoute();
-            }
-            else {
-              setState(() {
-                currentVal = val;
-              });
-            }
-          },
-          min: 0.0,
-          max: 10.0,
-        ),
-      );
-    }
+//    else if (trackingRoute == true) {
+//      return SliderTheme(
+//        data: SliderThemeData(
+//          trackShape: RoundedRectSliderTrackShape(),
+//          trackHeight: 50.0,
+//        ),
+//        child: new Slider(
+//          value: currentVal,
+//          onChanged: (double val) {
+//            if (val == 10.0) {
+//              setState(() {
+//                currentVal = 0;
+//              });
+//              print('DONE');
+//              finishRoute();
+//            } else {
+//              setState(() {
+//                currentVal = val;
+//              });
+//            }
+//          },
+//          min: 0.0,
+//          max: 10.0,
+//        ),
+//      );
+//    }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -243,46 +242,58 @@ class MapsState extends State<Maps> {
         title: Text('Map Overview'),
       ),
       body: Column(
-        children: [FutureBuilder<CameraPosition>(
-          future: googleMap(),
-          builder: (context, snapshot) {
-            if (initialPosition == null) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else {
-              return Expanded(
-                flex: 6,
-                child: SizedBox(
-                  //width: MediaQuery.of(context).size.width,
-                  //height: MediaQuery.of(context).size.height,
-                  child: GoogleMap(
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: true,
-                    compassEnabled: true,
-                    markers: _markers,
-                    polylines: _polylines,
-                    mapType: MapType.hybrid,
-                    initialCameraPosition: initialPosition,
-                    onMapCreated: (GoogleMapController controller) {
-                      _controller = controller;
-                    },
+        children: [
+          FutureBuilder<CameraPosition>(
+            future: googleMap(),
+            builder: (context, snapshot) {
+              if (initialPosition == null) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else {
+                return Expanded(
+                  flex: 6,
+                  child: SizedBox(
+                    //width: MediaQuery.of(context).size.width,
+                    //height: MediaQuery.of(context).size.height,
+                    child: GoogleMap(
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: true,
+                      compassEnabled: true,
+                      markers: _markers,
+                      polylines: _polylines,
+                      mapType: MapType.hybrid,
+                      initialCameraPosition: initialPosition,
+                      onMapCreated: (GoogleMapController controller) {
+                        _controller = controller;
+                      },
+                    ),
                   ),
-                ),
-              );
-            }
-          },
-        ),
-          Expanded(
-            flex: 1,
-          child: Row(
-            children: <Widget>[
-
-            ],
-    ),
+                );
+              }
+            },
+          ),
+//          Expanded(
+//            flex: 1,
+//            child: Row(
+//              children: <Widget>[],
+//            ),
+//          ),
+        ],
       ),
-    ],
-      )
+      floatingActionButton: FloatingActionButton(
+        child: trackingRoute ? Icon(Icons.stop) : Icon(Icons.play_arrow),
+        backgroundColor: Colors.blueAccent,
+        onPressed: () {
+          if (!trackingRoute) {
+            startNewRoute();
+          } else {
+            finishRoute();
+            setState(() {});
+          }
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

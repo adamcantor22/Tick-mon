@@ -1,6 +1,7 @@
 //import 'dart:html';
 //  import 'dart:html';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'main.dart';
@@ -11,6 +12,7 @@ import 'dart:convert';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'super_listener.dart';
 import 'helper.dart';
+import 'file_uploader.dart';
 
 //These are the three boolean values used to determine which screen we are currently on
 bool viewingDrags = true;
@@ -247,6 +249,15 @@ class MetadataSectionState extends State<MetadataSection>
   Widget dragMenu(String name) {
     editingFilename = name;
     getFile(name);
+    bool fileUploaded = false;
+    StorageReference store;
+    try {
+      store = FirebaseStorage.instance.ref().child('$editingFilename.json');
+      fileUploaded = true;
+    } catch (e) {
+      print(e);
+    }
+
     return FlatButton(
       onPressed: () {
         setState(() {
@@ -284,6 +295,7 @@ class MetadataSectionState extends State<MetadataSection>
                     child: Center(
                       child: Icon(
                         Icons.file_upload,
+                        color: fileUploaded ? Colors.green : Colors.black,
                       ),
                     ),
                   ),
@@ -324,7 +336,6 @@ class MetadataSectionState extends State<MetadataSection>
 
   void createNewDrag(String newFilename) {
     setState(() {
-      print('***DATAPAGE MAKING NEW DRAG***');
       dragList.add(dragMenu(
         newFilename,
       ));
@@ -520,6 +531,8 @@ class MetadataSectionState extends State<MetadataSection>
                     myController7.text,
                   );
 
+                  sendJsonToCloud();
+
                   editingData = false;
                   viewingData = true;
                 });
@@ -533,6 +546,14 @@ class MetadataSectionState extends State<MetadataSection>
         ],
       ),
     );
+  }
+
+  void sendJsonToCloud() {
+    FileUploader uploader = new FileUploader();
+    File f = File('${jsonDir.path}/$editingFilename.json');
+    uploader.fileUpload(f, '$editingFilename.json').then((val) {
+      print(val);
+    });
   }
 
   @override
