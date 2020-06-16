@@ -277,7 +277,6 @@ class MapsState extends State<Maps> {
             flex: 1,
           child: Row(
             children: <Widget>[
-
             ],
     ),
       ),
