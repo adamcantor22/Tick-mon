@@ -10,7 +10,7 @@ import 'dart:convert';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 //These are the three boolean values used to determine which screen we are currently on
-bool viewingDrags = false;
+bool viewingDrags = true;
 bool viewingData = false;
 bool editingData = false;
 
@@ -21,7 +21,7 @@ class MetadataSection extends StatefulWidget {
   _MetadataSectionState createState() => _MetadataSectionState();
 }
 
-class _MetadataSectionState extends State<MetadataSection> with AutomaticKeepAliveClientMixin<MetadataSection>{
+class _MetadataSectionState extends State<MetadataSection>{
   File jsonFile;
   Directory dir;
   String fileName = 'drag1.json';
@@ -29,8 +29,6 @@ class _MetadataSectionState extends State<MetadataSection> with AutomaticKeepAli
   Map fileContent;
   String currentFile;
   List dragList;
-  @override
-  bool get wantKeepAlive => true;
 
   var myController0 = TextEditingController();
   var myController1 = TextEditingController();

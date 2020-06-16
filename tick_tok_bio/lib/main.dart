@@ -28,6 +28,12 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage>{
+
+
+  MetadataSection metadataSection = MetadataSection();
+  Maps maps = Maps();
+  UserPage userPage = UserPage();
+
   int pageIndex = 0;
   //static int _widgetIndex;
 
@@ -109,9 +115,9 @@ class HomePageState extends State<HomePage>{
                 child: IndexedStack(
                   index: pageIndex,
                   children: <Widget>[
-                    UserPage(),
-                    Maps(),
-                    MetadataSection(),
+                    userPage,
+                    maps,
+                    metadataSection,
                   ],
                 ),
             ),
