@@ -23,7 +23,7 @@ class MetadataSection extends StatefulWidget {
   MetadataSectionState createState() => MetadataSectionState();
 }
 
-class _MetadataSectionState extends State<MetadataSection>{
+class MetadataSectionState extends State<MetadataSection>{
   File jsonFile;
   Directory dir;
   String fileName = 'drag1.json';

@@ -54,7 +54,7 @@ class HomePageState extends State<HomePage>{
 
   final PageStorageBucket bucket = PageStorageBucket();
 
-  int _selectedIndex = 2;
+  int _selectedIndex = 0;
   bool _loading = true;
   Timer _loadTimer;
 
@@ -191,7 +191,7 @@ class HomePageState extends State<HomePage>{
       return Stack(
         children: <Widget>[
           mainBody(),
-          loadingScreen(),
+          //loadingScreen(),
         ],
       );
     }
