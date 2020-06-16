@@ -26,7 +26,7 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage>{
+class HomePageState extends State<HomePage> {
   MetadataSection metadataSection = MetadataSection();
   Maps maps = Maps();
   UserPage userPage = UserPage();
@@ -145,18 +145,16 @@ class HomePageState extends State<HomePage>{
   Widget mainBody() {
     return Scaffold(
       bottomNavigationBar: _bottomNavBar(),
-      body:
-        Column(
-          children: <Widget>[
-            Expanded(
-                child: IndexedStack(
-                  index: pageIndex,
-                  children: <Widget>[
-                    userPage,
-                    maps,
-                    metadataSection,
-                  ],
-                ),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: IndexedStack(
+              index: pageIndex,
+              children: <Widget>[
+                userPage,
+                maps,
+                metadataSection,
+              ],
             ),
           ),
         ],

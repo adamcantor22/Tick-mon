@@ -19,4 +19,25 @@ class Helper {
       ],
     );
   }
+
+  Widget boolMessage(String m, Function f, BuildContext context) {
+    return AlertDialog(
+      title: Text(m),
+      actions: <Widget>[
+        FlatButton(
+          child: Text('NO'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        FlatButton(
+          child: Text('YES'),
+          onPressed: () {
+            f();
+            Navigator.of(context).pop();
+          },
+        )
+      ],
+    );
+  }
 }

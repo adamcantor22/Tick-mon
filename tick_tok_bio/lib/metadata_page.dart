@@ -10,6 +10,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'super_listener.dart';
+import 'helper.dart';
 
 //These are the three boolean values used to determine which screen we are currently on
 bool viewingDrags = true;
@@ -83,13 +84,34 @@ class MetadataSectionState extends State<MetadataSection>
     });
   }
 
+  void drags() {
+    setState(() {
+      final jsonList = jsonDir.listSync();
+      dragList = new List<Widget>();
+      for (FileSystemEntity f in jsonList) {
+        String p = f.path;
+        dragList.add(dragMenu(
+          p.substring(p.length - 28, p.length - 5),
+        ));
+      }
+    });
+    print(dragList.length);
+  }
+
   void deleteFiles() async {
     for (FileSystemEntity f in fileList) {
       String p = f.path;
-      if (p.substring(p.length - 4, p.length) == '.gpx') {
+      if (p.substring(p.length - 4, p.length) == '.gpx' ||
+          p.substring(p.length - 5, p.length) == '.json') {
         print('DELETING: $p');
         f.deleteSync(recursive: true);
       }
+    }
+    try {
+      String p = jsonDir.path + '/New Drag.json';
+      File(p).deleteSync();
+    } catch (e) {
+      print('no unintended drags');
     }
   }
 
@@ -98,7 +120,6 @@ class MetadataSectionState extends State<MetadataSection>
     bool jsonExists = false;
     for (FileSystemEntity f in fileList) {
       String p = f.path;
-      print(p);
       if (p.substring(p.length - 4, p.length) == '/gpx') {
         gpxExists = true;
         gpxDir = f;
@@ -301,43 +322,6 @@ class MetadataSectionState extends State<MetadataSection>
     );
   }
 
-  void drags() {
-    setState(() {
-      final jsonList = jsonDir.listSync();
-      dragList = new List<Widget>();
-      for (FileSystemEntity f in jsonList) {
-        String p = f.path;
-        dragList.add(dragMenu(
-          p.substring(p.length - 28, p.length - 5),
-        ));
-      }
-//      dragList = <Widget>[
-//        //dragMenu(fileContent['time'].toString(), 1, visibilityList[0]),
-//        dragMenu(
-//          'TESTDATA' + DateTime.now().toString(),
-//          2,
-//        ),
-//        dragMenu(
-//          'TESTDATA' + DateTime.now().toString(),
-//          3,
-//        ),
-//        dragMenu(
-//          'TESTDATA' + DateTime.now().toString(),
-//          4,
-//        ),
-//        dragMenu(
-//          'TESTDATA' + DateTime.now().toString(),
-//          5,
-//        ),
-//        dragMenu(
-//          'TESTDATA' + DateTime.now().toString(),
-//          30,
-//        ),
-//      ];
-    });
-    print(dragList.length);
-  }
-
   void createNewDrag(String newFilename) {
     setState(() {
       print('***DATAPAGE MAKING NEW DRAG***');
@@ -362,21 +346,6 @@ class MetadataSectionState extends State<MetadataSection>
           ),
         ),
         centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              setState(() {
-                dragList.add(dragMenu(
-                  'New Drag',
-                ));
-                viewingDrags = false;
-                editingData = true;
-                editingFilename = 'TESTDATA_' + DateTime.now().toString();
-              });
-            },
-          ),
-        ],
       ),
       body: Padding(
         padding: EdgeInsets.only(top: 10.0),
@@ -413,22 +382,77 @@ class MetadataSectionState extends State<MetadataSection>
           ),
         ],
       ),
-      body: Column(
-        children: [
-          //of unsure what fileContent is referring to
-          //fileContent =  json.decode(File(dir.path + "/" + fileName).readAsStringSync())['SPECIFIC_KEY'].toString()),
-          infoRow('Name', fileContent['Name'].toString()),
-          infoRow('Site', fileContent['Site'].toString()),
-          infoRow('Temperature', fileContent['Temp'].toString()),
-          infoRow('Humidity', fileContent['Humidity'].toString()),
-          infoRow('Ground Moisture', fileContent['GroundMoisture'].toString()),
-          infoRow('Habitat Type', fileContent['HabitatType'].toString()),
-          infoRow('Nymphs Collected', fileContent['NumNymphs'].toString()),
-          infoRow('BlackLegged Ticks Collected',
-              fileContent['NumBlacklegged'].toString())
-        ],
+      body: Padding(
+        padding: EdgeInsets.only(bottom: 20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Column(
+              children: [
+                //of unsure what fileContent is referring to
+                //fileContent =  json.decode(File(dir.path + "/" + fileName).readAsStringSync())['SPECIFIC_KEY'].toString()),
+                infoRow('Name', fileContent['Name'].toString()),
+                infoRow('Site', fileContent['Site'].toString()),
+                infoRow('Temperature', fileContent['Temp'].toString()),
+                infoRow('Humidity', fileContent['Humidity'].toString()),
+                infoRow('Ground Moisture',
+                    fileContent['GroundMoisture'].toString()),
+                infoRow('Habitat Type', fileContent['HabitatType'].toString()),
+                infoRow(
+                    'Nymphs Collected', fileContent['NumNymphs'].toString()),
+                infoRow('BlackLegged Ticks Collected',
+                    fileContent['NumBlacklegged'].toString())
+              ],
+            ),
+            RaisedButton(
+              color: Colors.red[700],
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return Helper().boolMessage(
+                      'Are you sure you want to delete this data from your phone? If it has not been uploaded to the cloud it will be permanently deleted.',
+                      deleteCurrentDrag,
+                      context,
+                    );
+                  },
+                );
+              },
+              child: Text(
+                'Delete Drag Data',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  void deleteCurrentDrag() {
+    File f;
+    try {
+      f = File('${jsonDir.path}/$editingFilename.json');
+      f.deleteSync(recursive: true);
+      print('json file deleted');
+    } catch (e) {
+      print(e);
+      print('No such json file');
+    }
+
+    try {
+      f = File('${gpxDir.path}/$editingFilename.gpx');
+      f.deleteSync(recursive: true);
+      print('gpx file deleted');
+    } catch (e) {
+      print('No such gpx file');
+    }
+
+    viewingData = false;
+    viewingDrags = true;
+    drags();
   }
 
 //This function is used to change the metadata for a specific drag which has been done.
