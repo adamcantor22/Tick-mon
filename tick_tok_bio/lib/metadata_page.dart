@@ -12,7 +12,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'super_listener.dart';
 
 //These are the three boolean values used to determine which screen we are currently on
-bool viewingDrags = false;
+bool viewingDrags = true;
 bool viewingData = false;
 bool editingData = false;
 

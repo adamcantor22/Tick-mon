@@ -26,25 +26,14 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage> {
-  int pageIndex = 2;
-  //static int _widgetIndex;
+class HomePageState extends State<HomePage>{
+  MetadataSection metadataSection = MetadataSection();
+  Maps maps = Maps();
+  UserPage userPage = UserPage();
 
-//  final List<Widget> pages = [
-//    UserPage(
-//      key: PageStorageKey('UserPage'),
-//    ),
-//    Maps(
-//      key: PageStorageKey('GPSPage'),
-//    ),
-//    MetadataSection(
-//      key: PageStorageKey('MetadataPage'),
-//    ),
-//  ];
+  int pageIndex = 0;
 
-  final PageStorageBucket bucket = PageStorageBucket();
-
-  int _selectedIndex = 2;
+  int _selectedIndex = 0;
   bool _loading = true;
   Timer _loadTimer;
 
@@ -156,16 +145,18 @@ class HomePageState extends State<HomePage> {
   Widget mainBody() {
     return Scaffold(
       bottomNavigationBar: _bottomNavBar(),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: IndexedStack(
-              index: pageIndex,
-              children: <Widget>[
-                UserPage(),
-                Maps(),
-                MetadataSection(),
-              ],
+      body:
+        Column(
+          children: <Widget>[
+            Expanded(
+                child: IndexedStack(
+                  index: pageIndex,
+                  children: <Widget>[
+                    userPage,
+                    maps,
+                    metadataSection,
+                  ],
+                ),
             ),
           ),
         ],
