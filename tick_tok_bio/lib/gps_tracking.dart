@@ -267,10 +267,14 @@ class MapsState extends State<Maps>{
         ),
           Expanded(
             flex: 1,
-            child: startStop()
-          ),
-    ]
+          child: Row(
+            children: <Widget>[
+
+            ],
+    ),
       ),
+    ],
+      )
     );
   }
 }
