@@ -86,18 +86,17 @@ class MetadataSectionState extends State<MetadataSection>
     });
   }
 
-  void drags() {
+  void drags() async {
+    var tmpList = new List<Widget>();
+    final jsonList = jsonDir.listSync();
+    for (FileSystemEntity f in jsonList) {
+      String p = f.path;
+      Widget tmp = await dragMenu(p.substring(p.length - 28, p.length - 5));
+      tmpList.add(tmp);
+    }
     setState(() {
-      final jsonList = jsonDir.listSync();
-      dragList = new List<Widget>();
-      for (FileSystemEntity f in jsonList) {
-        String p = f.path;
-        dragList.add(dragMenu(
-          p.substring(p.length - 28, p.length - 5),
-        ));
-      }
+      dragList = tmpList;
     });
-    print(dragList.length);
   }
 
   void deleteFiles() async {
@@ -209,28 +208,28 @@ class MetadataSectionState extends State<MetadataSection>
 
   //This function should either modify the current file to one which already exists or to create a new JSON file for a new drag.
   //This is done in accordance with the var fileNum. This is the integer placed at the end of the names like drag4.json.
-  void getFile(String thisFilename) {
+  Future<bool> getFile(String thisFilename) async {
     fileName = '$thisFilename.json';
-    getApplicationDocumentsDirectory().then((Directory directory) async {
-      dir = Directory(directory.path + '/json');
-      print(fileName);
-      jsonFile = File(dir.path + '/' + fileName);
-      fileExists = await jsonFile.exists();
-      if (fileExists) {
-        setState(() {
-          fileContent = json.decode(jsonFile.readAsStringSync());
-        });
-      } else {
-        File file = File(dir.path + '/' + fileName);
-        file.createSync();
-        fileExists = true;
-        Map contents = {};
-        file.writeAsStringSync(json.encode(contents));
-        setState(() {
-          fileContent = json.decode(file.readAsStringSync());
-        });
-      }
-    });
+    Directory directory = await getApplicationDocumentsDirectory();
+    dir = Directory(directory.path + '/json');
+    print(fileName);
+    jsonFile = File(dir.path + '/' + fileName);
+    fileExists = await jsonFile.exists();
+    if (fileExists) {
+      setState(() {
+        fileContent = json.decode(jsonFile.readAsStringSync());
+      });
+    } else {
+      File file = File(dir.path + '/' + fileName);
+      file.createSync();
+      fileExists = true;
+      Map contents = {};
+      file.writeAsStringSync(json.encode(contents));
+      setState(() {
+        fileContent = json.decode(file.readAsStringSync());
+      });
+    }
+    return fileContent != null;
   }
 
 //This function is the actual home of the scaffold and controls which screens will be seen on the app.
@@ -245,10 +244,25 @@ class MetadataSectionState extends State<MetadataSection>
     return Container(); //On Error, essentially
   }
 
+  String getDragDisplayName() {
+    String s = '';
+    s += (fileContent != null &&
+                fileContent['Site'] != null &&
+                fileContent['Site'].toString().trim() != ''
+            ? fileContent['Site'].toString()
+            : 'GQ') +
+        ' ';
+    s += '1' + ' ';
+    s += 'ABC' + ' ';
+    s += editingFilename.substring(0, 10);
+    return s;
+  }
+
   //This function allows for the creation of cards to represent each drag's data.
-  Widget dragMenu(String name) {
+  Future<Widget> dragMenu(String name) async {
     editingFilename = name;
-    getFile(name);
+    final b = await getFile(name);
+    String display = getDragDisplayName();
     bool fileUploaded = false;
     StorageReference store;
     try {
@@ -282,7 +296,7 @@ class MetadataSectionState extends State<MetadataSection>
                     flex: 5,
                     child: Center(
                       child: Text(
-                        name,
+                        display,
                         style: TextStyle(
                           fontSize: 22.0,
                         ),
@@ -367,20 +381,30 @@ class MetadataSectionState extends State<MetadataSection>
         ),
         centerTitle: true,
       ),
-      body: Padding(
+      body: ListView(
         padding: EdgeInsets.only(top: 10.0),
-        child: ListView(
-          children: dragList,
-        ),
+        children:
+            getDragList(), // != null ? dragList : <Widget>[Text('No Data')],
       ),
     );
+  }
+
+  List<Widget> getDragList() {
+    if (dragList == null) {
+      return <Widget>[
+        Center(
+          child: Text('Data Loading'),
+        ),
+      ];
+    }
+    return dragList;
   }
 
 //This function is used to display a the specific data for the specific drag.
   Widget viewData() {
     return Scaffold(
       appBar: AppBar(
-        title: Text(''),
+        title: Text('Viewing Drag Metadata'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.edit),
@@ -402,8 +426,8 @@ class MetadataSectionState extends State<MetadataSection>
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.only(bottom: 20.0),
+      body: Container(
+        color: Colors.grey[200],
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
@@ -424,24 +448,27 @@ class MetadataSectionState extends State<MetadataSection>
                     fileContent['NumBlacklegged'].toString())
               ],
             ),
-            RaisedButton(
-              color: Colors.red[700],
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return Helper().boolMessage(
-                      'Are you sure you want to delete this data from your phone? If it has not been uploaded to the cloud it will be permanently deleted.',
-                      deleteCurrentDrag,
-                      context,
-                    );
-                  },
-                );
-              },
-              child: Text(
-                'Delete Drag Data',
-                style: TextStyle(
-                  color: Colors.white,
+            Padding(
+              padding: EdgeInsets.only(bottom: 35.0),
+              child: RaisedButton(
+                color: Colors.red[700],
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return Helper().boolMessage(
+                        'Are you sure you want to delete this data from your phone? If it has not been uploaded to the cloud it will be permanently deleted.',
+                        deleteCurrentDrag,
+                        context,
+                      );
+                    },
+                  );
+                },
+                child: Text(
+                  'Delete Drag Data',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -480,7 +507,7 @@ class MetadataSectionState extends State<MetadataSection>
   Widget editDrag(String thisFilename) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Title'),
+        title: Text('Editing Drag Metadata'),
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.close),
@@ -564,31 +591,32 @@ class MetadataSectionState extends State<MetadataSection>
                   textColor: Colors.white,
                   color: Colors.blue,
                   onPressed: () {
+                    writeToFile(
+                      thisFilename,
+                      'Name',
+                      myController0.text,
+                      'Site',
+                      myController1.text,
+                      'Temp',
+                      myController2.text,
+                      'Humidity',
+                      myController3.text,
+                      'GroundMoisture',
+                      myController4.text,
+                      'HabitatType',
+                      myController5.text,
+                      'NumNymphs',
+                      myController6.text,
+                      'NumBlacklegged',
+                      myController7.text,
+                    );
+                    sendJsonToCloud();
+                    drags();
+
                     setState(() {
-                      writeToFile(
-                        thisFilename,
-                        'Name',
-                        myController0.text,
-                        'Site',
-                        myController1.text,
-                        'Temp',
-                        myController2.text,
-                        'Humidity',
-                        myController3.text,
-                        'GroundMoisture',
-                        myController4.text,
-                        'HabitatType',
-                        myController5.text,
-                        'NumNymphs',
-                        myController6.text,
-                        'NumBlacklegged',
-                        myController7.text,
-                      );
-
-                      sendJsonToCloud();
-
                       editingData = false;
-                      viewingData = true;
+                      viewingData = false;
+                      viewingDrags = true;
                     });
                   },
                   child: Text('Save Drag Data'),
