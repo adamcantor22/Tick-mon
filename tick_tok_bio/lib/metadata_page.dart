@@ -324,14 +324,22 @@ class MetadataSectionState extends State<MetadataSection>
   }
 
 //This is used to populate the textBoxes and link them with their proper controllers in the entering data screen.
-  Widget dataField(String hText, controller) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+  Widget dataField(
+      TextEditingController controller, String field, String hText) {
+    Widget widget = Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
       child: TextField(
-        decoration: kTextFieldDecoration.copyWith(hintText: hText),
+        decoration: kTextFieldDecoration.copyWith(
+            hintText: 'Enter $field', labelText: field),
         controller: controller,
       ),
     );
+    if (hText != null) {
+      controller.text = hText;
+    } else {
+      controller.text = '';
+    }
+    return widget;
   }
 
   void createNewDrag(String newFilename) {
@@ -340,6 +348,7 @@ class MetadataSectionState extends State<MetadataSection>
         newFilename,
       ));
       viewingDrags = false;
+      viewingData = false;
       editingData = true;
       editingFilename = newFilename;
     });
@@ -486,62 +495,110 @@ class MetadataSectionState extends State<MetadataSection>
       body: Column(
         children: <Widget>[
           Flexible(
-            flex: 7,
+            flex: 8,
             child: ListView(
               padding: EdgeInsets.only(top: 10.0),
               children: [
-                dataField('Enter Name', myController0),
-                dataField('Enter Site', myController1),
-                dataField('Enter Temperature', myController2),
-                dataField('Enter Humidity', myController3),
-                dataField('Enter Ground Mosture', myController4),
-                dataField('Enter Habitat Type', myController5),
-                dataField('Enter Number of Nymphs Caught', myController6),
-                dataField('Enter Number of BlackLeggeds caught', myController7),
+                dataField(
+                  myController0,
+                  'Name',
+                  fileContent['Name'],
+                ),
+                dataField(
+                  myController1,
+                  'Site',
+                  fileContent['Site'],
+                ),
+                dataField(
+                  myController2,
+                  'Temperature',
+                  fileContent['Temp'],
+                ),
+                dataField(
+                  myController3,
+                  'Humidity',
+                  fileContent['Humidity'],
+                ),
+                dataField(
+                  myController4,
+                  'Ground Moisture',
+                  fileContent['GroundMoisture'],
+                ),
+                dataField(
+                  myController5,
+                  'Habitat Type',
+                  fileContent['HabitatType'],
+                ),
+                dataField(
+                  myController6,
+                  'Number of Nymphs',
+                  fileContent['NumNymphs'],
+                ),
+                dataField(
+                  myController7,
+                  'Number of Blackleggeds',
+                  fileContent['NumBlacklegged'],
+                ),
               ],
             ),
           ),
-          SizedBox(
+          Container(
             height: 5.0,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              border: Border(
+                top: BorderSide(
+                  width: 1.5,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
           ),
           Flexible(
             flex: 1,
-            child: RaisedButton(
-              textColor: Colors.white,
-              color: Colors.blue,
-              onPressed: () {
-                setState(() {
-                  writeToFile(
-                    thisFilename,
-                    'Name',
-                    myController0.text,
-                    'Site',
-                    myController1.text,
-                    'Temp',
-                    myController2.text,
-                    'Humidity',
-                    myController3.text,
-                    'GroundMoisture',
-                    myController4.text,
-                    'HabitatType',
-                    myController5.text,
-                    'NumNymphs',
-                    myController6.text,
-                    'NumBlacklegged',
-                    myController7.text,
-                  );
+            child: Container(
+              padding: EdgeInsets.zero,
+              color: Colors.grey[200],
+              child: Center(
+                child: RaisedButton(
+                  textColor: Colors.white,
+                  color: Colors.blue,
+                  onPressed: () {
+                    setState(() {
+                      writeToFile(
+                        thisFilename,
+                        'Name',
+                        myController0.text,
+                        'Site',
+                        myController1.text,
+                        'Temp',
+                        myController2.text,
+                        'Humidity',
+                        myController3.text,
+                        'GroundMoisture',
+                        myController4.text,
+                        'HabitatType',
+                        myController5.text,
+                        'NumNymphs',
+                        myController6.text,
+                        'NumBlacklegged',
+                        myController7.text,
+                      );
 
-                  sendJsonToCloud();
+                      sendJsonToCloud();
 
-                  editingData = false;
-                  viewingData = true;
-                });
-              },
-              child: Text('Save Drag Data'),
+                      editingData = false;
+                      viewingData = true;
+                    });
+                  },
+                  child: Text('Save Drag Data'),
+                ),
+              ),
             ),
           ),
-          SizedBox(
+          Container(
             height: 5.0,
+            color: Colors.grey[200],
           ),
         ],
       ),
