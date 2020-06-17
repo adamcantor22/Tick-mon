@@ -316,7 +316,7 @@ class MetadataSectionState extends State<MetadataSection>
                           border: Border.all(
                             color:
                                 fileUploaded ? Colors.green[500] : Colors.black,
-                            width: 2.0,
+                            width: 1.5,
                           ),
                         ),
                         child: Center(
@@ -343,7 +343,7 @@ class MetadataSectionState extends State<MetadataSection>
     TextStyle ts = TextStyle(
       letterSpacing: -0.7,
       fontSize: 17.5,
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w600,
       fontFamily: 'RobotoMono',
     );
     return Padding(
@@ -355,7 +355,7 @@ class MetadataSectionState extends State<MetadataSection>
             flex: 5,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.blue[100],
+                color: Colors.lightBlue[100],
                 borderRadius: BorderRadius.all(
                   Radius.circular(10.0),
                 ),
@@ -377,7 +377,7 @@ class MetadataSectionState extends State<MetadataSection>
             flex: 4,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.blue[200],
+                color: Colors.lightBlue[200],
                 borderRadius: BorderRadius.all(
                   Radius.circular(10.0),
                 ),
@@ -467,7 +467,7 @@ class MetadataSectionState extends State<MetadataSection>
   Widget viewData() {
     return Scaffold(
       appBar: AppBar(
-        title: Text(getDragDisplayName()),
+        title: Text('Viewing: ${getDragDisplayName()}'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.edit),
@@ -490,32 +490,42 @@ class MetadataSectionState extends State<MetadataSection>
         ],
       ),
       body: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
         color: Colors.grey[200],
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(top: 20.0),
-              child: Column(
-                children: [
-                  //of unsure what fileContent is referring to
-                  //fileContent =  json.decode(File(dir.path + "/" + fileName).readAsStringSync())['SPECIFIC_KEY'].toString()),
-                  infoRow('Name', fileContent['Name'].toString()),
-                  infoRow('Site', fileContent['Site'].toString()),
-                  infoRow('Temperature', fileContent['Temp'].toString()),
-                  infoRow('Humidity', fileContent['Humidity'].toString()),
-                  infoRow('Ground Moisture',
-                      fileContent['GroundMoisture'].toString()),
-                  infoRow(
-                      'Habitat Type', fileContent['HabitatType'].toString()),
-                  infoRow('Nymphs Found', fileContent['NumNymphs'].toString()),
-                  infoRow('Blackleggeds Found',
-                      fileContent['NumBlacklegged'].toString())
-                ],
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.blueGrey[400],
+                borderRadius: BorderRadius.all(
+                  Radius.circular(10.0),
+                ),
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 7.0, horizontal: 0.0),
+                child: Column(
+                  children: [
+                    //of unsure what fileContent is referring to
+                    //fileContent =  json.decode(File(dir.path + "/" + fileName).readAsStringSync())['SPECIFIC_KEY'].toString()),
+                    infoRow('Name', fileContent['Name'].toString()),
+                    infoRow('Site', fileContent['Site'].toString()),
+                    infoRow('Temperature', fileContent['Temp'].toString()),
+                    infoRow('Humidity', fileContent['Humidity'].toString()),
+                    infoRow('Ground Moisture',
+                        fileContent['GroundMoisture'].toString()),
+                    infoRow(
+                        'Habitat Type', fileContent['HabitatType'].toString()),
+                    infoRow(
+                        'Nymphs Found', fileContent['NumNymphs'].toString()),
+                    infoRow('Blackleggeds Found',
+                        fileContent['NumBlacklegged'].toString())
+                  ],
+                ),
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(bottom: 35.0),
+              padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
               child: RaisedButton(
                 color: Colors.red[700],
                 onPressed: () {
