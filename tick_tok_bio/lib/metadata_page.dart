@@ -401,7 +401,7 @@ class MetadataSectionState extends State<MetadataSection>
   Widget dataField(
       TextEditingController controller, String field, String hText) {
     Widget widget = Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
       child: TextField(
         decoration: kTextFieldDecoration.copyWith(
             hintText: 'Enter $field', labelText: field),
