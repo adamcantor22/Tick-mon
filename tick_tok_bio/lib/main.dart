@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tick_tok_bio/decorationInfo.dart';
+import 'package:tick_tok_bio/logged_in_screen.dart';
 import 'package:tick_tok_bio/user_page.dart';
 import 'database.dart';
 import 'gps_tracking.dart';
@@ -7,6 +8,7 @@ import 'metadata_page.dart';
 import 'json_storage.dart';
 import 'super_listener.dart';
 import 'dart:async';
+import 'user_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,9 +28,10 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage>{
+class HomePageState extends State<HomePage> {
   MetadataSection metadataSection = MetadataSection();
   Maps maps = Maps();
+  LoggedInScreen loggedInPage = LoggedInScreen();
   UserPage userPage = UserPage();
 
   int pageIndex = 0;
@@ -36,6 +39,14 @@ class HomePageState extends State<HomePage>{
   int _selectedIndex = 0;
   bool _loading = true;
   Timer _loadTimer;
+
+  Widget screenChooser() {
+    if (access == false) {
+      return userPage;
+    } else {
+      return mainBody();
+    }
+  }
 
   @override
   void initState() {
@@ -106,7 +117,7 @@ class HomePageState extends State<HomePage>{
       backgroundColor: Colors.blue,
       type: BottomNavigationBarType.shifting,
       items: <BottomNavigationBarItem>[
-        navBarItem(Icons.person, 'User'),
+        navBarItem(Icons.person, 'Welcome Screen'),
         navBarItem(Icons.satellite, 'Updated Map'),
         navBarItem(Icons.sd_storage, 'DragHistory'),
       ],
@@ -145,19 +156,18 @@ class HomePageState extends State<HomePage>{
   Widget mainBody() {
     return Scaffold(
       bottomNavigationBar: _bottomNavBar(),
-      body:
-        Column(
-          children: <Widget>[
-            Expanded(
-                child: IndexedStack(
-                  index: pageIndex,
-                  children: <Widget>[
-                    userPage,
-                    maps,
-                    metadataSection,
-                  ],
-                ),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: IndexedStack(
+              index: pageIndex,
+              children: <Widget>[
+                loggedInPage,
+                maps,
+                metadataSection,
+              ],
             ),
+          ),
         ],
       ),
     );
@@ -175,6 +185,6 @@ class HomePageState extends State<HomePage>{
 //      );
 //    }
 //    print('NO LONGER SHOWING LOADING SCREEN');
-    return mainBody();
+    return screenChooser();
   }
 }
