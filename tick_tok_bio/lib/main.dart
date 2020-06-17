@@ -104,11 +104,11 @@ class HomePageState extends State<HomePage> {
       onTap: (int index) => setState(() => pageIndex = index),
       currentIndex: pageIndex,
       backgroundColor: Colors.blue,
-      type: BottomNavigationBarType.shifting,
+      type: BottomNavigationBarType.fixed,
       items: <BottomNavigationBarItem>[
         navBarItem(Icons.person, 'User'),
-        navBarItem(Icons.satellite, 'Updated Map'),
-        navBarItem(Icons.sd_storage, 'DragHistory'),
+        navBarItem(Icons.explore, 'Map'),
+        navBarItem(Icons.storage, 'Drags'),
       ],
     );
   }

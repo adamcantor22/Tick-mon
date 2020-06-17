@@ -35,7 +35,13 @@ flutter:
   uses-material-design: true
 
   assets:
-    - images/blackarrow.png
+    - images/
+
+  fonts:
+    - family: RobotoMono
+      fonts:
+        - asset: fonts/RobotoMono-Regular.ttf
+        - asset: fonts/RobotoMono-Bold.ttf
 
 
 
