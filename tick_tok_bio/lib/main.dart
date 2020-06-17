@@ -31,7 +31,7 @@ class HomePageState extends State<HomePage> {
   Maps maps = Maps();
   UserPage userPage = UserPage();
 
-  int pageIndex = 0;
+  int pageIndex = 2;
 
   int _selectedIndex = 0;
   bool _loading = true;

@@ -306,10 +306,26 @@ class MetadataSectionState extends State<MetadataSection>
                   Flexible(
                     fit: FlexFit.loose,
                     flex: 1,
-                    child: Center(
-                      child: Icon(
-                        Icons.file_upload,
-                        color: fileUploaded ? Colors.green : Colors.black,
+                    child: Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color:
+                              fileUploaded ? Colors.green[500] : Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color:
+                                fileUploaded ? Colors.green[500] : Colors.black,
+                            width: 2.0,
+                          ),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.file_upload,
+                            color: fileUploaded ? Colors.white : Colors.black,
+                            size: 24.0,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -425,10 +441,13 @@ class MetadataSectionState extends State<MetadataSection>
         ),
         centerTitle: true,
       ),
-      body: ListView(
-        padding: EdgeInsets.only(top: 15.0),
-        children:
-            getDragList(), // != null ? dragList : <Widget>[Text('No Data')],
+      body: Container(
+        color: Colors.grey[200],
+        child: ListView(
+          padding: EdgeInsets.only(top: 15.0),
+          children:
+              getDragList(), // != null ? dragList : <Widget>[Text('No Data')],
+        ),
       ),
     );
   }
