@@ -42,6 +42,7 @@ class MetadataSectionState extends State<MetadataSection>
   List dragList;
   String editingFilename;
   Weather curWeather;
+  final _editKey = GlobalKey<FormState>();
 
   @override
   bool get wantKeepAlive => true;
@@ -405,10 +406,16 @@ class MetadataSectionState extends State<MetadataSection>
       TextEditingController controller, String field, String hText) {
     Widget widget = Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-      child: TextField(
+      child: TextFormField(
         decoration: kTextFieldDecoration.copyWith(
             hintText: 'Enter $field', labelText: field),
         controller: controller,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Enter All Data';
+          }
+          return null;
+        },
       ),
     );
     if (hText != null) {
@@ -440,7 +447,8 @@ class MetadataSectionState extends State<MetadataSection>
 
   Future<bool> addDeterminedFields() async {
     final b = await getFile(editingFilename);
-    fileContent['Temp'] = curWeather.temperature.fahrenheit.toString();
+    fileContent['Temp'] =
+        curWeather.temperature.fahrenheit.toStringAsPrecision(5).toString();
     fileContent['Humidity'] = curWeather.humidity.toString();
     return b;
   }
@@ -512,55 +520,64 @@ class MetadataSectionState extends State<MetadataSection>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.blueGrey[400],
-                borderRadius: BorderRadius.all(
-                  Radius.circular(10.0),
-                ),
-              ),
+            Flexible(
+              flex: 5,
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 7.0, horizontal: 0.0),
-                child: Column(
-                  children: [
-                    //of unsure what fileContent is referring to
-                    //fileContent =  json.decode(File(dir.path + "/" + fileName).readAsStringSync())['SPECIFIC_KEY'].toString()),
-                    infoRow('Name', fileContent['Name'].toString()),
-                    infoRow('Site', fileContent['Site'].toString()),
-                    infoRow('Temperature', fileContent['Temp'].toString()),
-                    infoRow('Humidity', fileContent['Humidity'].toString()),
-                    infoRow('Ground Moisture',
-                        fileContent['GroundMoisture'].toString()),
-                    infoRow(
-                        'Habitat Type', fileContent['HabitatType'].toString()),
-                    infoRow(
-                        'Nymphs Found', fileContent['NumNymphs'].toString()),
-                    infoRow('Blackleggeds Found',
-                        fileContent['NumBlacklegged'].toString())
-                  ],
+                padding: EdgeInsets.only(bottom: 10.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey[400],
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10.0),
+                    ),
+                  ),
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 6.0, horizontal: 0.0),
+                    child: Column(
+                      children: [
+                        //of unsure what fileContent is referring to
+                        //fileContent =  json.decode(File(dir.path + "/" + fileName).readAsStringSync())['SPECIFIC_KEY'].toString()),
+                        infoRow('Name', fileContent['Name'].toString()),
+                        infoRow('Site', fileContent['Site'].toString()),
+                        infoRow('Temperature', fileContent['Temp'].toString()),
+                        infoRow('Humidity', fileContent['Humidity'].toString()),
+                        infoRow('Ground Moisture',
+                            fileContent['GroundMoisture'].toString()),
+                        infoRow('Habitat Type',
+                            fileContent['HabitatType'].toString()),
+                        infoRow('Nymphs Found',
+                            fileContent['NumNymphs'].toString()),
+                        infoRow('Blackleggeds Found',
+                            fileContent['NumBlacklegged'].toString())
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
-              child: RaisedButton(
-                color: Colors.red[700],
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return Helper().boolMessage(
-                        'Are you sure you want to delete this data from your phone? If it has not been uploaded to the cloud it will be permanently deleted.',
-                        deleteCurrentDrag,
-                        context,
-                      );
-                    },
-                  );
-                },
-                child: Text(
-                  'Delete Drag Data',
-                  style: TextStyle(
-                    color: Colors.white,
+            Flexible(
+              child: Padding(
+                padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+                child: RaisedButton(
+                  color: Colors.red[700],
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return Helper().boolMessage(
+                          'Are you sure you want to delete this data from your phone? If it has not been uploaded to the cloud it will be permanently deleted.',
+                          deleteCurrentDrag,
+                          context,
+                        );
+                      },
+                    );
+                  },
+                  child: Text(
+                    'Delete Drag Data',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -617,50 +634,53 @@ class MetadataSectionState extends State<MetadataSection>
         children: <Widget>[
           Flexible(
             flex: 8,
-            child: ListView(
-              padding: EdgeInsets.only(top: 10.0),
-              children: [
-                dataField(
-                  myController0,
-                  'Name',
-                  fileContent['Name'],
-                ),
-                dataField(
-                  myController1,
-                  'Site',
-                  fileContent['Site'],
-                ),
-                dataField(
-                  myController2,
-                  'Temperature',
-                  fileContent['Temp'],
-                ),
-                dataField(
-                  myController3,
-                  'Humidity',
-                  fileContent['Humidity'],
-                ),
-                dataField(
-                  myController4,
-                  'Ground Moisture',
-                  fileContent['GroundMoisture'],
-                ),
-                dataField(
-                  myController5,
-                  'Habitat Type',
-                  fileContent['HabitatType'],
-                ),
-                dataField(
-                  myController6,
-                  'Number of Nymphs',
-                  fileContent['NumNymphs'],
-                ),
-                dataField(
-                  myController7,
-                  'Number of Blackleggeds',
-                  fileContent['NumBlacklegged'],
-                ),
-              ],
+            child: Form(
+              key: _editKey,
+              child: ListView(
+                padding: EdgeInsets.only(top: 10.0),
+                children: [
+                  dataField(
+                    myController0,
+                    'Name',
+                    fileContent['Name'],
+                  ),
+                  dataField(
+                    myController1,
+                    'Site',
+                    fileContent['Site'],
+                  ),
+                  dataField(
+                    myController2,
+                    'Temperature',
+                    fileContent['Temp'],
+                  ),
+                  dataField(
+                    myController3,
+                    'Humidity',
+                    fileContent['Humidity'],
+                  ),
+                  dataField(
+                    myController4,
+                    'Ground Moisture',
+                    fileContent['GroundMoisture'],
+                  ),
+                  dataField(
+                    myController5,
+                    'Habitat Type',
+                    fileContent['HabitatType'],
+                  ),
+                  dataField(
+                    myController6,
+                    'Number of Nymphs',
+                    fileContent['NumNymphs'],
+                  ),
+                  dataField(
+                    myController7,
+                    'Number of Blackleggeds',
+                    fileContent['NumBlacklegged'],
+                  ),
+                ],
+              ),
             ),
           ),
           Container(
@@ -685,33 +705,35 @@ class MetadataSectionState extends State<MetadataSection>
                   textColor: Colors.white,
                   color: Colors.blue,
                   onPressed: () {
-                    writeToFile(
-                      thisFilename,
-                      'Name',
-                      myController0.text,
-                      'Site',
-                      myController1.text,
-                      'Temp',
-                      myController2.text,
-                      'Humidity',
-                      myController3.text,
-                      'GroundMoisture',
-                      myController4.text,
-                      'HabitatType',
-                      myController5.text,
-                      'NumNymphs',
-                      myController6.text,
-                      'NumBlacklegged',
-                      myController7.text,
-                    );
-                    sendJsonToCloud();
-                    drags();
+                    if (_editKey.currentState.validate()) {
+                      writeToFile(
+                        thisFilename,
+                        'Name',
+                        myController0.text,
+                        'Site',
+                        myController1.text,
+                        'Temp',
+                        myController2.text,
+                        'Humidity',
+                        myController3.text,
+                        'GroundMoisture',
+                        myController4.text,
+                        'HabitatType',
+                        myController5.text,
+                        'NumNymphs',
+                        myController6.text,
+                        'NumBlacklegged',
+                        myController7.text,
+                      );
+                      sendJsonToCloud();
+                      drags();
 
-                    setState(() {
-                      editingData = false;
-                      viewingData = false;
-                      viewingDrags = true;
-                    });
+                      setState(() {
+                        editingData = false;
+                        viewingData = false;
+                        viewingDrags = true;
+                      });
+                    }
                   },
                   child: Text('Save Drag Data'),
                 ),
