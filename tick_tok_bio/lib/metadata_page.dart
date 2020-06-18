@@ -1,6 +1,7 @@
 //import 'dart:html';
 //  import 'dart:html';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'main.dart';
@@ -10,6 +11,10 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'super_listener.dart';
+import 'helper.dart';
+import 'file_uploader.dart';
+import 'weather_tracker.dart';
+import 'package:weather/weather_library.dart';
 
 //These are the three boolean values used to determine which screen we are currently on
 bool viewingDrags = true;
@@ -36,6 +41,8 @@ class MetadataSectionState extends State<MetadataSection>
   String currentFile;
   List dragList;
   String editingFilename;
+  Weather curWeather;
+  final _editKey = GlobalKey<FormState>();
 
   @override
   bool get wantKeepAlive => true;
@@ -83,13 +90,45 @@ class MetadataSectionState extends State<MetadataSection>
     });
   }
 
+  //This function is the actual home of the scaffold and controls which screens will be seen on the app.
+  Widget pageBody() {
+    if (viewingDrags == true) {
+      return viewDrags();
+    } else if (viewingData == true) {
+      return viewData();
+    } else if (editingData == true) {
+      return editDrag(editingFilename);
+    }
+    return Container(); //On Error, essentially
+  }
+
+  void drags() async {
+    var tmpList = new List<Widget>();
+    final jsonList = jsonDir.listSync();
+    for (FileSystemEntity f in jsonList) {
+      String p = f.path;
+      Widget tmp = await dragMenu(p.substring(p.length - 28, p.length - 5));
+      tmpList.add(tmp);
+    }
+    setState(() {
+      dragList = tmpList;
+    });
+  }
+
   void deleteFiles() async {
     for (FileSystemEntity f in fileList) {
       String p = f.path;
-      if (p.substring(p.length - 4, p.length) == '.gpx') {
+      if (p.substring(p.length - 4, p.length) == '.gpx' ||
+          p.substring(p.length - 5, p.length) == '.json') {
         print('DELETING: $p');
         f.deleteSync(recursive: true);
       }
+    }
+    try {
+      String p = jsonDir.path + '/New Drag.json';
+      File(p).deleteSync();
+    } catch (e) {
+      print('no unintended drags');
     }
   }
 
@@ -98,7 +137,6 @@ class MetadataSectionState extends State<MetadataSection>
     bool jsonExists = false;
     for (FileSystemEntity f in fileList) {
       String p = f.path;
-      print(p);
       if (p.substring(p.length - 4, p.length) == '/gpx') {
         gpxExists = true;
         gpxDir = f;
@@ -186,46 +224,58 @@ class MetadataSectionState extends State<MetadataSection>
 
   //This function should either modify the current file to one which already exists or to create a new JSON file for a new drag.
   //This is done in accordance with the var fileNum. This is the integer placed at the end of the names like drag4.json.
-  void getFile(String thisFilename) {
+  Future<bool> getFile(String thisFilename) async {
     fileName = '$thisFilename.json';
-    getApplicationDocumentsDirectory().then((Directory directory) async {
-      dir = Directory(directory.path + '/json');
-      print(fileName);
-      jsonFile = File(dir.path + '/' + fileName);
-      fileExists = await jsonFile.exists();
-      if (fileExists) {
-        setState(() {
-          fileContent = json.decode(jsonFile.readAsStringSync());
-        });
-      } else {
-        File file = File(dir.path + '/' + fileName);
-        file.createSync();
-        fileExists = true;
-        Map contents = {};
-        file.writeAsStringSync(json.encode(contents));
-        setState(() {
-          fileContent = json.decode(file.readAsStringSync());
-        });
-      }
-    });
+    Directory directory = await getApplicationDocumentsDirectory();
+    dir = Directory(directory.path + '/json');
+    print(fileName);
+    jsonFile = File(dir.path + '/' + fileName);
+    fileExists = await jsonFile.exists();
+    if (fileExists) {
+      setState(() {
+        fileContent = json.decode(jsonFile.readAsStringSync());
+      });
+    } else {
+      File file = File(dir.path + '/' + fileName);
+      file.createSync();
+      fileExists = true;
+      Map contents = {};
+      file.writeAsStringSync(json.encode(contents));
+      setState(() {
+        fileContent = json.decode(file.readAsStringSync());
+      });
+    }
+    return fileContent != null;
   }
 
-//This function is the actual home of the scaffold and controls which screens will be seen on the app.
-  Widget pageBody() {
-    if (viewingDrags == true) {
-      return viewDrags();
-    } else if (viewingData == true) {
-      return viewData();
-    } else if (editingData == true) {
-      return editDrag(editingFilename);
-    }
-    return Container(); //On Error, essentially
+  String getDragDisplayName() {
+    String s = '';
+    s += (fileContent != null &&
+                fileContent['Site'] != null &&
+                fileContent['Site'].toString().trim() != ''
+            ? fileContent['Site'].toString()
+            : 'GQ') +
+        ' ';
+    s += '1' + ' ';
+    s += 'ABC' + ' ';
+    s += editingFilename.substring(0, 10);
+    return s;
   }
 
   //This function allows for the creation of cards to represent each drag's data.
-  Widget dragMenu(String name) {
+  Future<Widget> dragMenu(String name) async {
     editingFilename = name;
-    getFile(name);
+    final b = await getFile(name);
+    String display = getDragDisplayName();
+    bool fileUploaded = false;
+    StorageReference store;
+    try {
+      store = FirebaseStorage.instance.ref().child('$editingFilename.json');
+      fileUploaded = true;
+    } catch (e) {
+      print(e);
+    }
+
     return FlatButton(
       onPressed: () {
         setState(() {
@@ -250,7 +300,7 @@ class MetadataSectionState extends State<MetadataSection>
                     flex: 5,
                     child: Center(
                       child: Text(
-                        name,
+                        display,
                         style: TextStyle(
                           fontSize: 22.0,
                         ),
@@ -260,9 +310,26 @@ class MetadataSectionState extends State<MetadataSection>
                   Flexible(
                     fit: FlexFit.loose,
                     flex: 1,
-                    child: Center(
-                      child: Icon(
-                        Icons.file_upload,
+                    child: Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color:
+                              fileUploaded ? Colors.green[500] : Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color:
+                                fileUploaded ? Colors.green[500] : Colors.black,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.file_upload,
+                            color: fileUploaded ? Colors.white : Colors.black,
+                            size: 24.0,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -276,78 +343,114 @@ class MetadataSectionState extends State<MetadataSection>
   }
 
 //This function is used to populate the screen where all the data for a drag is being viewed.
-  Widget infoRow(key, value) {
-    return Row(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Text(
-            '$key: $value',
-            style: TextStyle(fontSize: 20.0),
-          ),
-        ),
-      ],
+  Widget infoRow(String key, String value) {
+    TextStyle ts = TextStyle(
+      letterSpacing: -0.7,
+      fontSize: 17.5,
+      fontWeight: FontWeight.w600,
+      fontFamily: 'RobotoMono',
     );
-  }
-
-//This is used to populate the textBoxes and link them with their proper controllers in the entering data screen.
-  Widget dataField(String hText, controller) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-      child: TextField(
-        decoration: kTextFieldDecoration.copyWith(hintText: hText),
-        controller: controller,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Flexible(
+            flex: 5,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.lightBlue[100],
+                borderRadius: BorderRadius.all(
+                  Radius.circular(10.0),
+                ),
+              ),
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(0.0, 8.0, 5.0, 8.0),
+                child: Text(
+                  '$key:',
+                  style: ts,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 8.0,
+          ),
+          Flexible(
+            flex: 4,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.lightBlue[200],
+                borderRadius: BorderRadius.all(
+                  Radius.circular(10.0),
+                ),
+              ),
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(5.0, 8.0, 0.0, 8.0),
+                child: Text(
+                  '$value',
+                  style: ts,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  void drags() {
-    setState(() {
-      final jsonList = jsonDir.listSync();
-      dragList = new List<Widget>();
-      for (FileSystemEntity f in jsonList) {
-        String p = f.path;
-        dragList.add(dragMenu(
-          p.substring(p.length - 28, p.length - 5),
-        ));
-      }
-//      dragList = <Widget>[
-//        //dragMenu(fileContent['time'].toString(), 1, visibilityList[0]),
-//        dragMenu(
-//          'TESTDATA' + DateTime.now().toString(),
-//          2,
-//        ),
-//        dragMenu(
-//          'TESTDATA' + DateTime.now().toString(),
-//          3,
-//        ),
-//        dragMenu(
-//          'TESTDATA' + DateTime.now().toString(),
-//          4,
-//        ),
-//        dragMenu(
-//          'TESTDATA' + DateTime.now().toString(),
-//          5,
-//        ),
-//        dragMenu(
-//          'TESTDATA' + DateTime.now().toString(),
-//          30,
-//        ),
-//      ];
-    });
-    print(dragList.length);
+//This is used to populate the textBoxes and link them with their proper controllers in the entering data screen.
+  Widget dataField(
+      TextEditingController controller, String field, String hText) {
+    Widget widget = Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+      child: TextFormField(
+        decoration: kTextFieldDecoration.copyWith(
+            hintText: 'Enter $field', labelText: field),
+        controller: controller,
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Enter All Data';
+          }
+          return null;
+        },
+      ),
+    );
+    if (hText != null) {
+      controller.text = hText;
+    } else {
+      controller.text = '';
+    }
+    return widget;
   }
 
-  void createNewDrag(String newFilename) {
+  void createNewDrag(String newFilename) async {
+    curWeather = await WeatherTracker.getWeather();
+    Widget newDrag = await dragMenu(newFilename);
+
     setState(() {
-      print('***DATAPAGE MAKING NEW DRAG***');
-      dragList.add(dragMenu(
-        newFilename,
-      ));
-      viewingDrags = false;
-      editingData = true;
+      dragList.add(newDrag);
       editingFilename = newFilename;
     });
+
+    final b = await addDeterminedFields();
+
+    setState(() {
+      print('CHANGING TO EDIT MODE');
+      viewingDrags = false;
+      viewingData = false;
+      editingData = true;
+    });
+  }
+
+  Future<bool> addDeterminedFields() async {
+    final b = await getFile(editingFilename);
+    fileContent['Temp'] =
+        curWeather.temperature.fahrenheit.toStringAsPrecision(5).toString();
+    fileContent['Humidity'] = curWeather.humidity.toString();
+    return b;
   }
 
   //This is the screen that appears if on clicks over to the metaData tag.
@@ -362,36 +465,34 @@ class MetadataSectionState extends State<MetadataSection>
           ),
         ),
         centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              setState(() {
-                dragList.add(dragMenu(
-                  'New Drag',
-                ));
-                viewingDrags = false;
-                editingData = true;
-                editingFilename = 'TESTDATA_' + DateTime.now().toString();
-              });
-            },
-          ),
-        ],
       ),
-      body: Padding(
-        padding: EdgeInsets.only(top: 10.0),
+      body: Container(
+        color: Colors.grey[200],
         child: ListView(
-          children: dragList,
+          padding: EdgeInsets.only(top: 15.0),
+          children:
+              getDragList(), // != null ? dragList : <Widget>[Text('No Data')],
         ),
       ),
     );
+  }
+
+  List<Widget> getDragList() {
+    if (dragList == null) {
+      return <Widget>[
+        Center(
+          child: Text('Data Loading'),
+        ),
+      ];
+    }
+    return dragList;
   }
 
 //This function is used to display a the specific data for the specific drag.
   Widget viewData() {
     return Scaffold(
       appBar: AppBar(
-        title: Text(''),
+        title: Text('Viewing: ${getDragDisplayName()}'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.edit),
@@ -413,22 +514,102 @@ class MetadataSectionState extends State<MetadataSection>
           ),
         ],
       ),
-      body: Column(
-        children: [
-          //of unsure what fileContent is referring to
-          //fileContent =  json.decode(File(dir.path + "/" + fileName).readAsStringSync())['SPECIFIC_KEY'].toString()),
-          infoRow('Name', fileContent['Name'].toString()),
-          infoRow('Site', fileContent['Site'].toString()),
-          infoRow('Temperature', fileContent['Temp'].toString()),
-          infoRow('Humidity', fileContent['Humidity'].toString()),
-          infoRow('Ground Moisture', fileContent['GroundMoisture'].toString()),
-          infoRow('Habitat Type', fileContent['HabitatType'].toString()),
-          infoRow('Nymphs Collected', fileContent['NumNymphs'].toString()),
-          infoRow('BlackLegged Ticks Collected',
-              fileContent['NumBlacklegged'].toString())
-        ],
+      body: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+        color: Colors.grey[200],
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Flexible(
+              flex: 5,
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 10.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey[400],
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10.0),
+                    ),
+                  ),
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 6.0, horizontal: 0.0),
+                    child: Column(
+                      children: [
+                        //of unsure what fileContent is referring to
+                        //fileContent =  json.decode(File(dir.path + "/" + fileName).readAsStringSync())['SPECIFIC_KEY'].toString()),
+                        infoRow('Name', fileContent['Name'].toString()),
+                        infoRow('Site', fileContent['Site'].toString()),
+                        infoRow('Temperature', fileContent['Temp'].toString()),
+                        infoRow('Humidity', fileContent['Humidity'].toString()),
+                        infoRow('Ground Moisture',
+                            fileContent['GroundMoisture'].toString()),
+                        infoRow('Habitat Type',
+                            fileContent['HabitatType'].toString()),
+                        infoRow('Nymphs Found',
+                            fileContent['NumNymphs'].toString()),
+                        infoRow('Blackleggeds Found',
+                            fileContent['NumBlacklegged'].toString())
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Flexible(
+              child: Padding(
+                padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+                child: RaisedButton(
+                  color: Colors.red[700],
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return Helper().boolMessage(
+                          'Are you sure you want to delete this data from your phone? If it has not been uploaded to the cloud it will be permanently deleted.',
+                          deleteCurrentDrag,
+                          context,
+                        );
+                      },
+                    );
+                  },
+                  child: Text(
+                    'Delete Drag Data',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  void deleteCurrentDrag() {
+    File f;
+    try {
+      f = File('${jsonDir.path}/$editingFilename.json');
+      f.deleteSync(recursive: true);
+      print('json file deleted');
+    } catch (e) {
+      print(e);
+      print('No such json file');
+    }
+
+    try {
+      f = File('${gpxDir.path}/$editingFilename.gpx');
+      f.deleteSync(recursive: true);
+      print('gpx file deleted');
+    } catch (e) {
+      print('No such gpx file');
+    }
+
+    viewingData = false;
+    viewingDrags = true;
+    drags();
   }
 
 //This function is used to change the metadata for a specific drag which has been done.
@@ -436,14 +617,15 @@ class MetadataSectionState extends State<MetadataSection>
   Widget editDrag(String thisFilename) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Title'),
+        title: Text('Editing ${getDragDisplayName()}'),
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.close),
               onPressed: () {
                 setState(() {
                   editingData = false;
-                  viewingDrags = true;
+                  viewingDrags = false;
+                  viewingData = true;
                 });
               })
         ],
@@ -451,64 +633,128 @@ class MetadataSectionState extends State<MetadataSection>
       body: Column(
         children: <Widget>[
           Flexible(
-            flex: 7,
-            child: ListView(
-              padding: EdgeInsets.only(top: 10.0),
-              children: [
-                dataField('Enter Name', myController0),
-                dataField('Enter Site', myController1),
-                dataField('Enter Temperature', myController2),
-                dataField('Enter Humidity', myController3),
-                dataField('Enter Ground Mosture', myController4),
-                dataField('Enter Habitat Type', myController5),
-                dataField('Enter Number of Nymphs Caught', myController6),
-                dataField('Enter Number of BlackLeggeds caught', myController7),
-              ],
+            flex: 8,
+            child: Form(
+              key: _editKey,
+              child: ListView(
+                padding: EdgeInsets.only(top: 10.0),
+                children: [
+                  dataField(
+                    myController0,
+                    'Name',
+                    fileContent['Name'],
+                  ),
+                  dataField(
+                    myController1,
+                    'Site',
+                    fileContent['Site'],
+                  ),
+                  dataField(
+                    myController2,
+                    'Temperature',
+                    fileContent['Temp'],
+                  ),
+                  dataField(
+                    myController3,
+                    'Humidity',
+                    fileContent['Humidity'],
+                  ),
+                  dataField(
+                    myController4,
+                    'Ground Moisture',
+                    fileContent['GroundMoisture'],
+                  ),
+                  dataField(
+                    myController5,
+                    'Habitat Type',
+                    fileContent['HabitatType'],
+                  ),
+                  dataField(
+                    myController6,
+                    'Number of Nymphs',
+                    fileContent['NumNymphs'],
+                  ),
+                  dataField(
+                    myController7,
+                    'Number of Blackleggeds',
+                    fileContent['NumBlacklegged'],
+                  ),
+                ],
+              ),
             ),
           ),
-          SizedBox(
+          Container(
             height: 5.0,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              border: Border(
+                top: BorderSide(
+                  width: 1.5,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
           ),
           Flexible(
             flex: 1,
-            child: RaisedButton(
-              textColor: Colors.white,
-              color: Colors.blue,
-              onPressed: () {
-                setState(() {
-                  writeToFile(
-                    thisFilename,
-                    'Name',
-                    myController0.text,
-                    'Site',
-                    myController1.text,
-                    'Temp',
-                    myController2.text,
-                    'Humidity',
-                    myController3.text,
-                    'GroundMoisture',
-                    myController4.text,
-                    'HabitatType',
-                    myController5.text,
-                    'NumNymphs',
-                    myController6.text,
-                    'NumBlacklegged',
-                    myController7.text,
-                  );
+            child: Container(
+              padding: EdgeInsets.zero,
+              color: Colors.grey[200],
+              child: Center(
+                child: RaisedButton(
+                  textColor: Colors.white,
+                  color: Colors.blue,
+                  onPressed: () {
+                    if (_editKey.currentState.validate()) {
+                      writeToFile(
+                        thisFilename,
+                        'Name',
+                        myController0.text,
+                        'Site',
+                        myController1.text,
+                        'Temp',
+                        myController2.text,
+                        'Humidity',
+                        myController3.text,
+                        'GroundMoisture',
+                        myController4.text,
+                        'HabitatType',
+                        myController5.text,
+                        'NumNymphs',
+                        myController6.text,
+                        'NumBlacklegged',
+                        myController7.text,
+                      );
+                      sendJsonToCloud();
+                      drags();
 
-                  editingData = false;
-                  viewingData = true;
-                });
-              },
-              child: Text('Save Drag Data'),
+                      setState(() {
+                        editingData = false;
+                        viewingData = false;
+                        viewingDrags = true;
+                      });
+                    }
+                  },
+                  child: Text('Save Drag Data'),
+                ),
+              ),
             ),
           ),
-          SizedBox(
+          Container(
             height: 5.0,
+            color: Colors.grey[200],
           ),
         ],
       ),
     );
+  }
+
+  void sendJsonToCloud() {
+    FileUploader uploader = new FileUploader();
+    File f = File('${jsonDir.path}/$editingFilename.json');
+    uploader.fileUpload(f, '$editingFilename.json').then((val) {
+      print(val);
+    });
   }
 
   @override
