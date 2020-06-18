@@ -67,9 +67,6 @@ class UserPageState extends State<UserPage> {
     } else {
       email = "";
     }
-    print(name);
-    print(email);
-    print('FHJDFJDJFDJFHJDHFJ&&&&&&&&');
 
     assert(!user.isAnonymous);
     assert(await user.getIdToken() != null);
@@ -134,11 +131,13 @@ class UserPageState extends State<UserPage> {
                       RaisedButton(
                         color: Colors.blue,
                         onPressed: () {
-                          signInWithGoogle();
                           setState(() {
                             access = true;
-                            print(access);
                           });
+                          signInWithGoogle().whenComplete(() => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MyApp())));
                         },
                         child: Text(
                           'Login with Google',
