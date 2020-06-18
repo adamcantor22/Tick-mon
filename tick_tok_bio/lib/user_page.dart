@@ -16,6 +16,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 bool access = false;
+final GoogleSignIn googleSignIn = GoogleSignIn();
 
 class UserPage extends StatefulWidget {
   const UserPage({Key key}) : super(key: key);
@@ -26,7 +27,7 @@ class UserPage extends StatefulWidget {
 
 class UserPageState extends State<UserPage> {
   bool loggedIn = false;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final _formKey = GlobalKey<FormState>();
@@ -34,58 +35,58 @@ class UserPageState extends State<UserPage> {
   final pwdController = TextEditingController();
 
   bool creatingAccount = false;
-  String user;
   String name;
   String email;
 
   Future<String> signInWithGoogle() async {
-    final GoogleSignInAccount googleSignInAccount =
-        await _googleSignIn.signIn();
+    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+    print('THIS HAS COMPLEED');
 
-    final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
+//    final GoogleSignInAuthentication googleSignInAuthentication =
+//        await googleSignInAccount.authentication
 
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
-        idToken: googleSignInAuthentication.idToken,
-        accessToken: googleSignInAuthentication.accessToken);
+//    print('THIS IS AN SOSOSOOSS');
+//    final AuthCredential credential = GoogleAuthProvider.getCredential(
+//        idToken: googleSignInAuthentication.idToken,
+//        accessToken: googleSignInAuthentication.accessToken);
+//    print('THIS IS AN SOSOSOOSS');
+//    final AuthResult authResult = await _auth.signInWithCredential(credential);
+//    print('THIS IS AN SOSOSOOSS');
+//    final FirebaseUser user = authResult.user;
+//    print('THIS IS AN SOSOSOOSS');
+//    if (user.displayName != null) {
+//      setState(() {
+//        name = user.displayName;
+//      });
+//    } else {
+//      setState(() {
+//        name = "";
+//      });
+//    }
+//    if (user.email != null) {
+//      email = user.displayName;
+//    } else {
+//      email = "";
+//    }
+//    print('THIS IS AN SOSOSOOSS');
+//    assert(!user.isAnonymous);
+//    assert(await user.getIdToken() != null);
+//
+//    final FirebaseUser currentUser = await _auth.currentUser();
+//    assert(user.uid == currentUser.uid);
 
-    final AuthResult authResult = await _auth.signInWithCredential(credential);
-
-    final FirebaseUser user = authResult.user;
-
-    if (user.displayName != null) {
-      setState(() {
-        name = user.displayName;
-      });
-    } else {
-      setState(() {
-        name = "";
-      });
-    }
-    if (user.email != null) {
-      email = user.displayName;
-    } else {
-      email = "";
-    }
-
-    assert(!user.isAnonymous);
-    assert(await user.getIdToken() != null);
-
-    final FirebaseUser currentUser = await _auth.currentUser();
-    assert(user.uid == currentUser.uid);
-
-    return 'User: $user';
+    return 'User: ';
   }
 
   void signOutGoogle() async {
-    await _googleSignIn.signOut();
+    await googleSignIn.signOut();
     setState(() {
       loggedIn = false;
     });
   }
 
   String getUser() {
-    return user;
+    //return user;
   }
 
   //Sets up this page to be controllable through SuperListener
@@ -116,7 +117,7 @@ class UserPageState extends State<UserPage> {
               children: <Widget>[
                 Center(
                   child: Text(
-                    'You are not logged in. Login to start.',
+                    'You are not logged in.\nLogin to start.',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 22.0,
@@ -139,11 +140,20 @@ class UserPageState extends State<UserPage> {
                               MaterialPageRoute(
                                   builder: (context) => MyApp())));
                         },
-                        child: Text(
-                          'Login with Google',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
+                        child: Row(
+                          children: [
+                            Image(
+                              image: AssetImage('images/google_logo.png'),
+                              height: 50.0,
+                              width: 50.0,
+                            ),
+                            Text(
+                              'Login with Google',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -205,7 +215,7 @@ class UserPageState extends State<UserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Page'),
+        title: Text('Log In Page'),
       ),
       body: loginPage(),
     );

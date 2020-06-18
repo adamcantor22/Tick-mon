@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tick_tok_bio/user_page.dart';
+import 'main.dart';
+import 'user_page.dart';
 
 class LoggedInScreen extends StatefulWidget {
   @override
@@ -11,30 +14,33 @@ class _LoggedInScreenState extends State<LoggedInScreen> {
     return Scaffold(
         body: Center(
       child: Padding(
-        padding: EdgeInsets.all(40.0),
+        padding: EdgeInsets.all(80.0),
         child: Column(
           children: <Widget>[
-            Text(
-              ('User Page'),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20.0,
-              ),
-            ),
             RaisedButton(
               color: Colors.blue,
               onPressed: () {
                 setState(() {
-                  //signOutGoogle();
+                  googleSignIn.signOut();
+                  access = false;
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => UserPage()));
                 });
               },
               child: Text(
                 'Logout',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 25.0),
               ),
             ),
+            SizedBox(
+              height: 100.0,
+            ),
+            Text(
+              'Welcome Kevin! \n Kevin@email.com',
+              style: TextStyle(
+                fontSize: 25.0,
+              ),
+            )
           ],
         ),
       ),

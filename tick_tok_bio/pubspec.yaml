@@ -36,6 +36,7 @@ flutter:
 
   assets:
     - images/blackarrow.png
+    - images/google_logo.png
 
 
 
