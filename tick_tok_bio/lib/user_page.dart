@@ -136,7 +136,8 @@ class UserPageState extends State<UserPage> {
                   child: Column(
                     children: <Widget>[
                       RaisedButton(
-                        shape: RoundedRectangleBorder(),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0)),
                         color: Colors.blue,
                         onPressed: () {
                           setState(() {
@@ -148,7 +149,7 @@ class UserPageState extends State<UserPage> {
                           children: [
                             Image(
                               image: AssetImage('images/google_logo.png'),
-                              height: 50.0,
+                              height: 40.0,
                               width: 50.0,
                             ),
                             Text(
