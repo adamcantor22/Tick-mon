@@ -17,6 +17,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 bool access = false;
 final GoogleSignIn googleSignIn = GoogleSignIn();
+String name;
+String email;
 
 class UserPage extends StatefulWidget {
   const UserPage({Key key}) : super(key: key);
@@ -35,47 +37,51 @@ class UserPageState extends State<UserPage> {
   final pwdController = TextEditingController();
 
   bool creatingAccount = false;
-  String name;
-  String email;
 
   Future<String> signInWithGoogle() async {
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
     print('THIS HAS COMPLEED');
 
-//    final GoogleSignInAuthentication googleSignInAuthentication =
-//        await googleSignInAccount.authentication
+    final GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
 
-//    print('THIS IS AN SOSOSOOSS');
-//    final AuthCredential credential = GoogleAuthProvider.getCredential(
-//        idToken: googleSignInAuthentication.idToken,
-//        accessToken: googleSignInAuthentication.accessToken);
-//    print('THIS IS AN SOSOSOOSS');
-//    final AuthResult authResult = await _auth.signInWithCredential(credential);
-//    print('THIS IS AN SOSOSOOSS');
-//    final FirebaseUser user = authResult.user;
-//    print('THIS IS AN SOSOSOOSS');
-//    if (user.displayName != null) {
-//      setState(() {
-//        name = user.displayName;
-//      });
-//    } else {
-//      setState(() {
-//        name = "";
-//      });
-//    }
-//    if (user.email != null) {
-//      email = user.displayName;
-//    } else {
-//      email = "";
-//    }
-//    print('THIS IS AN SOSOSOOSS');
-//    assert(!user.isAnonymous);
-//    assert(await user.getIdToken() != null);
-//
-//    final FirebaseUser currentUser = await _auth.currentUser();
-//    assert(user.uid == currentUser.uid);
+    print('THIS IS AN SOSOSOOSS');
+    final AuthCredential credential = GoogleAuthProvider.getCredential(
+        idToken: googleSignInAuthentication.idToken,
+        accessToken: googleSignInAuthentication.accessToken);
+    print('THIS IS AN SOSOSOOSS');
+    final AuthResult authResult = await _auth.signInWithCredential(credential);
+    print('THIS IS AN SOSOSOOSS');
+    final FirebaseUser user = authResult.user;
+    print('THIS IS AN SOSOSOOSS');
 
-    return 'User: ';
+    if (user.displayName != null) {
+      setState(() {
+        name = user.displayName;
+      });
+    } else {
+      setState(() {
+        name = "";
+      });
+    }
+    if (user.email != null) {
+      email = user.email;
+    } else {
+      email = "";
+    }
+    print('THIS IS AN SOSOSOOSS');
+    assert(!user.isAnonymous);
+    assert(await user.getIdToken() != null);
+
+    final FirebaseUser currentUser = await _auth.currentUser();
+    assert(user.uid == currentUser.uid);
+
+    if (user != null) {
+      print(user);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => MyApp()));
+    }
+
+    return 'User: $user';
   }
 
   void signOutGoogle() async {
@@ -130,15 +136,13 @@ class UserPageState extends State<UserPage> {
                   child: Column(
                     children: <Widget>[
                       RaisedButton(
+                        shape: RoundedRectangleBorder(),
                         color: Colors.blue,
                         onPressed: () {
                           setState(() {
                             access = true;
                           });
-                          signInWithGoogle().whenComplete(() => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => MyApp())));
+                          signInWithGoogle();
                         },
                         child: Row(
                           children: [

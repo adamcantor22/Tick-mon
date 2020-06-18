@@ -35,10 +35,23 @@ class _LoggedInScreenState extends State<LoggedInScreen> {
             SizedBox(
               height: 100.0,
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'Welcome',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                  ),
+                )
+              ],
+            ),
             Text(
-              'Welcome Kevin! \n Kevin@email.com',
+              name,
+              textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 25.0,
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
               ),
             )
           ],
