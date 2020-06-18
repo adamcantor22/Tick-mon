@@ -36,6 +36,8 @@ flutter:
   uses-material-design: true
 
   assets:
+    - images/blackarrow.png
+    - images/google_logo.png
     - images/
 
   fonts:

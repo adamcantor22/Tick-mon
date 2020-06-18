@@ -28,6 +28,10 @@ class SuperListener {
     if (dPage != null) dataPage = dPage;
   }
 
+  static void logInSwitch() {
+    access = true;
+  }
+
   //Navigates to the page as specified in the home index
   static void navigateTo(int page) {
     homePage.pageNavigator(page);

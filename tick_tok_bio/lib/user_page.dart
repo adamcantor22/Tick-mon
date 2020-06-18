@@ -4,7 +4,7 @@
     personal page. The user can also choose to create an account, and upon
     having done so the user will also be sent to their new personal page.
  */
-
+import 'main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,6 +12,13 @@ import 'package:tick_tok_bio/super_listener.dart';
 import 'gps_tracking.dart';
 import 'package:location/location.dart';
 import 'helper.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+bool access = false;
+final GoogleSignIn googleSignIn = GoogleSignIn();
+String name;
+String email;
 
 class UserPage extends StatefulWidget {
   const UserPage({Key key}) : super(key: key);
@@ -21,15 +28,71 @@ class UserPage extends StatefulWidget {
 }
 
 class UserPageState extends State<UserPage> {
+  bool loggedIn = false;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   final _formKey = GlobalKey<FormState>();
   final userController = TextEditingController();
   final pwdController = TextEditingController();
 
   bool creatingAccount = false;
-  String user;
+
+  Future<String> signInWithGoogle() async {
+    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+    print('THIS HAS COMPLEED');
+
+    final GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
+
+    print('THIS IS AN SOSOSOOSS');
+    final AuthCredential credential = GoogleAuthProvider.getCredential(
+        idToken: googleSignInAuthentication.idToken,
+        accessToken: googleSignInAuthentication.accessToken);
+    print('THIS IS AN SOSOSOOSS');
+    final AuthResult authResult = await _auth.signInWithCredential(credential);
+    print('THIS IS AN SOSOSOOSS');
+    final FirebaseUser user = authResult.user;
+    print('THIS IS AN SOSOSOOSS');
+
+    if (user.displayName != null) {
+      setState(() {
+        name = user.displayName;
+      });
+    } else {
+      setState(() {
+        name = "";
+      });
+    }
+    if (user.email != null) {
+      email = user.email;
+    } else {
+      email = "";
+    }
+    print('THIS IS AN SOSOSOOSS');
+    assert(!user.isAnonymous);
+    assert(await user.getIdToken() != null);
+
+    final FirebaseUser currentUser = await _auth.currentUser();
+    assert(user.uid == currentUser.uid);
+
+    if (user != null) {
+      print(user);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => MyApp()));
+    }
+
+    return 'User: $user';
+  }
+
+  void signOutGoogle() async {
+    await googleSignIn.signOut();
+    setState(() {
+      loggedIn = false;
+    });
+  }
 
   String getUser() {
-    return user;
+    //return user;
   }
 
   //Sets up this page to be controllable through SuperListener
@@ -41,14 +104,9 @@ class UserPageState extends State<UserPage> {
   }
 
   //Main body controller, uses bools to determine what page should be shown
-  Widget userPageBody() {
-    if (user == null) {
-      if (creatingAccount) {
-        return createAccountPage();
-      }
-      return loginPage();
-    }
-    return userScreen();
+
+  void bobPrinter() {
+    print('BOB');
   }
 
   //Startup page. Scrollable, includes login and create account buttons
@@ -65,7 +123,7 @@ class UserPageState extends State<UserPage> {
               children: <Widget>[
                 Center(
                   child: Text(
-                    'You are not logged in. Login to start.',
+                    'You are not logged in.\nLogin to start.',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 22.0,
@@ -77,64 +135,30 @@ class UserPageState extends State<UserPage> {
                       EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
                   child: Column(
                     children: <Widget>[
-                      TextFormField(
-                        controller: userController,
-                        decoration: InputDecoration(
-                          hintText: 'Username',
-                        ),
-                      ),
-                      TextFormField(
-                        controller: pwdController,
-                        decoration: InputDecoration(
-                          hintText: 'Password',
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
                       RaisedButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0)),
                         color: Colors.blue,
-                        onPressed: () async {
-                          inputTrim();
-                          validateLogin(userController.text, pwdController.text)
-                              .then((response) {
-                            if (response) {
-                              setState(() {
-                                user = userController.text.trim();
-                              });
-                            } else {}
-                          });
-                        },
-                        child: Text(
-                          'Login',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(0.0, 45.0, 0.0, 15.0),
-                        child: Text(
-                          'OR',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.0,
-                          ),
-                        ),
-                      ),
-                      RaisedButton(
-                        color: Colors.white,
                         onPressed: () {
                           setState(() {
-                            creatingAccount = true;
-                            inputClear();
+                            access = true;
                           });
+                          signInWithGoogle();
                         },
-                        child: Text(
-                          'Create Account',
-                          style: TextStyle(
-                            color: Colors.blue,
-                          ),
+                        child: Row(
+                          children: [
+                            Image(
+                              image: AssetImage('images/google_logo.png'),
+                              height: 40.0,
+                              width: 50.0,
+                            ),
+                            Text(
+                              'Login with Google',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -161,196 +185,44 @@ class UserPageState extends State<UserPage> {
   }
 
   //Returns a future, populates true if the login is valid, else false
-  Future<bool> validateLogin(String name, String pwd) {
-    final myFuture = Future<bool>(() {
-      Future<QuerySnapshot> q =
-          Firestore.instance.collection('users').getDocuments();
-      return q.then((val) {
-        for (DocumentSnapshot d in val.documents) {
-          if (d.data['username'] == name) {
-            if (d.data['password'] == pwd) {
-              return true;
-            }
-          }
-        }
-        return false;
-      });
-    });
-    return myFuture;
-  }
+//  Future<bool> validateLogin(String name, String pwd) {
+//    final myFuture = Future<bool>(() {
+//      Future<QuerySnapshot> q =
+//          Firestore.instance.collection('users').getDocuments();
+//      return q.then((val) {
+//        for (DocumentSnapshot d in val.documents) {
+//          if (d.data['username'] == name) {
+//            if (d.data['password'] == pwd) {
+//              return true;
+//            }
+//          }
+//        }
+//        return false;
+//      });
+//    });
+//    return myFuture;
+//  }
 
-  //Returns the create account page. very similar to login, with different functionality
-  Widget createAccountPage() {
-    return Container(
-      color: Colors.grey[200],
-      child: Padding(
-        padding: EdgeInsets.all(40.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: <Widget>[
-              Text(
-                'Create New Account',
-                style: TextStyle(
-                  fontSize: 22.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(
-                height: 20.0,
-              ),
-              TextFormField(
-                controller: userController,
-                decoration: InputDecoration(
-                  hintText: 'New Username',
-                ),
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Please enter a username';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: pwdController,
-                decoration: InputDecoration(
-                  hintText: 'New Password',
-                ),
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Please enter a password';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(
-                height: 20.0,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  RaisedButton(
-                    color: Colors.white,
-                    onPressed: () {
-                      setState(() {
-                        creatingAccount = false;
-                      });
-                    },
-                    child: Text(
-                      'Back',
-                      style: TextStyle(
-                        color: Colors.blue,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 50.0,
-                  ),
-                  RaisedButton(
-                    color: Colors.blue,
-                    onPressed: () {
-                      inputTrim();
-                      if (_formKey.currentState.validate()) {
-                        usernameAvailable(userController.text).then((response) {
-                          if (!response) {
-                            inputClear();
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return Helper()
-                                    .message('Username Unavailable', context);
-                              },
-                            );
-                          } else {
-                            Firestore.instance
-                                .collection('users')
-                                .document()
-                                .setData({
-                              'username': userController.text,
-                              'password': pwdController.text,
-                            });
-                            setState(() {
-                              creatingAccount = false;
-                              user = userController.text;
-                            });
-                          }
-                        });
-                      }
-                    },
-                    child: Text(
-                      'Create Account',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  void createUser(String email, dynamic password) async {
+    final FirebaseUser user1 = (await _auth.createUserWithEmailAndPassword(
+            email: email, password: password))
+        .user;
   }
 
   //Similar to validateLogin(), returns a future that populates true if the username is available
-  Future<bool> usernameAvailable(String name) {
-    final myFuture = Future<bool>(() {
-      Future<QuerySnapshot> q =
-          Firestore.instance.collection('users').getDocuments();
-      return q.then((val) {
-        for (DocumentSnapshot d in val.documents) {
-          if (d.data['username'] == name) {
-            return false;
-          }
-        }
-        return true;
-      });
-    });
-    return myFuture;
-  }
 
   //Returns the user's (currently bare bones) personal page
-  Widget userScreen() {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(40.0),
-        child: Column(
-          children: <Widget>[
-            Text(
-              (user + '\'s User Page'),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20.0,
-              ),
-            ),
-            RaisedButton(
-              color: Colors.blue,
-              onPressed: () {
-                setState(() {
-                  user = null;
-                });
-              },
-              child: Text(
-                'Logout',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+//  Widget userScreen() {
+//
+//  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Page'),
+        title: Text('Log In Page'),
       ),
-      body: userPageBody(),
+      body: loginPage(),
     );
   }
 }

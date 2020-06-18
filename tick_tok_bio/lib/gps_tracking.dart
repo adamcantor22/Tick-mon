@@ -9,6 +9,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:gpx/gpx.dart';
@@ -46,6 +47,7 @@ class MapsState extends State<Maps> {
   bool trackingRoute = false;
   double currentVal = 0;
   String latestFilename;
+  bool popUpPresent = false;
 
   void initState() {
     super.initState();
@@ -194,6 +196,35 @@ class MapsState extends State<Maps> {
     return initialPosition;
   }
 
+  Widget doneConfirmation() {
+    return Expanded(
+      flex: 10,
+      child: AlertDialog(
+        title:
+            Text('Are you sure you would like to finish and save this drag?'),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Finish and Save Drag'),
+            onPressed: () {
+              setState(() {
+                finishRoute();
+                popUpPresent = false;
+              });
+            },
+          ),
+          FlatButton(
+            child: Text('Resume Drag'),
+            onPressed: () {
+              setState(() {
+                popUpPresent = false;
+              });
+            },
+          )
+        ],
+      ),
+    );
+  }
+
   Widget startStop() {
     if (true || trackingRoute == false) {
       return FloatingActionButton(
@@ -208,94 +239,92 @@ class MapsState extends State<Maps> {
           }
         },
       );
+    } else if (trackingRoute == true) {
+      return SliderTheme(
+        data: SliderThemeData(
+            trackShape: RoundedRectSliderTrackShape(),
+            trackHeight: 50.0,
+            activeTrackColor: Colors.red),
+        child: new Slider(
+          value: currentVal,
+          onChanged: (double val) {
+            setState(() {
+              currentVal = val;
+            });
+
+            if (val == 10.0) {
+              setState(() {
+                currentVal = 0;
+                popUpPresent = true;
+              });
+              print('Done');
+            }
+          },
+          onChangeEnd: (double val) {
+            if (val != 10.0) {
+              setState(() {
+                currentVal = 0;
+                print('HOOPLA');
+              });
+            }
+          },
+          min: 0.0,
+          max: 10.0,
+        ),
+      );
     }
-//    else if (trackingRoute == true) {
-//      return SliderTheme(
-//        data: SliderThemeData(
-//          trackShape: RoundedRectSliderTrackShape(),
-//          trackHeight: 50.0,
-//        ),
-//        child: new Slider(
-//          value: currentVal,
-//          onChanged: (double val) {
-//            if (val == 10.0) {
-//              setState(() {
-//                currentVal = 0;
-//              });
-//              print('DONE');
-//              finishRoute();
-//            } else {
-//              setState(() {
-//                currentVal = val;
-//              });
-//            }
-//          },
-//          min: 0.0,
-//          max: 10.0,
-//        ),
-//      );
-//    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Map Overview'),
-      ),
-      body: Column(
-        children: [
-          FutureBuilder<CameraPosition>(
-            future: googleMap(),
-            builder: (context, snapshot) {
-              if (initialPosition == null) {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else {
-                return Expanded(
-                  flex: 6,
-                  child: SizedBox(
-                    //width: MediaQuery.of(context).size.width,
-                    //height: MediaQuery.of(context).size.height,
-                    child: GoogleMap(
-                      myLocationEnabled: true,
-                      myLocationButtonEnabled: true,
-                      compassEnabled: true,
-                      markers: _markers,
-                      polylines: _polylines,
-                      mapType: MapType.hybrid,
-                      initialCameraPosition: initialPosition,
-                      onMapCreated: (GoogleMapController controller) {
-                        _controller = controller;
-                      },
-                    ),
-                  ),
-                );
-              }
-            },
-          ),
-//          Expanded(
-//            flex: 1,
-//            child: Row(
-//              children: <Widget>[],
-//            ),
-//          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: trackingRoute ? Icon(Icons.stop) : Icon(Icons.play_arrow),
-        backgroundColor: Colors.blueAccent,
-        onPressed: () {
-          if (!trackingRoute) {
-            startNewRoute();
-          } else {
-            finishRoute();
-            setState(() {});
-          }
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
+        appBar: AppBar(
+          title: Text('Map Overview'),
+        ),
+        body: Column(
+          children: [
+            FutureBuilder<CameraPosition>(
+                future: googleMap(),
+                // ignore: missing_return
+                builder: (context, snapshot) {
+                  if (initialPosition == null) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (initialPosition != null) {
+                    if (popUpPresent == true) {
+                      return doneConfirmation();
+                    } else {
+                      return Expanded(
+                        flex: 8,
+                        child: SizedBox(
+                          //width: MediaQuery.of(context).size.width,
+                          //height: MediaQuery.of(context).size.height,
+                          child: GoogleMap(
+                            myLocationEnabled: true,
+                            myLocationButtonEnabled: true,
+                            compassEnabled: true,
+                            markers: _markers,
+                            polylines: _polylines,
+                            mapType: MapType.hybrid,
+                            initialCameraPosition: initialPosition,
+                            onMapCreated: (GoogleMapController controller) {
+                              _controller = controller;
+                            },
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                }),
+            Expanded(
+              flex: 1,
+              child: Scaffold(
+                backgroundColor: Colors.black,
+                body: Center(child: startStop()),
+              ),
+            ),
+          ],
+        ));
   }
 }
