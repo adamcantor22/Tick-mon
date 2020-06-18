@@ -19,7 +19,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomePage(),
+      initialRoute: 'LoginScreen',
+      routes: {
+        'LoginScreen': (context) => UserPage(),
+        'LoggedInFeatures': (context) => HomePage()
+      },
     );
   }
 }
@@ -40,14 +44,6 @@ class HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   bool _loading = true;
   Timer _loadTimer;
-
-  Widget screenChooser() {
-    if (access == false) {
-      return userPage;
-    } else {
-      return mainBody();
-    }
-  }
 
   @override
   void initState() {
@@ -187,6 +183,6 @@ class HomePageState extends State<HomePage> {
 //      );
 //    }
 //    print('NO LONGER SHOWING LOADING SCREEN');
-    return screenChooser();
+    return mainBody();
   }
 }

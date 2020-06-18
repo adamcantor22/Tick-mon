@@ -78,7 +78,7 @@ class UserPageState extends State<UserPage> {
 
     if (user != null) {
       print(user);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => MyApp()));
+      Navigator.pushReplacementNamed(context, 'LoggedInFeatures');
     }
 
     return 'User: $user';
