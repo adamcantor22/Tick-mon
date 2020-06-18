@@ -13,6 +13,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'super_listener.dart';
 import 'helper.dart';
 import 'file_uploader.dart';
+import 'weather_tracker.dart';
+import 'package:weather/weather_library.dart';
 
 //These are the three boolean values used to determine which screen we are currently on
 bool viewingDrags = true;
@@ -39,6 +41,7 @@ class MetadataSectionState extends State<MetadataSection>
   String currentFile;
   List dragList;
   String editingFilename;
+  Weather curWeather;
 
   @override
   bool get wantKeepAlive => true;
@@ -416,16 +419,30 @@ class MetadataSectionState extends State<MetadataSection>
     return widget;
   }
 
-  void createNewDrag(String newFilename) {
+  void createNewDrag(String newFilename) async {
+    curWeather = await WeatherTracker.getWeather();
+    Widget newDrag = await dragMenu(newFilename);
+
     setState(() {
-      dragList.add(dragMenu(
-        newFilename,
-      ));
+      dragList.add(newDrag);
+      editingFilename = newFilename;
+    });
+
+    final b = await addDeterminedFields();
+
+    setState(() {
+      print('CHANGING TO EDIT MODE');
       viewingDrags = false;
       viewingData = false;
       editingData = true;
-      editingFilename = newFilename;
     });
+  }
+
+  Future<bool> addDeterminedFields() async {
+    final b = await getFile(editingFilename);
+    fileContent['Temp'] = curWeather.temperature.fahrenheit.toString();
+    fileContent['Humidity'] = curWeather.humidity.toString();
+    return b;
   }
 
   //This is the screen that appears if on clicks over to the metaData tag.

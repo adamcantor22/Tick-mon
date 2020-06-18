@@ -1,16 +1,16 @@
 import 'package:weather/weather_library.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class WeatherTracker {
   static final _weatherAPIKey = 'd3cc8303a3a355c572388fae28684518';
-  static LatLng _currentLocation;
+  static Position _currentLocation;
   static WeatherStation tickStation;
 
   static void startupWeather() {
     tickStation = new WeatherStation(_weatherAPIKey);
   }
 
-  static void updateLocation(LatLng newLocation) {
+  static void updateLocation(Position newLocation) {
     _currentLocation = newLocation;
   }
 

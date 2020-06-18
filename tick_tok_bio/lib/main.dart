@@ -7,6 +7,7 @@ import 'metadata_page.dart';
 import 'json_storage.dart';
 import 'super_listener.dart';
 import 'dart:async';
+import 'weather_tracker.dart';
 
 void main() {
   runApp(MyApp());
@@ -48,6 +49,7 @@ class HomePageState extends State<HomePage> {
     SuperListener.setPages(
       hPage: this,
     );
+    WeatherTracker.startupWeather();
   }
 
   void startLoadTimer() {
