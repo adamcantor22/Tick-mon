@@ -583,7 +583,7 @@ class MetadataSectionState extends State<MetadataSection>
   Widget editDrag(String thisFilename) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Editing Drag Metadata'),
+        title: Text('Editing ${getDragDisplayName()}'),
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.close),
