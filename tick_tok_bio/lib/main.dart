@@ -9,6 +9,7 @@ import 'json_storage.dart';
 import 'super_listener.dart';
 import 'dart:async';
 import 'user_page.dart';
+import 'weather_tracker.dart';
 
 void main() {
   runApp(MyApp());
@@ -34,7 +35,7 @@ class HomePageState extends State<HomePage> {
   LoggedInScreen loggedInPage = LoggedInScreen();
   UserPage userPage = UserPage();
 
-  int pageIndex = 0;
+  int pageIndex = 2;
 
   int _selectedIndex = 0;
   bool _loading = true;
@@ -59,6 +60,7 @@ class HomePageState extends State<HomePage> {
     SuperListener.setPages(
       hPage: this,
     );
+    WeatherTracker.startupWeather();
   }
 
   void startLoadTimer() {
@@ -115,11 +117,11 @@ class HomePageState extends State<HomePage> {
       onTap: (int index) => setState(() => pageIndex = index),
       currentIndex: pageIndex,
       backgroundColor: Colors.blue,
-      type: BottomNavigationBarType.shifting,
+      type: BottomNavigationBarType.fixed,
       items: <BottomNavigationBarItem>[
         navBarItem(Icons.person, 'Welcome Screen'),
-        navBarItem(Icons.satellite, 'Updated Map'),
-        navBarItem(Icons.sd_storage, 'DragHistory'),
+        navBarItem(Icons.explore, 'Map'),
+        navBarItem(Icons.storage, 'Drags'),
       ],
     );
   }

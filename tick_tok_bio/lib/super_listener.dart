@@ -43,7 +43,6 @@ class SuperListener {
   }
 
   static void moveAndCreateDrag(String filename) {
-    print('***SUPERLISTENER MAKING NEW DRAG***');
     navigateTo(2);
     dataPage.createNewDrag(filename);
   }

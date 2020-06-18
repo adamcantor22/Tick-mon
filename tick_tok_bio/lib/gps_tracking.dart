@@ -23,6 +23,7 @@ import 'package:geolocator/geolocator.dart';
 import 'helper.dart';
 import 'super_listener.dart';
 import 'package:date_format/date_format.dart';
+import 'weather_tracker.dart';
 
 class Maps extends StatefulWidget {
   bool get wantKeepAlive => true;
@@ -137,6 +138,7 @@ class MapsState extends State<Maps> {
     Trkseg seg = new Trkseg(
       trkpts: wpts,
     );
+    WeatherTracker.updateLocation(currentPosition);
     storeRouteInformation(seg);
 
     setState(() {
@@ -145,7 +147,6 @@ class MapsState extends State<Maps> {
       polylineCoordinates.clear();
     });
 
-    print('***MAPPAGE MAKING NEW DRAG***');
     SuperListener.moveAndCreateDrag(latestFilename);
   }
 
@@ -154,7 +155,7 @@ class MapsState extends State<Maps> {
     setState(() {
       LocationOptions options = LocationOptions(
         accuracy: LocationAccuracy.best,
-        distanceFilter: 1, //Testing at distanceFilter: 1? was previously 0
+        distanceFilter: 0, //Testing at distanceFilter: 1? was previously 0
       );
       positionSubscription =
           locator.getPositionStream(options).listen((Position cPos) {
@@ -225,7 +226,7 @@ class MapsState extends State<Maps> {
   }
 
   Widget startStop() {
-    if (trackingRoute == false) {
+    if (true || trackingRoute == false) {
       return FloatingActionButton(
         child: trackingRoute ? Icon(Icons.stop) : Icon(Icons.play_arrow),
         backgroundColor: Colors.blueAccent,
