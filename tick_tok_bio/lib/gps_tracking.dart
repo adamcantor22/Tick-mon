@@ -226,9 +226,9 @@ class MapsState extends State<Maps> {
   }
 
   Widget startStop() {
-    if (true || trackingRoute == false) {
+    if (trackingRoute == false) {
       return FloatingActionButton(
-        child: trackingRoute ? Icon(Icons.stop) : Icon(Icons.play_arrow),
+        child: Icon(Icons.play_arrow),
         backgroundColor: Colors.blueAccent,
         onPressed: () {
           if (!trackingRoute) {
