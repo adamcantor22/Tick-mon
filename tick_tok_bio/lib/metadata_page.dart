@@ -43,6 +43,7 @@ class MetadataSectionState extends State<MetadataSection>
   String editingFilename;
   Weather curWeather;
   final _editKey = GlobalKey<FormState>();
+  bool changesMade;
 
   @override
   bool get wantKeepAlive => true;
@@ -411,10 +412,13 @@ class MetadataSectionState extends State<MetadataSection>
             hintText: 'Enter $field', labelText: field),
         controller: controller,
         validator: (value) {
-          if (value.isEmpty) {
+          if (value == null || value.trim() == '') {
             return 'Enter All Data';
           }
           return null;
+        },
+        onChanged: (s) {
+          changesMade = true;
         },
       ),
     );
@@ -498,6 +502,7 @@ class MetadataSectionState extends State<MetadataSection>
             icon: Icon(Icons.edit),
             onPressed: () {
               setState(() {
+                changesMade = false;
                 editingData = true;
                 viewingData = false;
               });
@@ -612,6 +617,14 @@ class MetadataSectionState extends State<MetadataSection>
     drags();
   }
 
+  void revertChanges() {
+    setState(() {
+      editingData = false;
+      viewingDrags = false;
+      viewingData = true;
+    });
+  }
+
 //This function is used to change the metadata for a specific drag which has been done.
   //It is populated with Text Fields
   Widget editDrag(String thisFilename) {
@@ -620,14 +633,28 @@ class MetadataSectionState extends State<MetadataSection>
         title: Text('Editing ${getDragDisplayName()}'),
         actions: <Widget>[
           IconButton(
-              icon: Icon(Icons.close),
-              onPressed: () {
+            icon: Icon(Icons.close),
+            onPressed: () {
+              if (changesMade) {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return Helper().boolMessage(
+                      'Are you sure you want to exit? All changed data will be reverted.',
+                      revertChanges,
+                      context,
+                    );
+                  },
+                );
+              } else {
                 setState(() {
                   editingData = false;
                   viewingDrags = false;
                   viewingData = true;
                 });
-              })
+              }
+            },
+          ),
         ],
       ),
       body: Column(
