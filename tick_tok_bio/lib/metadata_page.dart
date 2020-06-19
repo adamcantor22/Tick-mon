@@ -44,6 +44,7 @@ class MetadataSectionState extends State<MetadataSection>
   Weather curWeather;
   final _editKey = GlobalKey<FormState>();
   bool changesMade;
+  bool loadingData = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -93,7 +94,9 @@ class MetadataSectionState extends State<MetadataSection>
 
   //This function is the actual home of the scaffold and controls which screens will be seen on the app.
   Widget pageBody() {
-    if (viewingDrags == true) {
+    if (loadingData) {
+      return loadingWait();
+    } else if (viewingDrags == true) {
       return viewDrags();
     } else if (viewingData == true) {
       return viewData();
@@ -161,6 +164,12 @@ class MetadataSectionState extends State<MetadataSection>
     final d = await getApplicationDocumentsDirectory();
     fileList = d.listSync();
     return d;
+  }
+
+  Widget loadingWait() {
+    return Center(
+      child: CircularProgressIndicator(),
+    );
   }
 
 //I believe that this program is unnecessary as I kind of put its function in the getFile function
@@ -412,7 +421,7 @@ class MetadataSectionState extends State<MetadataSection>
             hintText: 'Enter $field', labelText: field),
         controller: controller,
         validator: (value) {
-          if (value == null || value.trim() == '') {
+          if (controller.text == null || controller.text.trim() == '') {
             return 'Enter All Data';
           }
           return null;
@@ -431,6 +440,10 @@ class MetadataSectionState extends State<MetadataSection>
   }
 
   void createNewDrag(String newFilename) async {
+    setState(() {
+      loadingData = true;
+    });
+
     curWeather = await WeatherTracker.getWeather();
     Widget newDrag = await dragMenu(newFilename);
 
@@ -446,6 +459,7 @@ class MetadataSectionState extends State<MetadataSection>
       viewingDrags = false;
       viewingData = false;
       editingData = true;
+      loadingData = false;
     });
   }
 
