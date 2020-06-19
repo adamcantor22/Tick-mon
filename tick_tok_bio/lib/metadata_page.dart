@@ -43,7 +43,7 @@ class MetadataSectionState extends State<MetadataSection>
   String editingFilename;
   Weather curWeather;
   final _editKey = GlobalKey<FormState>();
-  var dropMenuItem;
+  var dropMenuItem = 'Habitat Type';
 
   @override
   bool get wantKeepAlive => true;
@@ -406,7 +406,7 @@ class MetadataSectionState extends State<MetadataSection>
   Widget dataField(
       TextEditingController controller, String field, String hText) {
     Widget widget = Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
       child: TextFormField(
         decoration: kTextFieldDecoration.copyWith(
             hintText: 'Enter $field', labelText: field),
@@ -677,19 +677,6 @@ class MetadataSectionState extends State<MetadataSection>
                     'Ground Moisture',
                     fileContent['GroundMoisture'],
                   ),
-                  DropdownButton(
-                    icon: Icon(Icons.arrow_downward),
-                    onChanged: (String newVal) {
-                      myController5.text = newVal;
-                    },
-                    items: <String>['One', 'Two', 'Three']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem(
-                        child: Text(value),
-                        value: value,
-                      );
-                    }).toList(),
-                  ),
                   dataField(
                     myController6,
                     'Number of Nymphs',
@@ -699,6 +686,22 @@ class MetadataSectionState extends State<MetadataSection>
                     myController7,
                     'Number of Blackleggeds',
                     fileContent['NumBlacklegged'],
+                  ),
+                  Center(
+                    child: DropdownButton(
+                      hint: Text('Habitat Type'),
+                      icon: Icon(Icons.arrow_downward),
+                      onChanged: (String newVal) {
+                        myController5.text = newVal;
+                      },
+                      items: habitatTypes
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem(
+                          child: Text(value),
+                          value: value,
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ],
               ),
