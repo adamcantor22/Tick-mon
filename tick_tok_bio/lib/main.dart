@@ -39,7 +39,7 @@ class HomePageState extends State<HomePage> {
   LoggedInScreen loggedInPage = LoggedInScreen();
   UserPage userPage = UserPage();
 
-  int pageIndex = 2;
+  int pageIndex = 0;
 
   int _selectedIndex = 0;
   bool _loading = true;

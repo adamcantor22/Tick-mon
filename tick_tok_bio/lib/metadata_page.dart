@@ -43,6 +43,7 @@ class MetadataSectionState extends State<MetadataSection>
   String editingFilename;
   Weather curWeather;
   final _editKey = GlobalKey<FormState>();
+  var dropMenuItem;
 
   @override
   bool get wantKeepAlive => true;
@@ -612,6 +613,18 @@ class MetadataSectionState extends State<MetadataSection>
     drags();
   }
 
+  var habitatTypes = ['Space', 'Earth', 'Sun'];
+
+  Widget dropMenuOption(TextEditingController controller) {
+    return DropdownButton<String>(
+      items: habitatTypes
+          .map((String e) => DropdownMenuItem(value: e, child: Text(e))),
+      onChanged: (value) {
+        controller.text = value;
+      },
+    );
+  }
+
 //This function is used to change the metadata for a specific drag which has been done.
   //It is populated with Text Fields
   Widget editDrag(String thisFilename) {
@@ -664,10 +677,18 @@ class MetadataSectionState extends State<MetadataSection>
                     'Ground Moisture',
                     fileContent['GroundMoisture'],
                   ),
-                  dataField(
-                    myController5,
-                    'Habitat Type',
-                    fileContent['HabitatType'],
+                  DropdownButton(
+                    icon: Icon(Icons.arrow_downward),
+                    onChanged: (String newVal) {
+                      myController5.text = newVal;
+                    },
+                    items: <String>['One', 'Two', 'Three']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem(
+                        child: Text(value),
+                        value: value,
+                      );
+                    }).toList(),
                   ),
                   dataField(
                     myController6,
