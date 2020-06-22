@@ -21,6 +21,27 @@ bool viewingDrags = true;
 bool viewingData = false;
 bool editingData = false;
 
+var myController0 = TextEditingController();
+var myController1 = TextEditingController();
+var myController2 = TextEditingController();
+var myController3 = TextEditingController();
+var myController4 = TextEditingController();
+var myController5 = TextEditingController();
+var myController6 = TextEditingController();
+var myController7 = TextEditingController();
+
+void dispose() {
+  myController0.dispose();
+  myController1.dispose();
+  myController2.dispose();
+  myController3.dispose();
+  myController4.dispose();
+  myController5.dispose();
+  myController6.dispose();
+  myController7.dispose();
+  //super.dispose();
+}
+
 class MetadataSection extends StatefulWidget {
   const MetadataSection({Key key}) : super(key: key);
 
@@ -69,6 +90,8 @@ class MetadataSectionState extends State<MetadataSection>
     myController7.dispose();
     super.dispose();
   }
+
+  DropDown dropDown = DropDown();
 
 //This inital state is set in order to give the dir value the proper path to the working directory through the program.
   //Also as fileName currently is drag1.json, this loads that as the file primed if you were to hit the add button.
@@ -625,6 +648,8 @@ class MetadataSectionState extends State<MetadataSection>
     );
   }
 
+  var dropdownValue;
+
 //This function is used to change the metadata for a specific drag which has been done.
   //It is populated with Text Fields
   Widget editDrag(String thisFilename) {
@@ -688,20 +713,7 @@ class MetadataSectionState extends State<MetadataSection>
                     fileContent['NumBlacklegged'],
                   ),
                   Center(
-                    child: DropdownButton(
-                      hint: Text('Habitat Type'),
-                      icon: Icon(Icons.arrow_downward),
-                      onChanged: (String newVal) {
-                        myController5.text = newVal;
-                      },
-                      items: habitatTypes
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem(
-                          child: Text(value),
-                          value: value,
-                        );
-                      }).toList(),
-                    ),
+                    child: dropDown,
                   ),
                 ],
               ),
@@ -784,5 +796,42 @@ class MetadataSectionState extends State<MetadataSection>
   @override
   Widget build(BuildContext context) {
     return pageBody();
+  }
+}
+
+class DropDown extends StatefulWidget {
+  @override
+  _DropDownState createState() => _DropDownState();
+}
+
+class _DropDownState extends State<DropDown> {
+  var dropdownValue = 'One';
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<String>(
+      items: <String>['One', 'Two', 'Free', 'Four']
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      value: dropdownValue,
+      icon: Icon(Icons.arrow_downward),
+      iconSize: 24,
+      elevation: 16,
+      style: TextStyle(color: Colors.deepPurple),
+      underline: Container(
+        height: 2,
+        color: Colors.deepPurpleAccent,
+      ),
+      onChanged: (String newValue) {
+        setState(() {
+          myController4.text = newValue;
+          dropdownValue = newValue;
+          print(myController4.text);
+        });
+      },
+    );
   }
 }
