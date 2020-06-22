@@ -69,28 +69,6 @@ class MetadataSectionState extends State<MetadataSection>
   @override
   bool get wantKeepAlive => true;
 
-  var myController0 = TextEditingController();
-  var myController1 = TextEditingController();
-  var myController2 = TextEditingController();
-  var myController3 = TextEditingController();
-  var myController4 = TextEditingController();
-  var myController5 = TextEditingController();
-  var myController6 = TextEditingController();
-  var myController7 = TextEditingController();
-
-  @override
-  void dispose() {
-    myController0.dispose();
-    myController1.dispose();
-    myController2.dispose();
-    myController3.dispose();
-    myController4.dispose();
-    myController5.dispose();
-    myController6.dispose();
-    myController7.dispose();
-    super.dispose();
-  }
-
   DropDown dropDown = DropDown();
 
 //This inital state is set in order to give the dir value the proper path to the working directory through the program.
@@ -741,6 +719,7 @@ class MetadataSectionState extends State<MetadataSection>
                   textColor: Colors.white,
                   color: Colors.blue,
                   onPressed: () {
+                    print(myController5.text);
                     if (_editKey.currentState.validate()) {
                       writeToFile(
                         thisFilename,
@@ -805,33 +784,92 @@ class DropDown extends StatefulWidget {
 }
 
 class _DropDownState extends State<DropDown> {
-  var dropdownValue = 'One';
+  var dropdownValue;
   @override
   Widget build(BuildContext context) {
-    return DropdownButton<String>(
-      items: <String>['One', 'Two', 'Free', 'Four']
-          .map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-      value: dropdownValue,
-      icon: Icon(Icons.arrow_downward),
-      iconSize: 24,
-      elevation: 16,
-      style: TextStyle(color: Colors.deepPurple),
-      underline: Container(
-        height: 2,
-        color: Colors.deepPurpleAccent,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.0),
+      child: DropdownButtonFormField(
+        decoration: InputDecoration(
+          labelText: 'Habitat Type',
+          contentPadding:
+              EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(rad)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blueAccent, width: 1.5),
+            borderRadius: BorderRadius.all(Radius.circular(16.0)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blueAccent, width: 2.5),
+            borderRadius: BorderRadius.all(Radius.circular(16.0)),
+          ),
+        ),
+        hint: Text('Select a Habitat Type'),
+        items: <String>[
+          'Forest',
+          'Heavy Forest',
+          'Open Plain',
+          'Beach',
+          'Other'
+        ].map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+        value: dropdownValue,
+        icon: Icon(Icons.arrow_downward),
+        iconSize: 24,
+        elevation: 16,
+        style: TextStyle(color: Colors.deepPurple),
+        onChanged: (value) {
+          setState(() {
+            myController5.text = value;
+            dropdownValue = value;
+          });
+        },
+//      onChanged: (String newValue) {
+//        setState(() {
+//          myController5.text = newValue;
+//          dropdownValue = newValue;
+//          print(myController5.text);
+//        });
+//      },
       ),
-      onChanged: (String newValue) {
-        setState(() {
-          myController4.text = newValue;
-          dropdownValue = newValue;
-          print(myController4.text);
-        });
-      },
     );
+//    return DropdownButton<String>(
+//      isExpanded: true,
+//      hint: Text('Select a Habitat Type'),
+//      items: <String>[
+//        'Forest',
+//        'Heavy Forest',
+//        'Open Plain',
+//        'Beach',
+//        'Other'
+//      ].map<DropdownMenuItem<String>>((String value) {
+//        return DropdownMenuItem<String>(
+//          value: value,
+//          child: Text(value),
+//        );
+//      }).toList(),
+//      value: dropdownValue,
+//      icon: Icon(Icons.arrow_downward),
+//      iconSize: 24,
+//      elevation: 16,
+//      style: TextStyle(color: Colors.deepPurple),
+//      underline: Container(
+//        height: 2,
+//        color: Colors.deepPurpleAccent,
+//      ),
+//      onChanged: (String newValue) {
+//        setState(() {
+//          myController5.text = newValue;
+//          dropdownValue = newValue;
+//          print(myController5.text);
+//        });
+//      },
+//    );
   }
 }
