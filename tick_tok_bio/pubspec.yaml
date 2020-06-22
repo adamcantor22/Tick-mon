@@ -38,7 +38,7 @@ flutter:
 
   assets:
     - images/
-    - sounds/
+    - sounds/start.mp3
 
   fonts:
     - family: RobotoMono
