@@ -123,7 +123,7 @@ class UserPageState extends State<UserPage> {
               children: <Widget>[
                 Center(
                   child: Text(
-                    'You are not logged in.\nLogin to start.',
+                    'Login to start.',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 22.0,

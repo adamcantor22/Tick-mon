@@ -42,6 +42,8 @@ void dispose() {
   //super.dispose();
 }
 
+var dropdownValue;
+
 class MetadataSection extends StatefulWidget {
   const MetadataSection({Key key}) : super(key: key);
 
@@ -502,6 +504,12 @@ class MetadataSectionState extends State<MetadataSection>
               setState(() {
                 editingData = true;
                 viewingData = false;
+                if (fileContent['HabitatType'] != null) {
+                  dropdownValue = fileContent['HabitatType'];
+                  print(dropdownValue);
+                } else {
+                  print('BLURGGG');
+                }
               });
             },
           ),
@@ -625,8 +633,6 @@ class MetadataSectionState extends State<MetadataSection>
       },
     );
   }
-
-  var dropdownValue;
 
 //This function is used to change the metadata for a specific drag which has been done.
   //It is populated with Text Fields
@@ -784,7 +790,6 @@ class DropDown extends StatefulWidget {
 }
 
 class _DropDownState extends State<DropDown> {
-  var dropdownValue;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -806,7 +811,7 @@ class _DropDownState extends State<DropDown> {
             borderRadius: BorderRadius.all(Radius.circular(16.0)),
           ),
         ),
-        hint: Text('Select a Habitat Type'),
+        //hint: Text('Select a Habitat Type'),
         items: <String>[
           'Forest',
           'Heavy Forest',
@@ -830,46 +835,7 @@ class _DropDownState extends State<DropDown> {
             dropdownValue = value;
           });
         },
-//      onChanged: (String newValue) {
-//        setState(() {
-//          myController5.text = newValue;
-//          dropdownValue = newValue;
-//          print(myController5.text);
-//        });
-//      },
       ),
     );
-//    return DropdownButton<String>(
-//      isExpanded: true,
-//      hint: Text('Select a Habitat Type'),
-//      items: <String>[
-//        'Forest',
-//        'Heavy Forest',
-//        'Open Plain',
-//        'Beach',
-//        'Other'
-//      ].map<DropdownMenuItem<String>>((String value) {
-//        return DropdownMenuItem<String>(
-//          value: value,
-//          child: Text(value),
-//        );
-//      }).toList(),
-//      value: dropdownValue,
-//      icon: Icon(Icons.arrow_downward),
-//      iconSize: 24,
-//      elevation: 16,
-//      style: TextStyle(color: Colors.deepPurple),
-//      underline: Container(
-//        height: 2,
-//        color: Colors.deepPurpleAccent,
-//      ),
-//      onChanged: (String newValue) {
-//        setState(() {
-//          myController5.text = newValue;
-//          dropdownValue = newValue;
-//          print(myController5.text);
-//        });
-//      },
-//    );
   }
 }

@@ -48,6 +48,7 @@ class MapsState extends State<Maps> {
   double currentVal = 0;
   String latestFilename;
   bool popUpPresent = false;
+  bool sliderVisibility = true;
 
   void initState() {
     super.initState();
@@ -197,31 +198,31 @@ class MapsState extends State<Maps> {
   }
 
   Widget doneConfirmation() {
-    return Expanded(
-      flex: 10,
-      child: AlertDialog(
-        title:
-            Text('Are you sure you would like to finish and save this drag?'),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('Finish and Save Drag'),
-            onPressed: () {
-              setState(() {
-                finishRoute();
-                popUpPresent = false;
-              });
-            },
+    return AlertDialog(
+      title: Text('Are you sure you would like to finish and save this drag?'),
+      actions: <Widget>[
+        FlatButton(
+          child: Text(
+            'Finish and Save Drag',
+            style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
           ),
-          FlatButton(
-            child: Text('Resume Drag'),
-            onPressed: () {
-              setState(() {
-                popUpPresent = false;
-              });
-            },
-          )
-        ],
-      ),
+          onPressed: () {
+            setState(() {
+              finishRoute();
+              popUpPresent = false;
+            });
+          },
+        ),
+        FlatButton(
+          child: Text('Resume Drag'),
+          onPressed: () {
+            setState(() {
+              popUpPresent = false;
+              sliderVisibility = true;
+            });
+          },
+        )
+      ],
     );
   }
 
@@ -240,36 +241,40 @@ class MapsState extends State<Maps> {
         },
       );
     } else if (trackingRoute == true) {
-      return SliderTheme(
-        data: SliderThemeData(
-            trackShape: RoundedRectSliderTrackShape(),
-            trackHeight: 50.0,
-            activeTrackColor: Colors.red),
-        child: new Slider(
-          value: currentVal,
-          onChanged: (double val) {
-            setState(() {
-              currentVal = val;
-            });
+      return Visibility(
+        visible: sliderVisibility,
+        child: SliderTheme(
+          data: SliderThemeData(
+              trackShape: RoundedRectSliderTrackShape(),
+              trackHeight: 50.0,
+              activeTrackColor: Colors.red),
+          child: Slider(
+            value: currentVal,
+            onChanged: (double val) {
+              setState(() {
+                currentVal = val;
+              });
 
-            if (val == 10.0) {
-              setState(() {
-                currentVal = 0;
-                popUpPresent = true;
-              });
-              print('Done');
-            }
-          },
-          onChangeEnd: (double val) {
-            if (val != 10.0) {
-              setState(() {
-                currentVal = 0;
-                print('HOOPLA');
-              });
-            }
-          },
-          min: 0.0,
-          max: 10.0,
+              if (val == 10.0) {
+                setState(() {
+                  currentVal = 0;
+                  sliderVisibility = false;
+                  popUpPresent = true;
+                });
+                print('Done');
+              }
+            },
+            onChangeEnd: (double val) {
+              if (val != 10.0) {
+                setState(() {
+                  currentVal = 0;
+                  print('HOOPLA');
+                });
+              }
+            },
+            min: 0.0,
+            max: 10.0,
+          ),
         ),
       );
     }
@@ -278,53 +283,39 @@ class MapsState extends State<Maps> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Map Overview'),
-        ),
-        body: Column(
-          children: [
-            FutureBuilder<CameraPosition>(
-                future: googleMap(),
-                // ignore: missing_return
-                builder: (context, snapshot) {
-                  if (initialPosition == null) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (initialPosition != null) {
-                    if (popUpPresent == true) {
-                      return doneConfirmation();
-                    } else {
-                      return Expanded(
-                        flex: 8,
-                        child: SizedBox(
-                          //width: MediaQuery.of(context).size.width,
-                          //height: MediaQuery.of(context).size.height,
-                          child: GoogleMap(
-                            myLocationEnabled: true,
-                            myLocationButtonEnabled: true,
-                            compassEnabled: true,
-                            markers: _markers,
-                            polylines: _polylines,
-                            mapType: MapType.hybrid,
-                            initialCameraPosition: initialPosition,
-                            onMapCreated: (GoogleMapController controller) {
-                              _controller = controller;
-                            },
-                          ),
-                        ),
-                      );
-                    }
-                  }
-                }),
-            Expanded(
-              flex: 1,
-              child: Scaffold(
-                backgroundColor: Colors.black,
-                body: Center(child: startStop()),
-              ),
-            ),
-          ],
-        ));
+      appBar: AppBar(
+        title: Text('Map Overview'),
+      ),
+      body: Stack(children: <Widget>[
+        FutureBuilder(
+            future: googleMap(),
+            // ignore: missing_return
+            builder: (context, snapshot) {
+              if (initialPosition == null) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (initialPosition != null) {
+                if (popUpPresent == true) {
+                  return doneConfirmation();
+                } else {
+                  return GoogleMap(
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                    compassEnabled: true,
+                    markers: _markers,
+                    polylines: _polylines,
+                    mapType: MapType.hybrid,
+                    initialCameraPosition: initialPosition,
+                    onMapCreated: (GoogleMapController controller) {
+                      _controller = controller;
+                    },
+                  );
+                }
+              }
+            }),
+        Positioned(bottom: 10.0, left: 1.0, right: 5.0, child: startStop()),
+      ]),
+    );
   }
 }
