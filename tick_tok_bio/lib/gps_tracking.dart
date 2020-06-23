@@ -116,10 +116,8 @@ class MapsState extends State<Maps> {
 
   //Set up location tracking subscription and polyline creation
   void startNewRoute() async {
-    //This used to be conditional on user being logged in, but a log in is
-    // now mandatory to be at this point
-    if (true || SuperListener.getUser() != null) {
-      await playSound('start.mp3');
+    await audioCache.play('start.mp3');
+    audioCache.fixedPlayer.onPlayerCompletion.listen((event) {
       setState(() {
         locator = new Geolocator();
         wpts = new List<Wpt>();
@@ -127,19 +125,12 @@ class MapsState extends State<Maps> {
         trackingRoute = true;
         updateLocation();
       });
-    }
-//    else {
-//      showDialog(
-//        context: context,
-//        builder: (context) {
-//          return Helper().message('Login to start new drag!', context);
-//        },
-//      );
-//    }
+    });
   }
 
   //Cancel location tracking and sent the list of waypoints to be stored as gpx
   void finishRoute() async {
+    await playSound('end.mp3');
     Trkseg seg = new Trkseg(
       trkpts: wpts,
     );
