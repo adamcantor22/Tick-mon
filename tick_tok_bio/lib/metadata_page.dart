@@ -649,23 +649,25 @@ class MetadataSectionState extends State<MetadataSection>
           IconButton(
             icon: Icon(Icons.close),
             onPressed: () {
-              if (changesMade) {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return Helper().boolMessage(
-                      'Are you sure you want to exit? All changed data will be reverted.',
-                      revertChanges,
-                      context,
-                    );
-                  },
-                );
-              } else {
-                setState(() {
-                  editingData = false;
-                  viewingDrags = false;
-                  viewingData = true;
-                });
+              if (_editKey.currentState.validate()) {
+                if (changesMade) {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return Helper().boolMessage(
+                        'Are you sure you want to exit? All changed data will be reverted.',
+                        revertChanges,
+                        context,
+                      );
+                    },
+                  );
+                } else {
+                  setState(() {
+                    editingData = false;
+                    viewingDrags = false;
+                    viewingData = true;
+                  });
+                }
               }
             },
           ),
