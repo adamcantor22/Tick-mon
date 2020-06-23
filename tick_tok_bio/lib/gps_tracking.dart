@@ -49,6 +49,10 @@ class MapsState extends State<Maps> {
   String latestFilename;
   bool popUpPresent = false;
   bool sliderVisibility = true;
+  bool cancellationPopUpPresent = false;
+  double cancelDragVal = 0.0;
+  bool confirmationButton = false;
+  bool popUpDeletion = false;
 
   void initState() {
     super.initState();
@@ -280,6 +284,58 @@ class MapsState extends State<Maps> {
     }
   }
 
+  Widget dragCancellationPopUp() {
+    return Visibility(
+      visible: cancellationPopUpPresent,
+      child: AlertDialog(
+        title: Text(
+            'Are you sure you would like to cancel this drag? Slide and press button to confirm.'),
+        actions: <Widget>[
+          SliderTheme(
+              data: SliderThemeData(
+                  trackShape: RoundedRectSliderTrackShape(), trackHeight: 50.0),
+              child: Slider(
+                min: 0.0,
+                max: 10.0,
+                value: cancelDragVal,
+                onChanged: (newVal) {
+                  setState(() {
+                    cancelDragVal = newVal;
+                    if (newVal == 10.0) {
+                      confirmationButton = true;
+                    }
+                  });
+                },
+                onChangeEnd: (double endPoint) {
+                  if (endPoint != 10.0) {
+                    setState(() {
+                      cancelDragVal = 0.0;
+                    });
+                  }
+                },
+              )),
+          Visibility(
+              visible: confirmationButton,
+              child: FlatButton(
+                child: Text(
+                  'Delete Drag',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onPressed: () {
+                  setState(() {
+                    trackingRoute = false;
+                    positionSubscription.cancel();
+                    polylineCoordinates.clear();
+                    cancellationPopUpPresent = false;
+                    cancelDragVal = 0.0;
+                  });
+                },
+              ))
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -315,6 +371,25 @@ class MapsState extends State<Maps> {
               }
             }),
         Positioned(bottom: 10.0, left: 1.0, right: 5.0, child: startStop()),
+        Visibility(
+          visible: trackingRoute == true ? true : false,
+          child: Positioned(
+            top: 3.0,
+            right: 3.0,
+            child: IconButton(
+              icon: Icon(Icons.clear),
+              iconSize: 30.0,
+              color: Colors.black,
+              onPressed: () {
+                setState(() {
+                  confirmationButton = false;
+                  cancellationPopUpPresent = true;
+                });
+              },
+            ),
+          ),
+        ),
+        dragCancellationPopUp()
       ]),
     );
   }
