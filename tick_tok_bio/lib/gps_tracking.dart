@@ -202,31 +202,35 @@ class MapsState extends State<Maps> {
   }
 
   Widget doneConfirmation() {
-    return AlertDialog(
-      title: Text('Are you sure you would like to finish and save this drag?'),
-      actions: <Widget>[
-        FlatButton(
-          child: Text(
-            'Finish and Save Drag',
-            style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+    return Visibility(
+      visible: popUpPresent,
+      child: AlertDialog(
+        title:
+            Text('Are you sure you would like to finish and save this drag?'),
+        actions: <Widget>[
+          FlatButton(
+            child: Text(
+              'Finish and Save Drag',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
+            onPressed: () {
+              setState(() {
+                finishRoute();
+                popUpPresent = false;
+              });
+            },
           ),
-          onPressed: () {
-            setState(() {
-              finishRoute();
-              popUpPresent = false;
-            });
-          },
-        ),
-        FlatButton(
-          child: Text('Resume Drag'),
-          onPressed: () {
-            setState(() {
-              popUpPresent = false;
-              sliderVisibility = true;
-            });
-          },
-        )
-      ],
+          FlatButton(
+            child: Text('Resume Drag'),
+            onPressed: () {
+              setState(() {
+                popUpPresent = false;
+                sliderVisibility = true;
+              });
+            },
+          )
+        ],
+      ),
     );
   }
 
@@ -238,6 +242,9 @@ class MapsState extends State<Maps> {
         onPressed: () {
           if (!trackingRoute) {
             startNewRoute();
+            setState(() {
+              sliderVisibility = true;
+            });
           } else {
             finishRoute();
             setState(() {});
@@ -359,23 +366,19 @@ class MapsState extends State<Maps> {
                 return Center(
                   child: CircularProgressIndicator(),
                 );
-              } else if (initialPosition != null) {
-                if (popUpPresent == true) {
-                  return doneConfirmation();
-                } else {
-                  return GoogleMap(
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: true,
-                    compassEnabled: true,
-                    markers: _markers,
-                    polylines: _polylines,
-                    mapType: MapType.hybrid,
-                    initialCameraPosition: initialPosition,
-                    onMapCreated: (GoogleMapController controller) {
-                      _controller = controller;
-                    },
-                  );
-                }
+              } else {
+                return GoogleMap(
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                  compassEnabled: true,
+                  markers: _markers,
+                  polylines: _polylines,
+                  mapType: MapType.hybrid,
+                  initialCameraPosition: initialPosition,
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller = controller;
+                  },
+                );
               }
             }),
         Positioned(bottom: 10.0, left: 1.0, right: 5.0, child: startStop()),
@@ -397,7 +400,8 @@ class MapsState extends State<Maps> {
             ),
           ),
         ),
-        dragCancellationPopUp()
+        dragCancellationPopUp(),
+        doneConfirmation()
       ]),
     );
   }
