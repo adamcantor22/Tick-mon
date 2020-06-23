@@ -288,7 +288,15 @@ class MapsState extends State<Maps> {
     return Visibility(
       visible: cancellationPopUpPresent,
       child: AlertDialog(
-        title: Text(
+        title: IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () {
+            setState(() {
+              cancellationPopUpPresent = false;
+            });
+          },
+        ),
+        content: Text(
             'Are you sure you would like to cancel this drag? Slide and press button to confirm.'),
         actions: <Widget>[
           SliderTheme(
@@ -375,11 +383,11 @@ class MapsState extends State<Maps> {
           visible: trackingRoute == true ? true : false,
           child: Positioned(
             top: 3.0,
-            right: 3.0,
+            left: 3.0,
             child: IconButton(
               icon: Icon(Icons.clear),
-              iconSize: 30.0,
-              color: Colors.black,
+              iconSize: 40.0,
+              color: Colors.red,
               onPressed: () {
                 setState(() {
                   confirmationButton = false;
