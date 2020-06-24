@@ -420,8 +420,9 @@ class MapsState extends State<Maps> {
               margin: EdgeInsets.all(10.0),
               color: Colors.grey[200],
               child: IconButton(
+                padding: EdgeInsets.zero,
                 icon: Icon(Icons.clear),
-                iconSize: 20.0,
+                iconSize: 30.0,
                 color: Colors.red,
                 onPressed: () {
                   setState(() {
