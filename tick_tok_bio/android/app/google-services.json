@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "996115475531-ies8c2dulv9cm63hakh1n2113sukgfg5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.muhlenberg.tick_tok_bio",
+            "certificate_hash": "d23a218dc6a42138b9107b31954a64e083124d72"
+          }
+        },
+        {
+          "client_id": "996115475531-nqpvlfoq9mupku9c25poqf0us03i5lpg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.muhlenberg.tick_tok_bio",
+            "certificate_hash": "0c4c5275cecc3dc9cb4ac01887fb25a28c81b6eb"
+          }
+        },
+        {
           "client_id": "996115475531-g9q6h7jp97c8742ts050up06se2ch9b0.apps.googleusercontent.com",
           "client_type": 3
         }

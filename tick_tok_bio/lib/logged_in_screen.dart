@@ -23,8 +23,7 @@ class _LoggedInScreenState extends State<LoggedInScreen> {
                 setState(() {
                   googleSignIn.signOut();
                   access = false;
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => UserPage()));
+                  Navigator.pushReplacementNamed(context, 'LoginScreen');
                 });
               },
               child: Text(

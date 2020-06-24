@@ -24,6 +24,7 @@ import 'helper.dart';
 import 'super_listener.dart';
 import 'package:date_format/date_format.dart';
 import 'weather_tracker.dart';
+import 'player.dart';
 
 class Maps extends StatefulWidget {
   bool get wantKeepAlive => true;
@@ -48,10 +49,16 @@ class MapsState extends State<Maps> {
   double currentVal = 0;
   String latestFilename;
   bool popUpPresent = false;
+  bool sliderVisibility = true;
+  bool cancellationPopUpPresent = false;
+  double cancelDragVal = 0.0;
+  bool confirmationButton = false;
+  bool popUpDeletion = false;
 
   void initState() {
     super.initState();
     SuperListener.setPages(mPage: this);
+    initPlayer();
   }
 
   //A method which allows the map to start at the user's location, rather than
@@ -113,9 +120,9 @@ class MapsState extends State<Maps> {
   }
 
   //Set up location tracking subscription and polyline creation
-  void startNewRoute() {
-    //FIXME: DO NOT LEAVE THE TRUE IN HERE, IT IS FOR TESTING CONVENIENCE
-    if (true || SuperListener.getUser() != null) {
+  void startNewRoute() async {
+    await audioCache.play('start.mp3');
+    audioCache.fixedPlayer.onPlayerCompletion.listen((event) {
       setState(() {
         locator = new Geolocator();
         wpts = new List<Wpt>();
@@ -123,18 +130,12 @@ class MapsState extends State<Maps> {
         trackingRoute = true;
         updateLocation();
       });
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return Helper().message('Login to start new drag!', context);
-        },
-      );
-    }
+    });
   }
 
   //Cancel location tracking and sent the list of waypoints to be stored as gpx
   void finishRoute() async {
+    await playSound('end.mp3');
     Trkseg seg = new Trkseg(
       trkpts: wpts,
     );
@@ -197,14 +198,17 @@ class MapsState extends State<Maps> {
   }
 
   Widget doneConfirmation() {
-    return Expanded(
-      flex: 10,
+    return Visibility(
+      visible: popUpPresent,
       child: AlertDialog(
         title:
             Text('Are you sure you would like to finish and save this drag?'),
         actions: <Widget>[
           FlatButton(
-            child: Text('Finish and Save Drag'),
+            child: Text(
+              'Finish and Save Drag',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
             onPressed: () {
               setState(() {
                 finishRoute();
@@ -217,6 +221,7 @@ class MapsState extends State<Maps> {
             onPressed: () {
               setState(() {
                 popUpPresent = false;
+                sliderVisibility = true;
               });
             },
           )
@@ -226,13 +231,16 @@ class MapsState extends State<Maps> {
   }
 
   Widget startStop() {
-    if (true || trackingRoute == false) {
+    if (trackingRoute == false) {
       return FloatingActionButton(
-        child: trackingRoute ? Icon(Icons.stop) : Icon(Icons.play_arrow),
+        child: Icon(Icons.play_arrow),
         backgroundColor: Colors.blueAccent,
         onPressed: () {
           if (!trackingRoute) {
             startNewRoute();
+            setState(() {
+              sliderVisibility = true;
+            });
           } else {
             finishRoute();
             setState(() {});
@@ -240,91 +248,179 @@ class MapsState extends State<Maps> {
         },
       );
     } else if (trackingRoute == true) {
-      return SliderTheme(
-        data: SliderThemeData(
-            trackShape: RoundedRectSliderTrackShape(),
-            trackHeight: 50.0,
-            activeTrackColor: Colors.red),
-        child: new Slider(
-          value: currentVal,
-          onChanged: (double val) {
-            setState(() {
-              currentVal = val;
-            });
+      return Visibility(
+        visible: sliderVisibility,
+        child: Row(children: [
+          Expanded(
+            flex: 3,
+            child: SliderTheme(
+              data: SliderThemeData(
+                  trackShape: RoundedRectSliderTrackShape(),
+                  trackHeight: 50.0,
+                  activeTrackColor: Colors.red),
+              child: Slider(
+                value: cancellationPopUpPresent == false ? currentVal : 0.0,
+                onChanged: (double val) {
+                  setState(() {
+                    currentVal = val;
+                  });
 
-            if (val == 10.0) {
-              setState(() {
-                currentVal = 0;
-                popUpPresent = true;
-              });
-              print('Done');
-            }
-          },
-          onChangeEnd: (double val) {
-            if (val != 10.0) {
-              setState(() {
-                currentVal = 0;
-                print('HOOPLA');
-              });
-            }
-          },
-          min: 0.0,
-          max: 10.0,
-        ),
+                  if (val == 10.0) {
+                    setState(() {
+                      currentVal = 0;
+                      sliderVisibility = false;
+                      popUpPresent = true;
+                    });
+                    print('Done');
+                  }
+                },
+                onChangeEnd: (double val) {
+                  if (val != 10.0) {
+                    setState(() {
+                      currentVal = 0;
+                      print('HOOPLA');
+                    });
+                  }
+                },
+                min: 0.0,
+                max: 10.0,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: SizedBox(),
+          )
+        ]),
       );
     }
+  }
+
+  Widget dragCancellationPopUp() {
+    return Visibility(
+      visible: cancellationPopUpPresent,
+      child: AlertDialog(
+        title: Column(children: [
+          IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {
+              setState(() {
+                cancellationPopUpPresent = false;
+                cancelDragVal = 0.0;
+              });
+            },
+          ),
+          Text(
+            'Exit Pop-Up',
+            style: TextStyle(fontSize: 15.0),
+          )
+        ]),
+        content: Text(
+            'Are you sure you would like to cancel this drag? Slide and confirm.'),
+        actions: <Widget>[
+          SliderTheme(
+              data: SliderThemeData(
+                  activeTrackColor: Colors.red,
+                  trackShape: RoundedRectSliderTrackShape(),
+                  trackHeight: 50.0),
+              child: Center(
+                child: Slider(
+                  min: 0.0,
+                  max: 10.0,
+                  value: cancelDragVal,
+                  onChanged: (newVal) {
+                    setState(() {
+                      cancelDragVal = newVal;
+                      if (newVal == 10.0) {
+                        confirmationButton = true;
+                      }
+                    });
+                  },
+                  onChangeEnd: (double endPoint) {
+                    if (endPoint != 10.0) {
+                      setState(() {
+                        confirmationButton = false;
+                        cancelDragVal = 0.0;
+                      });
+                    }
+                  },
+                ),
+              )),
+          Visibility(
+              visible: confirmationButton,
+              child: FlatButton(
+                child: Text(
+                  'Delete Drag',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onPressed: () {
+                  setState(() {
+                    trackingRoute = false;
+                    positionSubscription.cancel();
+                    polylineCoordinates.clear();
+                    cancellationPopUpPresent = false;
+                    cancelDragVal = 0.0;
+                  });
+                },
+              ))
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Map Overview'),
-        ),
-        body: Column(
-          children: [
-            FutureBuilder<CameraPosition>(
-                future: googleMap(),
-                // ignore: missing_return
-                builder: (context, snapshot) {
-                  if (initialPosition == null) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (initialPosition != null) {
-                    if (popUpPresent == true) {
-                      return doneConfirmation();
-                    } else {
-                      return Expanded(
-                        flex: 8,
-                        child: SizedBox(
-                          //width: MediaQuery.of(context).size.width,
-                          //height: MediaQuery.of(context).size.height,
-                          child: GoogleMap(
-                            myLocationEnabled: true,
-                            myLocationButtonEnabled: true,
-                            compassEnabled: true,
-                            markers: _markers,
-                            polylines: _polylines,
-                            mapType: MapType.hybrid,
-                            initialCameraPosition: initialPosition,
-                            onMapCreated: (GoogleMapController controller) {
-                              _controller = controller;
-                            },
-                          ),
-                        ),
-                      );
-                    }
-                  }
-                }),
-            Expanded(
-              flex: 1,
-              child: Scaffold(
-                backgroundColor: Colors.black,
-                body: Center(child: startStop()),
-              ),
+      appBar: AppBar(
+          title: trackingRoute == true
+              ? Text('Tracking in Progress')
+              : Text('Tracking Not in Progress.')),
+      body: Stack(children: <Widget>[
+        FutureBuilder(
+            future: googleMap(),
+            // ignore: missing_return
+            builder: (context, snapshot) {
+              if (initialPosition == null) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else {
+                return GoogleMap(
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                  compassEnabled: true,
+                  markers: _markers,
+                  polylines: _polylines,
+                  mapType: MapType.hybrid,
+                  initialCameraPosition: initialPosition,
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller = controller;
+                  },
+                );
+              }
+            }),
+        Positioned(bottom: 10.0, left: 1.0, right: 5.0, child: startStop()),
+        Visibility(
+          visible: trackingRoute == true ? true : false,
+          child: Positioned(
+            top: 3.0,
+            left: 3.0,
+            child: IconButton(
+              icon: Icon(Icons.clear),
+              iconSize: 40.0,
+              color: Colors.red,
+              onPressed: () {
+                setState(() {
+                  confirmationButton = false;
+                  cancellationPopUpPresent = true;
+                });
+              },
             ),
-          ],
-        ));
+          ),
+        ),
+        dragCancellationPopUp(),
+        doneConfirmation()
+      ]),
+    );
   }
 }
