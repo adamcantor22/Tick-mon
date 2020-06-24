@@ -24,6 +24,7 @@ import 'helper.dart';
 import 'super_listener.dart';
 import 'package:date_format/date_format.dart';
 import 'weather_tracker.dart';
+import 'player.dart';
 
 class Maps extends StatefulWidget {
   bool get wantKeepAlive => true;
@@ -57,6 +58,7 @@ class MapsState extends State<Maps> {
   void initState() {
     super.initState();
     SuperListener.setPages(mPage: this);
+    initPlayer();
   }
 
   //A method which allows the map to start at the user's location, rather than
@@ -118,9 +120,9 @@ class MapsState extends State<Maps> {
   }
 
   //Set up location tracking subscription and polyline creation
-  void startNewRoute() {
-    //FIXME: DO NOT LEAVE THE TRUE IN HERE, IT IS FOR TESTING CONVENIENCE
-    if (true || SuperListener.getUser() != null) {
+  void startNewRoute() async {
+    await audioCache.play('start.mp3');
+    audioCache.fixedPlayer.onPlayerCompletion.listen((event) {
       setState(() {
         locator = new Geolocator();
         wpts = new List<Wpt>();
@@ -128,18 +130,12 @@ class MapsState extends State<Maps> {
         trackingRoute = true;
         updateLocation();
       });
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return Helper().message('Login to start new drag!', context);
-        },
-      );
-    }
+    });
   }
 
   //Cancel location tracking and sent the list of waypoints to be stored as gpx
   void finishRoute() async {
+    await playSound('end.mp3');
     Trkseg seg = new Trkseg(
       trkpts: wpts,
     );

@@ -141,7 +141,7 @@ class UserPageState extends State<UserPage> {
                         color: Colors.blue,
                         onPressed: () {
                           setState(() {
-                            access = true;
+                            SuperListener.logInSwitch();
                           });
                           signInWithGoogle();
                         },

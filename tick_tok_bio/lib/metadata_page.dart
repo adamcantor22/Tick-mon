@@ -68,11 +68,36 @@ class MetadataSectionState extends State<MetadataSection>
   Weather curWeather;
   final _editKey = GlobalKey<FormState>();
   var dropMenuItem = 'Habitat Type';
+  bool changesMade;
+  bool loadingData = false;
 
   @override
   bool get wantKeepAlive => true;
 
   DropDown dropDown = DropDown();
+  var myController0 = TextEditingController();
+  var myController1 = TextEditingController();
+  var myController2 = TextEditingController();
+  var myController3 = TextEditingController();
+  var myController4 = TextEditingController();
+  var myController5 = TextEditingController();
+  var myController6 = TextEditingController();
+  var myController7 = TextEditingController();
+  var myController8 = TextEditingController();
+
+  @override
+  void dispose() {
+    myController0.dispose();
+    myController1.dispose();
+    myController2.dispose();
+    myController3.dispose();
+    myController4.dispose();
+    myController5.dispose();
+    myController6.dispose();
+    myController7.dispose();
+    myController8.dispose();
+    super.dispose();
+  }
 
 //This inital state is set in order to give the dir value the proper path to the working directory through the program.
   //Also as fileName currently is drag1.json, this loads that as the file primed if you were to hit the add button.
@@ -97,7 +122,9 @@ class MetadataSectionState extends State<MetadataSection>
 
   //This function is the actual home of the scaffold and controls which screens will be seen on the app.
   Widget pageBody() {
-    if (viewingDrags == true) {
+    if (loadingData) {
+      return loadingWait();
+    } else if (viewingDrags == true) {
       return viewDrags();
     } else if (viewingData == true) {
       return viewData();
@@ -167,6 +194,12 @@ class MetadataSectionState extends State<MetadataSection>
     return d;
   }
 
+  Widget loadingWait() {
+    return Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
 //I believe that this program is unnecessary as I kind of put its function in the getFile function
 //  void createFile(Map content, Directory dir, String fileName) {
 //    print('Creating File');
@@ -197,6 +230,8 @@ class MetadataSectionState extends State<MetadataSection>
     String value6,
     String key7,
     String value7,
+    String key8,
+    String value8,
   ) {
     print('Writing to File');
     Map<String, String> content = {
@@ -208,6 +243,7 @@ class MetadataSectionState extends State<MetadataSection>
       key5: value5,
       key6: value6,
       key7: value7,
+      key8: value8,
       'visible': 'true',
     };
     if (fileExists) {
@@ -349,6 +385,7 @@ class MetadataSectionState extends State<MetadataSection>
 
 //This function is used to populate the screen where all the data for a drag is being viewed.
   Widget infoRow(String key, String value) {
+    final cutoffPoint = 15;
     TextStyle ts = TextStyle(
       letterSpacing: -0.7,
       fontSize: 17.5,
@@ -395,7 +432,11 @@ class MetadataSectionState extends State<MetadataSection>
               child: Padding(
                 padding: EdgeInsets.fromLTRB(5.0, 8.0, 0.0, 8.0),
                 child: Text(
-                  '$value',
+                  value != null && value != 'null'
+                      ? value.length <= cutoffPoint
+                          ? value
+                          : value.substring(0, cutoffPoint - 3) + '...'
+                      : 'None',
                   style: ts,
                 ),
               ),
@@ -407,8 +448,8 @@ class MetadataSectionState extends State<MetadataSection>
   }
 
 //This is used to populate the textBoxes and link them with their proper controllers in the entering data screen.
-  Widget dataField(
-      TextEditingController controller, String field, String hText) {
+  Widget dataField(TextEditingController controller, String field, String hText,
+      bool required) {
     Widget widget = Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
       child: TextFormField(
@@ -416,10 +457,14 @@ class MetadataSectionState extends State<MetadataSection>
             hintText: 'Enter $field', labelText: field),
         controller: controller,
         validator: (value) {
-          if (value.isEmpty) {
+          if (required &&
+              (controller.text == null || controller.text.trim() == '')) {
             return 'Enter All Data';
           }
           return null;
+        },
+        onChanged: (s) {
+          changesMade = true;
         },
       ),
     );
@@ -432,6 +477,10 @@ class MetadataSectionState extends State<MetadataSection>
   }
 
   void createNewDrag(String newFilename) async {
+    setState(() {
+      loadingData = true;
+    });
+
     curWeather = await WeatherTracker.getWeather();
     Widget newDrag = await dragMenu(newFilename);
 
@@ -447,6 +496,7 @@ class MetadataSectionState extends State<MetadataSection>
       viewingDrags = false;
       viewingData = false;
       editingData = true;
+      loadingData = false;
     });
   }
 
@@ -503,6 +553,7 @@ class MetadataSectionState extends State<MetadataSection>
             icon: Icon(Icons.edit),
             onPressed: () {
               setState(() {
+                changesMade = false;
                 editingData = true;
                 viewingData = false;
                 if (fileContent['HabitatType'] != null) {
@@ -532,9 +583,9 @@ class MetadataSectionState extends State<MetadataSection>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Flexible(
-              flex: 5,
+              flex: 10,
               child: Padding(
-                padding: EdgeInsets.only(bottom: 10.0),
+                padding: EdgeInsets.only(bottom: 7.0),
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.blueGrey[400],
@@ -560,7 +611,8 @@ class MetadataSectionState extends State<MetadataSection>
                         infoRow('Nymphs Found',
                             fileContent['NumNymphs'].toString()),
                         infoRow('Blackleggeds Found',
-                            fileContent['NumBlacklegged'].toString())
+                            fileContent['NumBlacklegged'].toString()),
+                        infoRow('Notes', fileContent['Notes'].toString()),
                       ],
                     ),
                   ),
@@ -569,7 +621,7 @@ class MetadataSectionState extends State<MetadataSection>
             ),
             Flexible(
               child: Padding(
-                padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+                padding: EdgeInsets.only(top: 10.0),
                 child: RaisedButton(
                   color: Colors.red[700],
                   onPressed: () {
@@ -634,6 +686,14 @@ class MetadataSectionState extends State<MetadataSection>
       },
     );
   }
+  
+  void revertChanges() {
+    setState(() {
+      editingData = false;
+      viewingDrags = false;
+      viewingData = true;
+    });
+  }
 
 //This function is used to change the metadata for a specific drag which has been done.
   //It is populated with Text Fields
@@ -643,14 +703,30 @@ class MetadataSectionState extends State<MetadataSection>
         title: Text('Editing ${getDragDisplayName()}'),
         actions: <Widget>[
           IconButton(
-              icon: Icon(Icons.close),
-              onPressed: () {
-                setState(() {
-                  editingData = false;
-                  viewingDrags = false;
-                  viewingData = true;
-                });
-              })
+            icon: Icon(Icons.close),
+            onPressed: () {
+              if (_editKey.currentState.validate()) {
+                if (changesMade) {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return Helper().boolMessage(
+                        'Are you sure you want to exit? All changed data will be reverted.',
+                        revertChanges,
+                        context,
+                      );
+                    },
+                  );
+                } else {
+                  setState(() {
+                    editingData = false;
+                    viewingDrags = false;
+                    viewingData = true;
+                  });
+                }
+              }
+            },
+          ),
         ],
       ),
       body: Column(
@@ -666,36 +742,55 @@ class MetadataSectionState extends State<MetadataSection>
                     myController0,
                     'Name',
                     fileContent['Name'],
+                    true,
                   ),
                   dataField(
                     myController1,
                     'Site',
                     fileContent['Site'],
+                    true,
                   ),
                   dataField(
                     myController2,
                     'Temperature',
                     fileContent['Temp'],
+                    true,
                   ),
                   dataField(
                     myController3,
                     'Humidity',
                     fileContent['Humidity'],
+                    true,
                   ),
                   dataField(
                     myController4,
                     'Ground Moisture',
                     fileContent['GroundMoisture'],
+                    true,
                   ),
                   dataField(
+//                     myController5,
+//                     'Habitat Type',
+//                     fileContent['HabitatType'],
+//                     true,
+//                   ),
+//                   dataField(
                     myController6,
                     'Number of Nymphs',
                     fileContent['NumNymphs'],
+                    true,
                   ),
                   dataField(
                     myController7,
                     'Number of Blackleggeds',
                     fileContent['NumBlacklegged'],
+                    true,
+                  ),
+                  dataField(
+                    myController8,
+                    'Notes',
+                    fileContent['Notes'],
+                    false,
                   ),
                   Center(
                     child: dropDown,
@@ -746,6 +841,8 @@ class MetadataSectionState extends State<MetadataSection>
                         myController6.text,
                         'NumBlacklegged',
                         myController7.text,
+                        'Notes',
+                        myController8.text,
                       );
                       sendJsonToCloud();
                       drags();
