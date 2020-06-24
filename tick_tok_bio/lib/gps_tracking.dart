@@ -406,7 +406,12 @@ class MapsState extends State<Maps> {
                   );
                 }
               }),
-          Positioned(bottom: 10.0, left: 1.0, right: 5.0, child: startStop()),
+          Positioned(
+            bottom: 10.0,
+            left: 1.0,
+            right: 5.0,
+            child: startStop(),
+          ),
           Visibility(
             visible: trackingRoute == true ? true : false,
             child: Container(

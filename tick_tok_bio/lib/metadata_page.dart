@@ -659,8 +659,9 @@ class MetadataSectionState extends State<MetadataSection>
 
   Widget dropMenuOption(TextEditingController controller) {
     return DropdownButton<String>(
-      items: habitatTypes
-          .map((String e) => DropdownMenuItem(value: e, child: Text(e))),
+      items: habitatTypes.map((String e) {
+        return DropdownMenuItem(value: e, child: Text(e));
+      }),
       onChanged: (value) {
         controller.text = value;
       },
@@ -748,13 +749,10 @@ class MetadataSectionState extends State<MetadataSection>
                     fileContent['GroundMoisture'],
                     true,
                   ),
+                  Center(
+                    child: dropDown,
+                  ),
                   dataField(
-//                     myController5,
-//                     'Habitat Type',
-//                     fileContent['HabitatType'],
-//                     true,
-//                   ),
-//                   dataField(
                     myController6,
                     'Number of Nymphs',
                     fileContent['NumNymphs'],
@@ -772,8 +770,8 @@ class MetadataSectionState extends State<MetadataSection>
                     fileContent['Notes'],
                     false,
                   ),
-                  Center(
-                    child: dropDown,
+                  SizedBox(
+                    height: 30.0,
                   ),
                 ],
               ),
