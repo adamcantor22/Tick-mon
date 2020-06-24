@@ -254,39 +254,48 @@ class MapsState extends State<Maps> {
     } else if (trackingRoute == true) {
       return Visibility(
         visible: sliderVisibility,
-        child: SliderTheme(
-          data: SliderThemeData(
-              trackShape: RoundedRectSliderTrackShape(),
-              trackHeight: 50.0,
-              activeTrackColor: Colors.red),
-          child: Slider(
-            value: currentVal,
-            onChanged: (double val) {
-              setState(() {
-                currentVal = val;
-              });
+        child: Row(children: [
+          Expanded(
+            flex: 3,
+            child: SliderTheme(
+              data: SliderThemeData(
+                  trackShape: RoundedRectSliderTrackShape(),
+                  trackHeight: 50.0,
+                  activeTrackColor: Colors.red),
+              child: Slider(
+                value: cancellationPopUpPresent == false ? currentVal : 0.0,
+                onChanged: (double val) {
+                  setState(() {
+                    currentVal = val;
+                  });
 
-              if (val == 10.0) {
-                setState(() {
-                  currentVal = 0;
-                  sliderVisibility = false;
-                  popUpPresent = true;
-                });
-                print('Done');
-              }
-            },
-            onChangeEnd: (double val) {
-              if (val != 10.0) {
-                setState(() {
-                  currentVal = 0;
-                  print('HOOPLA');
-                });
-              }
-            },
-            min: 0.0,
-            max: 10.0,
+                  if (val == 10.0) {
+                    setState(() {
+                      currentVal = 0;
+                      sliderVisibility = false;
+                      popUpPresent = true;
+                    });
+                    print('Done');
+                  }
+                },
+                onChangeEnd: (double val) {
+                  if (val != 10.0) {
+                    setState(() {
+                      currentVal = 0;
+                      print('HOOPLA');
+                    });
+                  }
+                },
+                min: 0.0,
+                max: 10.0,
+              ),
+            ),
           ),
-        ),
+          Expanded(
+            flex: 1,
+            child: SizedBox(),
+          )
+        ]),
       );
     }
   }
@@ -295,39 +304,51 @@ class MapsState extends State<Maps> {
     return Visibility(
       visible: cancellationPopUpPresent,
       child: AlertDialog(
-        title: IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {
-            setState(() {
-              cancellationPopUpPresent = false;
-            });
-          },
-        ),
+        title: Column(children: [
+          IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {
+              setState(() {
+                cancellationPopUpPresent = false;
+                cancelDragVal = 0.0;
+              });
+            },
+          ),
+          Text(
+            'Exit Pop-Up',
+            style: TextStyle(fontSize: 15.0),
+          )
+        ]),
         content: Text(
-            'Are you sure you would like to cancel this drag? Slide and press button to confirm.'),
+            'Are you sure you would like to cancel this drag? Slide and confirm.'),
         actions: <Widget>[
           SliderTheme(
               data: SliderThemeData(
-                  trackShape: RoundedRectSliderTrackShape(), trackHeight: 50.0),
-              child: Slider(
-                min: 0.0,
-                max: 10.0,
-                value: cancelDragVal,
-                onChanged: (newVal) {
-                  setState(() {
-                    cancelDragVal = newVal;
-                    if (newVal == 10.0) {
-                      confirmationButton = true;
-                    }
-                  });
-                },
-                onChangeEnd: (double endPoint) {
-                  if (endPoint != 10.0) {
+                  activeTrackColor: Colors.red,
+                  trackShape: RoundedRectSliderTrackShape(),
+                  trackHeight: 50.0),
+              child: Center(
+                child: Slider(
+                  min: 0.0,
+                  max: 10.0,
+                  value: cancelDragVal,
+                  onChanged: (newVal) {
                     setState(() {
-                      cancelDragVal = 0.0;
+                      cancelDragVal = newVal;
+                      if (newVal == 10.0) {
+                        confirmationButton = true;
+                      }
                     });
-                  }
-                },
+                  },
+                  onChangeEnd: (double endPoint) {
+                    if (endPoint != 10.0) {
+                      setState(() {
+                        confirmationButton = false;
+                        cancelDragVal = 0.0;
+                      });
+                    }
+                  },
+                ),
               )),
           Visibility(
               visible: confirmationButton,
@@ -355,8 +376,9 @@ class MapsState extends State<Maps> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Map Overview'),
-      ),
+          title: trackingRoute == true
+              ? Text('Tracking in Progress')
+              : Text('Tracking Not in Progress.')),
       body: Stack(children: <Widget>[
         FutureBuilder(
             future: googleMap(),

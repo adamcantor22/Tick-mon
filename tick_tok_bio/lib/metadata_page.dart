@@ -4,6 +4,7 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:tick_tok_bio/user_page.dart';
 import 'main.dart';
 import 'decorationInfo.dart';
 import 'package:path_provider/path_provider.dart';
