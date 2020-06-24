@@ -65,19 +65,19 @@ class MetadataSectionState extends State<MetadataSection>
 
   DropDown dropDown = DropDown();
 
-  @override
-  void dispose() {
-    super.dispose();
-    myController0.dispose();
-    myController1.dispose();
-    myController2.dispose();
-    myController3.dispose();
-    myController4.dispose();
-    myController5.dispose();
-    myController6.dispose();
-    myController7.dispose();
-    myController8.dispose();
-  }
+//  @override
+//  void dispose() {
+//    super.dispose();
+//    myController0.dispose();
+//    myController1.dispose();
+//    myController2.dispose();
+//    myController3.dispose();
+//    myController4.dispose();
+//    myController5.dispose();
+//    myController6.dispose();
+//    myController7.dispose();
+//    myController8.dispose();
+//  }
 
 //This inital state is set in order to give the dir value the proper path to the working directory through the program.
   //Also as fileName currently is drag1.json, this loads that as the file primed if you were to hit the add button.

@@ -144,7 +144,7 @@ class UserPageState extends State<UserPage> {
                               color: Colors.blue,
                               width: 2.0,
                             ),
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(30.0),
                           ),
                           color: Colors.white,
                           onPressed: () {
