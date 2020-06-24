@@ -213,6 +213,7 @@ class MapsState extends State<Maps> {
               setState(() {
                 finishRoute();
                 popUpPresent = false;
+                trackingRoute = false;
               });
             },
           ),

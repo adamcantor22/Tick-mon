@@ -85,7 +85,7 @@ class MetadataSectionState extends State<MetadataSection>
     myController6.dispose();
     myController7.dispose();
     myController8.dispose();
-    super.dispose();
+    //super.dispose();
   }
 
 //This inital state is set in order to give the dir value the proper path to the working directory through the program.
