@@ -57,6 +57,7 @@ class MetadataSectionState extends State<MetadataSection>
   var myController5 = TextEditingController();
   var myController6 = TextEditingController();
   var myController7 = TextEditingController();
+  var myController8 = TextEditingController();
 
   @override
   void dispose() {
@@ -68,6 +69,7 @@ class MetadataSectionState extends State<MetadataSection>
     myController5.dispose();
     myController6.dispose();
     myController7.dispose();
+    myController8.dispose();
     super.dispose();
   }
 
@@ -202,6 +204,8 @@ class MetadataSectionState extends State<MetadataSection>
     String value6,
     String key7,
     String value7,
+    String key8,
+    String value8,
   ) {
     print('Writing to File');
     Map<String, String> content = {
@@ -213,6 +217,7 @@ class MetadataSectionState extends State<MetadataSection>
       key5: value5,
       key6: value6,
       key7: value7,
+      key8: value8,
       'visible': 'true',
     };
     if (fileExists) {
@@ -354,6 +359,7 @@ class MetadataSectionState extends State<MetadataSection>
 
 //This function is used to populate the screen where all the data for a drag is being viewed.
   Widget infoRow(String key, String value) {
+    final cutoffPoint = 15;
     TextStyle ts = TextStyle(
       letterSpacing: -0.7,
       fontSize: 17.5,
@@ -400,7 +406,11 @@ class MetadataSectionState extends State<MetadataSection>
               child: Padding(
                 padding: EdgeInsets.fromLTRB(5.0, 8.0, 0.0, 8.0),
                 child: Text(
-                  '$value',
+                  value != null && value != 'null'
+                      ? value.length <= cutoffPoint
+                          ? value
+                          : value.substring(0, cutoffPoint - 3) + '...'
+                      : 'None',
                   style: ts,
                 ),
               ),
@@ -412,8 +422,8 @@ class MetadataSectionState extends State<MetadataSection>
   }
 
 //This is used to populate the textBoxes and link them with their proper controllers in the entering data screen.
-  Widget dataField(
-      TextEditingController controller, String field, String hText) {
+  Widget dataField(TextEditingController controller, String field, String hText,
+      bool required) {
     Widget widget = Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
       child: TextFormField(
@@ -421,7 +431,8 @@ class MetadataSectionState extends State<MetadataSection>
             hintText: 'Enter $field', labelText: field),
         controller: controller,
         validator: (value) {
-          if (controller.text == null || controller.text.trim() == '') {
+          if (required &&
+              (controller.text == null || controller.text.trim() == '')) {
             return 'Enter All Data';
           }
           return null;
@@ -540,9 +551,9 @@ class MetadataSectionState extends State<MetadataSection>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Flexible(
-              flex: 5,
+              flex: 10,
               child: Padding(
-                padding: EdgeInsets.only(bottom: 10.0),
+                padding: EdgeInsets.only(bottom: 7.0),
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.blueGrey[400],
@@ -568,7 +579,8 @@ class MetadataSectionState extends State<MetadataSection>
                         infoRow('Nymphs Found',
                             fileContent['NumNymphs'].toString()),
                         infoRow('Blackleggeds Found',
-                            fileContent['NumBlacklegged'].toString())
+                            fileContent['NumBlacklegged'].toString()),
+                        infoRow('Notes', fileContent['Notes'].toString()),
                       ],
                     ),
                   ),
@@ -577,7 +589,7 @@ class MetadataSectionState extends State<MetadataSection>
             ),
             Flexible(
               child: Padding(
-                padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+                padding: EdgeInsets.only(top: 10.0),
                 child: RaisedButton(
                   color: Colors.red[700],
                   onPressed: () {
@@ -686,41 +698,55 @@ class MetadataSectionState extends State<MetadataSection>
                     myController0,
                     'Name',
                     fileContent['Name'],
+                    true,
                   ),
                   dataField(
                     myController1,
                     'Site',
                     fileContent['Site'],
+                    true,
                   ),
                   dataField(
                     myController2,
                     'Temperature',
                     fileContent['Temp'],
+                    true,
                   ),
                   dataField(
                     myController3,
                     'Humidity',
                     fileContent['Humidity'],
+                    true,
                   ),
                   dataField(
                     myController4,
                     'Ground Moisture',
                     fileContent['GroundMoisture'],
+                    true,
                   ),
                   dataField(
                     myController5,
                     'Habitat Type',
                     fileContent['HabitatType'],
+                    true,
                   ),
                   dataField(
                     myController6,
                     'Number of Nymphs',
                     fileContent['NumNymphs'],
+                    true,
                   ),
                   dataField(
                     myController7,
                     'Number of Blackleggeds',
                     fileContent['NumBlacklegged'],
+                    true,
+                  ),
+                  dataField(
+                    myController8,
+                    'Notes',
+                    fileContent['Notes'],
+                    false,
                   ),
                 ],
               ),
@@ -767,6 +793,8 @@ class MetadataSectionState extends State<MetadataSection>
                         myController6.text,
                         'NumBlacklegged',
                         myController7.text,
+                        'Notes',
+                        myController8.text,
                       );
                       sendJsonToCloud();
                       drags();
