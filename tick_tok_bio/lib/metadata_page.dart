@@ -4,6 +4,7 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:tick_tok_bio/user_page.dart';
 import 'main.dart';
 import 'decorationInfo.dart';
 import 'package:path_provider/path_provider.dart';
@@ -20,6 +21,29 @@ import 'package:weather/weather_library.dart';
 bool viewingDrags = true;
 bool viewingData = false;
 bool editingData = false;
+
+var myController0 = TextEditingController();
+var myController1 = TextEditingController();
+var myController2 = TextEditingController();
+var myController3 = TextEditingController();
+var myController4 = TextEditingController();
+var myController5 = TextEditingController();
+var myController6 = TextEditingController();
+var myController7 = TextEditingController();
+
+void dispose() {
+  myController0.dispose();
+  myController1.dispose();
+  myController2.dispose();
+  myController3.dispose();
+  myController4.dispose();
+  myController5.dispose();
+  myController6.dispose();
+  myController7.dispose();
+  //super.dispose();
+}
+
+var dropdownValue;
 
 class MetadataSection extends StatefulWidget {
   const MetadataSection({Key key}) : super(key: key);
@@ -43,12 +67,14 @@ class MetadataSectionState extends State<MetadataSection>
   String editingFilename;
   Weather curWeather;
   final _editKey = GlobalKey<FormState>();
+  var dropMenuItem = 'Habitat Type';
   bool changesMade;
   bool loadingData = false;
 
   @override
   bool get wantKeepAlive => true;
 
+  DropDown dropDown = DropDown();
   var myController0 = TextEditingController();
   var myController1 = TextEditingController();
   var myController2 = TextEditingController();
@@ -425,7 +451,7 @@ class MetadataSectionState extends State<MetadataSection>
   Widget dataField(TextEditingController controller, String field, String hText,
       bool required) {
     Widget widget = Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
       child: TextFormField(
         decoration: kTextFieldDecoration.copyWith(
             hintText: 'Enter $field', labelText: field),
@@ -530,6 +556,12 @@ class MetadataSectionState extends State<MetadataSection>
                 changesMade = false;
                 editingData = true;
                 viewingData = false;
+                if (fileContent['HabitatType'] != null) {
+                  dropdownValue = fileContent['HabitatType'];
+                  print(dropdownValue);
+                } else {
+                  print('BLURGGG');
+                }
               });
             },
           ),
@@ -643,6 +675,18 @@ class MetadataSectionState extends State<MetadataSection>
     drags();
   }
 
+  var habitatTypes = ['Space', 'Earth', 'Sun'];
+
+  Widget dropMenuOption(TextEditingController controller) {
+    return DropdownButton<String>(
+      items: habitatTypes
+          .map((String e) => DropdownMenuItem(value: e, child: Text(e))),
+      onChanged: (value) {
+        controller.text = value;
+      },
+    );
+  }
+  
   void revertChanges() {
     setState(() {
       editingData = false;
@@ -725,12 +769,12 @@ class MetadataSectionState extends State<MetadataSection>
                     true,
                   ),
                   dataField(
-                    myController5,
-                    'Habitat Type',
-                    fileContent['HabitatType'],
-                    true,
-                  ),
-                  dataField(
+//                     myController5,
+//                     'Habitat Type',
+//                     fileContent['HabitatType'],
+//                     true,
+//                   ),
+//                   dataField(
                     myController6,
                     'Number of Nymphs',
                     fileContent['NumNymphs'],
@@ -747,6 +791,9 @@ class MetadataSectionState extends State<MetadataSection>
                     'Notes',
                     fileContent['Notes'],
                     false,
+                  ),
+                  Center(
+                    child: dropDown,
                   ),
                 ],
               ),
@@ -774,6 +821,7 @@ class MetadataSectionState extends State<MetadataSection>
                   textColor: Colors.white,
                   color: Colors.blue,
                   onPressed: () {
+                    print(myController5.text);
                     if (_editKey.currentState.validate()) {
                       writeToFile(
                         thisFilename,
@@ -831,5 +879,61 @@ class MetadataSectionState extends State<MetadataSection>
   @override
   Widget build(BuildContext context) {
     return pageBody();
+  }
+}
+
+class DropDown extends StatefulWidget {
+  @override
+  _DropDownState createState() => _DropDownState();
+}
+
+class _DropDownState extends State<DropDown> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.0),
+      child: DropdownButtonFormField(
+        decoration: InputDecoration(
+          labelText: 'Habitat Type',
+          contentPadding:
+              EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(rad)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blueAccent, width: 1.5),
+            borderRadius: BorderRadius.all(Radius.circular(16.0)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blueAccent, width: 2.5),
+            borderRadius: BorderRadius.all(Radius.circular(16.0)),
+          ),
+        ),
+        //hint: Text('Select a Habitat Type'),
+        items: <String>[
+          'Forest',
+          'Heavy Forest',
+          'Open Plain',
+          'Beach',
+          'Other'
+        ].map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+        value: dropdownValue,
+        icon: Icon(Icons.arrow_downward),
+        iconSize: 24,
+        elevation: 16,
+        style: TextStyle(color: Colors.deepPurple),
+        onChanged: (value) {
+          setState(() {
+            myController5.text = value;
+            dropdownValue = value;
+          });
+        },
+      ),
+    );
   }
 }
