@@ -30,18 +30,7 @@ var myController4 = TextEditingController();
 var myController5 = TextEditingController();
 var myController6 = TextEditingController();
 var myController7 = TextEditingController();
-
-void dispose() {
-  myController0.dispose();
-  myController1.dispose();
-  myController2.dispose();
-  myController3.dispose();
-  myController4.dispose();
-  myController5.dispose();
-  myController6.dispose();
-  myController7.dispose();
-  //super.dispose();
-}
+var myController8 = TextEditingController();
 
 var dropdownValue;
 
@@ -75,18 +64,10 @@ class MetadataSectionState extends State<MetadataSection>
   bool get wantKeepAlive => true;
 
   DropDown dropDown = DropDown();
-  var myController0 = TextEditingController();
-  var myController1 = TextEditingController();
-  var myController2 = TextEditingController();
-  var myController3 = TextEditingController();
-  var myController4 = TextEditingController();
-  var myController5 = TextEditingController();
-  var myController6 = TextEditingController();
-  var myController7 = TextEditingController();
-  var myController8 = TextEditingController();
 
   @override
   void dispose() {
+    super.dispose();
     myController0.dispose();
     myController1.dispose();
     myController2.dispose();
@@ -96,7 +77,6 @@ class MetadataSectionState extends State<MetadataSection>
     myController6.dispose();
     myController7.dispose();
     myController8.dispose();
-    super.dispose();
   }
 
 //This inital state is set in order to give the dir value the proper path to the working directory through the program.
@@ -686,7 +666,7 @@ class MetadataSectionState extends State<MetadataSection>
       },
     );
   }
-  
+
   void revertChanges() {
     setState(() {
       editingData = false;

@@ -142,6 +142,7 @@ class MapsState extends State<Maps> {
     WeatherTracker.updateLocation(currentPosition);
     storeRouteInformation(seg);
 
+    print('tracking ROUTE ABOUT TO BE FALSe');
     setState(() {
       trackingRoute = false;
       positionSubscription.cancel();
@@ -211,6 +212,7 @@ class MapsState extends State<Maps> {
             ),
             onPressed: () {
               setState(() {
+                trackingRoute = false;
                 finishRoute();
                 popUpPresent = false;
               });
@@ -255,9 +257,10 @@ class MapsState extends State<Maps> {
             flex: 3,
             child: SliderTheme(
               data: SliderThemeData(
-                  trackShape: RoundedRectSliderTrackShape(),
-                  trackHeight: 50.0,
-                  activeTrackColor: Colors.red),
+                trackShape: RoundedRectSliderTrackShape(),
+                trackHeight: 50.0,
+                activeTrackColor: Colors.red,
+              ),
               child: Slider(
                 value: cancellationPopUpPresent == false ? currentVal : 0.0,
                 onChanged: (double val) {
@@ -319,50 +322,52 @@ class MapsState extends State<Maps> {
             'Are you sure you would like to cancel this drag? Slide and confirm.'),
         actions: <Widget>[
           SliderTheme(
-              data: SliderThemeData(
-                  activeTrackColor: Colors.red,
-                  trackShape: RoundedRectSliderTrackShape(),
-                  trackHeight: 50.0),
-              child: Center(
-                child: Slider(
-                  min: 0.0,
-                  max: 10.0,
-                  value: cancelDragVal,
-                  onChanged: (newVal) {
-                    setState(() {
-                      cancelDragVal = newVal;
-                      if (newVal == 10.0) {
-                        confirmationButton = true;
-                      }
-                    });
-                  },
-                  onChangeEnd: (double endPoint) {
-                    if (endPoint != 10.0) {
-                      setState(() {
-                        confirmationButton = false;
-                        cancelDragVal = 0.0;
-                      });
-                    }
-                  },
-                ),
-              )),
-          Visibility(
-              visible: confirmationButton,
-              child: FlatButton(
-                child: Text(
-                  'Delete Drag',
-                  style: TextStyle(color: Colors.red),
-                ),
-                onPressed: () {
+            data: SliderThemeData(
+                activeTrackColor: Colors.red,
+                trackShape: RoundedRectSliderTrackShape(),
+                trackHeight: 50.0),
+            child: Center(
+              child: Slider(
+                min: 0.0,
+                max: 10.0,
+                value: cancelDragVal,
+                onChanged: (newVal) {
                   setState(() {
-                    trackingRoute = false;
-                    positionSubscription.cancel();
-                    polylineCoordinates.clear();
-                    cancellationPopUpPresent = false;
-                    cancelDragVal = 0.0;
+                    cancelDragVal = newVal;
+                    if (newVal == 10.0) {
+                      confirmationButton = true;
+                    }
                   });
                 },
-              ))
+                onChangeEnd: (double endPoint) {
+                  if (endPoint != 10.0) {
+                    setState(() {
+                      confirmationButton = false;
+                      cancelDragVal = 0.0;
+                    });
+                  }
+                },
+              ),
+            ),
+          ),
+          Visibility(
+            visible: confirmationButton,
+            child: FlatButton(
+              child: Text(
+                'Delete Drag',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                setState(() {
+                  trackingRoute = false;
+                  positionSubscription.cancel();
+                  polylineCoordinates.clear();
+                  cancellationPopUpPresent = false;
+                  cancelDragVal = 0.0;
+                });
+              },
+            ),
+          )
         ],
       ),
     );
@@ -375,52 +380,56 @@ class MapsState extends State<Maps> {
           title: trackingRoute == true
               ? Text('Tracking in Progress')
               : Text('Tracking Not in Progress.')),
-      body: Stack(children: <Widget>[
-        FutureBuilder(
-            future: googleMap(),
-            // ignore: missing_return
-            builder: (context, snapshot) {
-              if (initialPosition == null) {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else {
-                return GoogleMap(
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: true,
-                  compassEnabled: true,
-                  markers: _markers,
-                  polylines: _polylines,
-                  mapType: MapType.hybrid,
-                  initialCameraPosition: initialPosition,
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller = controller;
-                  },
-                );
-              }
-            }),
-        Positioned(bottom: 10.0, left: 1.0, right: 5.0, child: startStop()),
-        Visibility(
-          visible: trackingRoute == true ? true : false,
-          child: Positioned(
-            top: 3.0,
-            left: 3.0,
-            child: IconButton(
-              icon: Icon(Icons.clear),
-              iconSize: 40.0,
-              color: Colors.red,
-              onPressed: () {
-                setState(() {
-                  confirmationButton = false;
-                  cancellationPopUpPresent = true;
-                });
-              },
+      body: Stack(
+        children: <Widget>[
+          FutureBuilder(
+              future: googleMap(),
+              // ignore: missing_return
+              builder: (context, snapshot) {
+                if (initialPosition == null) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else {
+                  return GoogleMap(
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                    compassEnabled: true,
+                    markers: _markers,
+                    polylines: _polylines,
+                    mapType: MapType.hybrid,
+                    initialCameraPosition: initialPosition,
+                    onMapCreated: (GoogleMapController controller) {
+                      _controller = controller;
+                    },
+                  );
+                }
+              }),
+          Positioned(bottom: 10.0, left: 1.0, right: 5.0, child: startStop()),
+          Visibility(
+            visible: trackingRoute == true ? true : false,
+            child: Container(
+              height: 40.0,
+              width: 40.0,
+              margin: EdgeInsets.all(10.0),
+              color: Colors.grey[200],
+              child: IconButton(
+                icon: Icon(Icons.clear),
+                iconSize: 20.0,
+                color: Colors.red,
+                onPressed: () {
+                  setState(() {
+                    confirmationButton = false;
+                    cancellationPopUpPresent = true;
+                  });
+                },
+              ),
             ),
           ),
-        ),
-        dragCancellationPopUp(),
-        doneConfirmation()
-      ]),
+          dragCancellationPopUp(),
+          doneConfirmation()
+        ],
+      ),
     );
   }
 }
