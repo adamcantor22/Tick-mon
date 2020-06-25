@@ -123,13 +123,15 @@ class MapsState extends State<Maps> {
   //Set up location tracking subscription and polyline creation
   void startNewRoute() async {
     await audioCache.play('start.mp3');
-    audioCache.fixedPlayer.onPlayerCompletion.listen((event) {
+    StreamSubscription<void> sub;
+    sub = audioCache.fixedPlayer.onPlayerCompletion.listen((event) {
       setState(() {
         locator = new Geolocator();
         wpts = new List<Wpt>();
         polylinePoints = PolylinePoints();
         trackingRoute = true;
         updateLocation();
+        sub.cancel();
       });
     });
   }
