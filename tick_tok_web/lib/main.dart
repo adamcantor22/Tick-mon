@@ -1,83 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
-void main() => runApp(SignUpApp());
+void main() => runApp(MotherShipApp());
 
-class SignUpApp extends StatelessWidget {
+class MotherShipApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      routes: {
-        '/': (context) => SignUpScreen(),
-      },
-    );
-  }
+  _MotherShipAppState createState() => _MotherShipAppState();
 }
 
-class SignUpScreen extends StatelessWidget {
+class _MotherShipAppState extends State<MotherShipApp> {
+//  StorageReference store;
+//
+//  @override
+//  void initState() {
+//    super.initState();
+//    getFirestoreReference();
+//  }
+//
+//  void getFirestoreReference() async {
+////    store = FirebaseStorage.instance.ref().getRoot();
+////    var list = await store.listAll();
+//    //print('Good morning! ' + list);
+//  }
+//
+//  void getFiles() {}
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[200],
-      body: Center(
-        child: SizedBox(
-          width: 400,
-          child: Card(
-            child: SignUpForm(),
+    print('tests');
+    return Container(
+      color: Colors.black,
+      child: Center(
+        child: Text(
+          'HENLOOOOO',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24.0,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class SignUpForm extends StatefulWidget {
-  @override
-  _SignUpFormState createState() => _SignUpFormState();
-}
-
-class _SignUpFormState extends State<SignUpForm> {
-  final _firstNameTextController = TextEditingController();
-  final _lastNameTextController = TextEditingController();
-  final _usernameTextController = TextEditingController();
-
-  double _formProgress = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          LinearProgressIndicator(value: _formProgress),
-          Text('Sign up', style: Theme.of(context).textTheme.headline4),
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: _firstNameTextController,
-              decoration: InputDecoration(hintText: 'First name'),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: _lastNameTextController,
-              decoration: InputDecoration(hintText: 'Last name'),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: _usernameTextController,
-              decoration: InputDecoration(hintText: 'Username'),
-            ),
-          ),
-          FlatButton(
-            color: Colors.blue,
-            textColor: Colors.white,
-            onPressed: null,
-            child: Text('Sign up'),
-          ),
-        ],
       ),
     );
   }
