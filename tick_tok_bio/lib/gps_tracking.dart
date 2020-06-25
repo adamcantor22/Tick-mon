@@ -25,6 +25,7 @@ import 'super_listener.dart';
 import 'package:date_format/date_format.dart';
 import 'weather_tracker.dart';
 import 'player.dart';
+import 'metadata_page.dart';
 
 class Maps extends StatefulWidget {
   bool get wantKeepAlive => true;
@@ -218,6 +219,8 @@ class MapsState extends State<Maps> {
               setState(() {
                 finishRoute();
                 popUpPresent = false;
+                dropdownValue = 'Habitat Type';
+                dropDownNew = true;
               });
             },
           ),

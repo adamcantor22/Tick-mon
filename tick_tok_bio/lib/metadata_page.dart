@@ -16,6 +16,7 @@ import 'helper.dart';
 import 'file_uploader.dart';
 import 'weather_tracker.dart';
 import 'package:weather/weather_library.dart';
+import 'gps_tracking.dart';
 
 //These are the three boolean values used to determine which screen we are currently on
 bool viewingDrags = true;
@@ -32,7 +33,8 @@ var myController6 = TextEditingController();
 var myController7 = TextEditingController();
 var myController8 = TextEditingController();
 
-var dropdownValue;
+var dropdownValue = 'Forest';
+bool dropDownNew = true;
 
 class MetadataSection extends StatefulWidget {
   const MetadataSection({Key key}) : super(key: key);
@@ -56,7 +58,7 @@ class MetadataSectionState extends State<MetadataSection>
   String editingFilename;
   Weather curWeather;
   final _editKey = GlobalKey<FormState>();
-  var dropMenuItem = 'Habitat Type';
+  //svar dropMenuItem = 'Habitat Type';
   bool changesMade;
   bool loadingData = false;
 
@@ -65,19 +67,19 @@ class MetadataSectionState extends State<MetadataSection>
 
   DropDown dropDown = DropDown();
 
-  @override
-  void dispose() {
-    super.dispose();
-    myController0.dispose();
-    myController1.dispose();
-    myController2.dispose();
-    myController3.dispose();
-    myController4.dispose();
-    myController5.dispose();
-    myController6.dispose();
-    myController7.dispose();
-    myController8.dispose();
-  }
+//  @override
+//  void dispose() {
+//    super.dispose();
+//    myController0.dispose();
+//    myController1.dispose();
+//    myController2.dispose();
+//    myController3.dispose();
+//    myController4.dispose();
+//    myController5.dispose();
+//    myController6.dispose();
+//    myController7.dispose();
+//    myController8.dispose();
+//  }
 
 //This inital state is set in order to give the dir value the proper path to the working directory through the program.
   //Also as fileName currently is drag1.json, this loads that as the file primed if you were to hit the add button.
@@ -304,6 +306,7 @@ class MetadataSectionState extends State<MetadataSection>
           getFile(name);
           viewingData = true;
           viewingDrags = false;
+          dropDownNew = false;
         });
       },
       child: Container(
@@ -539,8 +542,6 @@ class MetadataSectionState extends State<MetadataSection>
                 if (fileContent['HabitatType'] != null) {
                   dropdownValue = fileContent['HabitatType'];
                   print(dropdownValue);
-                } else {
-                  print('BLURGGG');
                 }
               });
             },
@@ -655,17 +656,15 @@ class MetadataSectionState extends State<MetadataSection>
     drags();
   }
 
-  var habitatTypes = ['Space', 'Earth', 'Sun'];
-
-  Widget dropMenuOption(TextEditingController controller) {
-    return DropdownButton<String>(
-      items: habitatTypes
-          .map((String e) => DropdownMenuItem(value: e, child: Text(e))),
-      onChanged: (value) {
-        controller.text = value;
-      },
-    );
-  }
+//  Widget dropMenuOption(TextEditingController controller) {
+//    return DropdownButton<String>(
+//      items: habitatTypes
+//          .map((String e) => DropdownMenuItem(value: e, child: Text(e))),
+//      onChanged: (value) {
+//        controller.text = value;
+//      },
+//    );
+//  }
 
   void revertChanges() {
     setState(() {
@@ -891,26 +890,24 @@ class _DropDownState extends State<DropDown> {
         ),
         //hint: Text('Select a Habitat Type'),
         items: <String>[
+          'Habitat Type',
           'Forest',
           'Heavy Forest',
           'Open Plain',
           'Beach',
           'Other'
-        ].map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
+        ].map<DropdownMenuItem<String>>((value) {
+          return DropdownMenuItem<String>(value: value, child: Text(value));
         }).toList(),
-        value: dropdownValue,
+        value: dropDownNew == true ? 'Habitat Type' : dropdownValue,
         icon: Icon(Icons.arrow_downward),
         iconSize: 24,
         elevation: 16,
         style: TextStyle(color: Colors.deepPurple),
-        onChanged: (value) {
+        onChanged: (value1) {
           setState(() {
-            myController5.text = value;
-            dropdownValue = value;
+            myController5.text = value1;
+            dropdownValue = value1;
           });
         },
       ),
