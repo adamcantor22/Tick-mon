@@ -26,6 +26,8 @@ import 'package:date_format/date_format.dart';
 import 'weather_tracker.dart';
 import 'player.dart';
 
+bool trackingRoute = false;
+
 class Maps extends StatefulWidget {
   bool get wantKeepAlive => true;
   const Maps({Key key}) : super(key: key);
@@ -45,7 +47,6 @@ class MapsState extends State<Maps> {
   List<Wpt> wpts = new List<Wpt>();
   PolylinePoints polylinePoints;
   StreamSubscription<Position> positionSubscription;
-  bool trackingRoute = false;
   double currentVal = 0;
   String latestFilename;
   bool popUpPresent = false;

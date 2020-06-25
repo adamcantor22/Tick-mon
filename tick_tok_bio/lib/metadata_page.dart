@@ -16,6 +16,7 @@ import 'helper.dart';
 import 'file_uploader.dart';
 import 'weather_tracker.dart';
 import 'package:weather/weather_library.dart';
+import 'gps_tracking.dart';
 
 //These are the three boolean values used to determine which screen we are currently on
 bool viewingDrags = true;
@@ -457,6 +458,8 @@ class MetadataSectionState extends State<MetadataSection>
   }
 
   void createNewDrag(String newFilename) async {
+    trackingRoute = false;
+
     setState(() {
       loadingData = true;
     });
