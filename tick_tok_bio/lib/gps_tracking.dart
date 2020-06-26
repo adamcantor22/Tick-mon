@@ -10,7 +10,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+//import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:gpx/gpx.dart';
 import 'package:tick_tok_bio/super_listener.dart';
@@ -26,6 +26,8 @@ import 'package:date_format/date_format.dart';
 import 'weather_tracker.dart';
 import 'player.dart';
 import 'metadata_page.dart';
+import 'package:flutter_map/plugin_api.dart';
+import 'package:latlong/latlong.dart';
 
 class Maps extends StatefulWidget {
   bool get wantKeepAlive => true;
@@ -37,9 +39,9 @@ class Maps extends StatefulWidget {
 
 class MapsState extends State<Maps> {
   Geolocator locator;
-  CameraPosition initialPosition;
-  GoogleMapController _controller;
-  Position currentPosition;
+  //CameraPosition initialPosition;
+  MapController _mapController = MapController();
+  //Position currentPosition;
   Set<Marker> _markers = Set<Marker>();
   Set<Polyline> _polylines = Set<Polyline>();
   List<LatLng> polylineCoordinates = [];
@@ -55,6 +57,9 @@ class MapsState extends State<Maps> {
   double cancelDragVal = 0.0;
   bool confirmationButton = false;
   bool popUpDeletion = false;
+  var currentLat = 37.3216;
+  var currentLong = -121.9535;
+  double zoomLevel = 10.0;
 
   void initState() {
     super.initState();
@@ -63,14 +68,14 @@ class MapsState extends State<Maps> {
 
   //A method which allows the map to start at the user's location, rather than
   // a random hardcoded spot
-  Future<CameraPosition> getInitialPos() async {
-    Position tmpP = await Geolocator().getCurrentPosition();
-    final cPos = CameraPosition(
-      target: LatLng(tmpP.latitude, tmpP.longitude),
-      zoom: 18.0,
-    );
-    return cPos;
-  }
+//  Future<CameraPosition> getInitialPos() async {
+//    Position tmpP = await Geolocator().getCurrentPosition();
+//    final cPos = CameraPosition(
+//      target: LatLng(tmpP.latitude, tmpP.longitude),
+//      zoom: 18.0,
+//    );
+//    return cPos;
+//  }
 
   //This is the filename for the gpx files, created to be the current datetime
   String currentTime() {
@@ -145,7 +150,8 @@ class MapsState extends State<Maps> {
     Trkseg seg = new Trkseg(
       trkpts: wpts,
     );
-    WeatherTracker.updateLocation(currentPosition);
+
+    //WeatherTracker.updateLocation(currentPosition);
     storeRouteInformation(seg);
 
     setState(() {
@@ -166,42 +172,45 @@ class MapsState extends State<Maps> {
       );
       positionSubscription =
           locator.getPositionStream(options).listen((Position cPos) {
-        currentPosition = cPos;
-        LatLng pos =
-            new LatLng(currentPosition.latitude, currentPosition.longitude);
+        //currentPosition = cPos;
+        currentLat = cPos.latitude;
+        currentLong = cPos.longitude;
+        LatLng latLng = LatLng(currentLat, currentLong);
+        _mapController.move(latLng, zoomLevel);
+        LatLng pos = new LatLng(currentLat, currentLong);
         Wpt pt = new Wpt(
-          lat: currentPosition.latitude,
-          lon: currentPosition.longitude,
-          ele: currentPosition.altitude,
+          lat: currentLat,
+          lon: currentLong,
+          ele: cPos.altitude,
           time: DateTime.now(),
         );
         wpts.add(pt);
         polylineCoordinates.add(pos);
-        updatePolyline();
+        //updatePolyline();
       });
     });
   }
 
   //Adds new segments to the polyline. Can probably be optimized?
-  void updatePolyline() async {
-    setState(() {
-      _polylines.add(
-        Polyline(
-          width: 5, // set the width of the polylines
-          polylineId: PolylineId('poly'),
-          color: Color.fromARGB(255, 40, 122, 198),
-          points: polylineCoordinates,
-        ),
-      );
-    });
-  }
+//  void updatePolyline() async {
+//    setState(() {
+//      _polylines.add(
+//        Polyline(
+//          width: 5, // set the width of the polylines
+//          polylineId: PolylineId('poly'),
+//          color: Color.fromARGB(255, 40, 122, 198),
+//          points: polylineCoordinates,
+//        ),
+//      );
+//    });
+//  }
 
   //This is a bit spaghetti, but calls the function that gets the initialPosition
-  Future<CameraPosition> googleMap() async {
-    final initPos = await getInitialPos();
-    initialPosition = initPos;
-    return initialPosition;
-  }
+//  Future<CameraPosition> googleMap() async {
+//    final initPos = await getInitialPos();
+//    initialPosition = initPos;
+//    return initialPosition;
+//  }
 
   Widget doneConfirmation() {
     return Visibility(
@@ -376,6 +385,22 @@ class MapsState extends State<Maps> {
     );
   }
 
+  void getLoc() async {
+    locator = new Geolocator();
+    Position position = await locator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best);
+
+    currentLat = position.latitude;
+    currentLong = position.longitude;
+    setState(() {
+      currentLat = position.latitude;
+      currentLong = position.longitude;
+      _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
+      polylineCoordinates.add(LatLng(currentLat, currentLong));
+      print(LatLng(currentLat, currentLong));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -384,29 +409,71 @@ class MapsState extends State<Maps> {
               ? Text('Tracking in Progress')
               : Text('Tracking Not in Progress.')),
       body: Stack(children: <Widget>[
-        FutureBuilder(
-            future: googleMap(),
-            // ignore: missing_return
-            builder: (context, snapshot) {
-              if (initialPosition == null) {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else {
-                return GoogleMap(
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: true,
-                  compassEnabled: true,
-                  markers: _markers,
-                  polylines: _polylines,
-                  mapType: MapType.hybrid,
-                  initialCameraPosition: initialPosition,
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller = controller;
-                  },
-                );
-              }
-            }),
+//        FutureBuilder(
+//            future: googleMap(),
+//            // ignore: missing_return
+//            builder: (context, snapshot) {
+//              if (initialPosition == null) {
+//                return Center(
+//                  child: CircularProgressIndicator(),
+//                );
+//              } else {
+//                return GoogleMap(
+//                  myLocationEnabled: true,
+//                  myLocationButtonEnabled: true,
+//                  compassEnabled: true,
+//                  markers: _markers,
+//                  polylines: _polylines,
+//                  mapType: MapType.hybrid,
+//                  initialCameraPosition: initialPosition,
+//                  onMapCreated: (GoogleMapController controller) {
+//                    _controller = controller;
+//                  },
+//                );
+//              }
+//            }),
+
+        FlutterMap(
+          options: MapOptions(
+            center: LatLng(currentLat, currentLong),
+            zoom: zoomLevel,
+          ),
+          mapController: _mapController,
+          layers: [
+            TileLayerOptions(
+                urlTemplate:
+                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                subdomains: ['a', 'b', 'c']),
+            MarkerLayerOptions(markers: [
+              Marker(
+                  width: 15.0,
+                  height: 15.0,
+                  point: currentLat != null
+                      ? LatLng(currentLat, currentLong)
+                      : LatLng(50.0, 50.0),
+                  builder: (build) => Container(
+                        child: FlutterLogo(),
+                      ))
+            ]),
+            PolylineLayerOptions(
+              polylines: [
+                Polyline(
+                  points: polylineCoordinates,
+                )
+              ],
+            )
+          ],
+        ),
+        Positioned(
+            bottom: 100.0,
+            right: 10.0,
+            child: IconButton(
+                icon: Icon(Icons.local_atm),
+                onPressed: () {
+                  setState(() {
+                    getLoc();
+                  });
+                })),
         Positioned(bottom: 10.0, left: 1.0, right: 5.0, child: startStop()),
         Visibility(
           visible: trackingRoute == true ? true : false,

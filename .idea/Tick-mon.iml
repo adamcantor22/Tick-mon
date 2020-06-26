@@ -20,6 +20,12 @@
       <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/build" />
+      <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/ios/.symlinks/plugins/audioplayers/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/ios/.symlinks/plugins/audioplayers/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/ios/.symlinks/plugins/audioplayers/build" />
+      <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/ios/.symlinks/plugins/audioplayers/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/ios/.symlinks/plugins/audioplayers/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/ios/.symlinks/plugins/audioplayers/example/build" />
       <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/ios/.symlinks/plugins/cloud_firestore/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/ios/.symlinks/plugins/cloud_firestore/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/ios/.symlinks/plugins/cloud_firestore/build" />
