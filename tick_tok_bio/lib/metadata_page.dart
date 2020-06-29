@@ -488,6 +488,7 @@ class MetadataSectionState extends State<MetadataSection>
     fileContent['Temp'] =
         curWeather.temperature.fahrenheit.toStringAsPrecision(5).toString();
     fileContent['Humidity'] = curWeather.humidity.toString();
+    fileContent['Name'] = name;
     return b;
   }
 
@@ -560,68 +561,62 @@ class MetadataSectionState extends State<MetadataSection>
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
         color: Colors.grey[200],
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: ListView(
+          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Flexible(
-              flex: 10,
-              child: Padding(
-                padding: EdgeInsets.only(bottom: 7.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blueGrey[400],
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10.0),
-                    ),
+            Padding(
+              padding: EdgeInsets.only(bottom: 7.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.blueGrey[400],
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
                   ),
-                  child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 6.0, horizontal: 0.0),
-                    child: Column(
-                      children: [
-                        //of unsure what fileContent is referring to
-                        //fileContent =  json.decode(File(dir.path + "/" + fileName).readAsStringSync())['SPECIFIC_KEY'].toString()),
-                        infoRow('Name', fileContent['Name'].toString()),
-                        infoRow('Site', fileContent['Site'].toString()),
-                        infoRow('Temperature', fileContent['Temp'].toString()),
-                        infoRow('Humidity', fileContent['Humidity'].toString()),
-                        infoRow('Ground Moisture',
-                            fileContent['GroundMoisture'].toString()),
-                        infoRow('Habitat Type',
-                            fileContent['HabitatType'].toString()),
-                        infoRow('Nymphs Found',
-                            fileContent['NumNymphs'].toString()),
-                        infoRow('Blackleggeds Found',
-                            fileContent['NumBlacklegged'].toString()),
-                        infoRow('Notes', fileContent['Notes'].toString()),
-                      ],
-                    ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 0.0),
+                  child: Column(
+                    children: [
+                      //of unsure what fileContent is referring to
+                      //fileContent =  json.decode(File(dir.path + "/" + fileName).readAsStringSync())['SPECIFIC_KEY'].toString()),
+                      infoRow('Name', fileContent['Name'].toString()),
+                      infoRow('Site', fileContent['Site'].toString()),
+                      infoRow('Temperature', fileContent['Temp'].toString()),
+                      infoRow('Humidity', fileContent['Humidity'].toString()),
+                      infoRow('Ground Moisture',
+                          fileContent['GroundMoisture'].toString()),
+                      infoRow('Habitat Type',
+                          fileContent['HabitatType'].toString()),
+                      infoRow(
+                          'Nymphs Found', fileContent['NumNymphs'].toString()),
+                      infoRow('Blackleggeds Found',
+                          fileContent['NumBlacklegged'].toString()),
+                      infoRow('Notes', fileContent['Notes'].toString()),
+                    ],
                   ),
                 ),
               ),
             ),
-            Flexible(
-              child: Padding(
-                padding: EdgeInsets.only(top: 10.0),
-                child: RaisedButton(
-                  color: Colors.red[700],
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return Helper().boolMessage(
-                          'Are you sure you want to delete this data from your phone? If it has not been uploaded to the cloud it will be permanently deleted.',
-                          deleteCurrentDrag,
-                          context,
-                        );
-                      },
-                    );
-                  },
-                  child: Text(
-                    'Delete Drag Data',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
+            Padding(
+              padding: EdgeInsets.only(top: 10.0),
+              child: RaisedButton(
+                color: Colors.red[700],
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return Helper().boolMessage(
+                        'Are you sure you want to delete this data from your phone? If it has not been uploaded to the cloud it will be permanently deleted.',
+                        deleteCurrentDrag,
+                        context,
+                      );
+                    },
+                  );
+                },
+                child: Text(
+                  'Delete Drag Data',
+                  style: TextStyle(
+                    color: Colors.white,
                   ),
                 ),
               ),
