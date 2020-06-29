@@ -41,12 +41,12 @@ class MapsState extends State<Maps> {
   Geolocator locator;
   //CameraPosition initialPosition;
   MapController _mapController = MapController();
-  //Position currentPosition;
+  Position currentPosition;
   Set<Marker> _markers = Set<Marker>();
   Set<Polyline> _polylines = Set<Polyline>();
   List<LatLng> polylineCoordinates = [];
   List<Wpt> wpts = new List<Wpt>();
-  PolylinePoints polylinePoints;
+  //PolylinePoints polylinePoints;
   StreamSubscription<Position> positionSubscription;
   bool trackingRoute = false;
   double currentVal = 0;
@@ -131,7 +131,8 @@ class MapsState extends State<Maps> {
       setState(() {
         locator = new Geolocator();
         wpts = new List<Wpt>();
-        polylinePoints = PolylinePoints();
+        //polylinePoints = PolylinePoints();
+        polylineCoordinates = [];
         trackingRoute = true;
         updateLocation();
       });
@@ -151,7 +152,7 @@ class MapsState extends State<Maps> {
       trkpts: wpts,
     );
 
-    //WeatherTracker.updateLocation(currentPosition);
+    WeatherTracker.updateLocation(currentPosition);
     storeRouteInformation(seg);
 
     setState(() {
@@ -159,33 +160,51 @@ class MapsState extends State<Maps> {
       positionSubscription.cancel();
       polylineCoordinates.clear();
     });
-
+    print('I made it to moving Drag PArt');
     SuperListener.moveAndCreateDrag(latestFilename);
+  }
+
+  void getLoc() async {
+    locator = new Geolocator();
+    Position position = await locator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best);
+
+    currentLat = position.latitude;
+    currentLong = position.longitude;
+    setState(() {
+      currentLat = position.latitude;
+      currentLong = position.longitude;
+      _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
+      polylineCoordinates.add(LatLng(currentLat, currentLong));
+      print(LatLng(currentLat, currentLong));
+    });
   }
 
   //Tracking location subscription, update every point as it comes up
   void updateLocation() async {
-    setState(() {
-      LocationOptions options = LocationOptions(
-        accuracy: LocationAccuracy.best,
-        distanceFilter: 0, //Testing at distanceFilter: 1? was previously 0
-      );
-      positionSubscription =
-          locator.getPositionStream(options).listen((Position cPos) {
-        //currentPosition = cPos;
+    LocationOptions options = LocationOptions(
+      accuracy: LocationAccuracy.best,
+      distanceFilter: 0, //Testing at distanceFilter: 1? was previously 0
+    );
+    positionSubscription =
+        locator.getPositionStream(options).listen((Position cPos) {
+      setState(() {
+        currentPosition = cPos;
         currentLat = cPos.latitude;
         currentLong = cPos.longitude;
-        LatLng latLng = LatLng(currentLat, currentLong);
-        _mapController.move(latLng, zoomLevel);
-        LatLng pos = new LatLng(currentLat, currentLong);
+        print(currentLat);
+        print(currentLong);
+        //LatLng pos = LatLng(cPos.latitude, cPos.longitude);
         Wpt pt = new Wpt(
           lat: currentLat,
           lon: currentLong,
           ele: cPos.altitude,
           time: DateTime.now(),
         );
+        _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
         wpts.add(pt);
-        polylineCoordinates.add(pos);
+        polylineCoordinates.add(LatLng(currentLat, currentLong));
+        print('Points added');
         //updatePolyline();
       });
     });
@@ -385,22 +404,6 @@ class MapsState extends State<Maps> {
     );
   }
 
-  void getLoc() async {
-    locator = new Geolocator();
-    Position position = await locator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best);
-
-    currentLat = position.latitude;
-    currentLong = position.longitude;
-    setState(() {
-      currentLat = position.latitude;
-      currentLong = position.longitude;
-      _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
-      polylineCoordinates.add(LatLng(currentLat, currentLong));
-      print(LatLng(currentLat, currentLong));
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -458,6 +461,9 @@ class MapsState extends State<Maps> {
             PolylineLayerOptions(
               polylines: [
                 Polyline(
+                  strokeWidth: 5.0,
+                  color: Colors.lightBlue,
+                  borderColor: Colors.white,
                   points: polylineCoordinates,
                 )
               ],
