@@ -63,6 +63,7 @@ class MapsState extends State<Maps> {
 
   void initState() {
     super.initState();
+    getInitPos();
     SuperListener.setPages(mPage: this);
   }
 
@@ -76,6 +77,11 @@ class MapsState extends State<Maps> {
 //    );
 //    return cPos;
 //  }
+
+  void getInitPos() async {
+    Position pos = await Geolocator().getCurrentPosition();
+    _mapController.move(LatLng(pos.latitude, pos.longitude), zoomLevel);
+  }
 
   //This is the filename for the gpx files, created to be the current datetime
   String currentTime() {
@@ -175,7 +181,7 @@ class MapsState extends State<Maps> {
       currentLat = position.latitude;
       currentLong = position.longitude;
       _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
-      polylineCoordinates.add(LatLng(currentLat, currentLong));
+//      polylineCoordinates.add(LatLng(currentLat, currentLong));
       print(LatLng(currentLat, currentLong));
     });
   }
@@ -455,8 +461,11 @@ class MapsState extends State<Maps> {
                       ? LatLng(currentLat, currentLong)
                       : LatLng(50.0, 50.0),
                   builder: (build) => Container(
-                        child: FlutterLogo(),
-                      ))
+                          child: Icon(
+                        Icons.my_location,
+                        color: Colors.blue,
+                        size: 30.0,
+                      )))
             ]),
             PolylineLayerOptions(
               polylines: [
@@ -471,15 +480,41 @@ class MapsState extends State<Maps> {
           ],
         ),
         Positioned(
+            bottom: 150.0,
+            right: 10.0,
+            child: IconButton(
+                iconSize: 50.0,
+                icon: Icon(Icons.zoom_in),
+                onPressed: () {
+                  setState(() {
+                    zoomLevel += 1;
+                  });
+                })),
+        Positioned(
             bottom: 100.0,
             right: 10.0,
             child: IconButton(
-                icon: Icon(Icons.local_atm),
+                iconSize: 50.0,
+                icon: Icon(Icons.zoom_out),
                 onPressed: () {
                   setState(() {
-                    getLoc();
+                    zoomLevel -= 1;
                   });
                 })),
+        Positioned(
+            top: 15.0,
+            right: 10.0,
+            child: Container(
+              color: Colors.blue,
+              child: IconButton(
+                  icon: Icon(Icons.location_on),
+                  color: Colors.red,
+                  onPressed: () {
+                    setState(() {
+                      getLoc();
+                    });
+                  }),
+            )),
         Positioned(bottom: 10.0, left: 1.0, right: 5.0, child: startStop()),
         Visibility(
           visible: trackingRoute == true ? true : false,
