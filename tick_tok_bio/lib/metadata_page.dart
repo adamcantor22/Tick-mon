@@ -33,7 +33,13 @@ var myController6 = TextEditingController();
 var myController7 = TextEditingController();
 var myController8 = TextEditingController();
 
-var dropdownValue;
+List dropVals = <dynamic>[
+  '',
+  '',
+  '',
+];
+
+Map fileContent;
 
 class MetadataSection extends StatefulWidget {
   const MetadataSection({Key key}) : super(key: key);
@@ -51,7 +57,6 @@ class MetadataSectionState extends State<MetadataSection>
   List fileList;
   String fileName = 'drag1.json';
   bool fileExists = false;
-  Map fileContent;
   String currentFile;
   List dragList;
   String editingFilename;
@@ -64,7 +69,36 @@ class MetadataSectionState extends State<MetadataSection>
   @override
   bool get wantKeepAlive => true;
 
-  DropDown dropDown = DropDown();
+  List habitatList = <String>[
+    'Field/Grass',
+    'Forest Edge',
+    'Closed Canopy (Oak)',
+    'Closed Canopy (Tulip/Maple)',
+    'Closed Canopy (Mixed Conifer)',
+    'Other',
+  ];
+
+  List siteList = <String>[
+    'AT',
+    'BP',
+    'GA',
+    'LH',
+    'LM',
+    'RM',
+    'SM',
+    'SP',
+    'SW',
+    'TP',
+    'Other',
+  ];
+
+  List moistureList = <String>[
+    'Very Dry (No Rain 2+ Weeks)',
+    'Dry (No Rain 1 Week)',
+    'Medium (Moderate Rain Within Week)',
+    'Moist (Heavy Rain Within 3 Days)',
+    'Other',
+  ];
 
 //  @override
 //  void dispose() {
@@ -227,6 +261,7 @@ class MetadataSectionState extends State<MetadataSection>
       key8: value8,
       'visible': 'true',
     };
+    print(value1);
     if (fileExists) {
       print('File Exists');
       Map<String, dynamic> jsonFileContents =
@@ -539,12 +574,9 @@ class MetadataSectionState extends State<MetadataSection>
                 changesMade = false;
                 editingData = true;
                 viewingData = false;
-                if (fileContent['HabitatType'] != null) {
-                  dropdownValue = fileContent['HabitatType'];
-                  print(dropdownValue);
-                } else {
-                  print('BLURGGG');
-                }
+                dropVals[0] = fileContent['HabitatType'];
+                dropVals[1] = fileContent['Site'];
+                dropVals[2] = fileContent['GroundMoisture'];
               });
             },
           ),
@@ -658,19 +690,6 @@ class MetadataSectionState extends State<MetadataSection>
     drags();
   }
 
-  var habitatTypes = ['Space', 'Earth', 'Sun'];
-
-  Widget dropMenuOption(TextEditingController controller) {
-    return DropdownButton<String>(
-      items: habitatTypes.map((String e) {
-        return DropdownMenuItem(value: e, child: Text(e));
-      }),
-      onChanged: (value) {
-        controller.text = value;
-      },
-    );
-  }
-
   void revertChanges() {
     setState(() {
       editingData = false;
@@ -728,11 +747,12 @@ class MetadataSectionState extends State<MetadataSection>
                     fileContent['Name'],
                     true,
                   ),
-                  dataField(
+                  dropDownMenu(
+                    siteList,
+                    1,
                     myController1,
                     'Site',
-                    fileContent['Site'],
-                    true,
+                    'Site',
                   ),
                   dataField(
                     myController2,
@@ -746,14 +766,19 @@ class MetadataSectionState extends State<MetadataSection>
                     fileContent['Humidity'],
                     true,
                   ),
-                  dataField(
+                  dropDownMenu(
+                    moistureList,
+                    2,
                     myController4,
+                    'GroundMoisture',
                     'Ground Moisture',
-                    fileContent['GroundMoisture'],
-                    true,
                   ),
-                  Center(
-                    child: dropDown,
+                  dropDownMenu(
+                    habitatList,
+                    0,
+                    myController5,
+                    'HabitatType',
+                    'Habitat Type',
                   ),
                   dataField(
                     myController6,
@@ -857,64 +882,56 @@ class MetadataSectionState extends State<MetadataSection>
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return pageBody();
-  }
-}
-
-class DropDown extends StatefulWidget {
-  @override
-  _DropDownState createState() => _DropDownState();
-}
-
-class _DropDownState extends State<DropDown> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.0),
-      child: DropdownButtonFormField(
-        decoration: InputDecoration(
-          labelText: 'Habitat Type',
-          contentPadding:
-              EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(rad)),
+  Widget dropDownMenu(List<String> items, int dropIndex,
+      TextEditingController controller, String jsonVal, String label) {
+    controller.text = dropVals[dropIndex];
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+        child: DropdownButtonFormField(
+          decoration: InputDecoration(
+            labelText: label,
+            contentPadding:
+                EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(rad)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blueAccent, width: 1.5),
+              borderRadius: BorderRadius.all(Radius.circular(16.0)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blueAccent, width: 2.5),
+              borderRadius: BorderRadius.all(Radius.circular(16.0)),
+            ),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.blueAccent, width: 1.5),
-            borderRadius: BorderRadius.all(Radius.circular(16.0)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.blueAccent, width: 2.5),
-            borderRadius: BorderRadius.all(Radius.circular(16.0)),
-          ),
+          //hint: Text('Select a Habitat Type'),
+          items: items.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          value: dropVals[dropIndex],
+          icon: Icon(Icons.arrow_downward),
+          iconSize: 24,
+          elevation: 16,
+          style: TextStyle(color: Colors.deepPurple),
+          onChanged: (value) {
+            setState(() {
+              controller.text = value;
+              print(controller.text);
+              dropVals[dropIndex] = value;
+            });
+          },
         ),
-        //hint: Text('Select a Habitat Type'),
-        items: <String>[
-          'Forest',
-          'Heavy Forest',
-          'Open Plain',
-          'Beach',
-          'Other'
-        ].map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
-        value: dropdownValue,
-        icon: Icon(Icons.arrow_downward),
-        iconSize: 24,
-        elevation: 16,
-        style: TextStyle(color: Colors.deepPurple),
-        onChanged: (value) {
-          setState(() {
-            myController5.text = value;
-            dropdownValue = value;
-          });
-        },
       ),
     );
+  }
+
+  @override
+  // ignore: must_call_super
+  Widget build(BuildContext context) {
+    return pageBody();
   }
 }
