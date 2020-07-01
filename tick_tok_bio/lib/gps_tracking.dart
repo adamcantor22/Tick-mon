@@ -66,6 +66,7 @@ class MapsState extends State<Maps> {
     super.initState();
     getInitPos();
     SuperListener.setPages(mPage: this);
+    initPlayer();
   }
 
   //A method which allows the map to start at the user's location, rather than
@@ -146,14 +147,7 @@ class MapsState extends State<Maps> {
         updateLocation();
         sub.cancel();
       });
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return Helper().message('Login to start new drag!', context);
-        },
-      );
-    }
+    });
   }
 
   //Cancel location tracking and sent the list of waypoints to be stored as gpx
@@ -257,8 +251,6 @@ class MapsState extends State<Maps> {
               setState(() {
                 finishRoute();
                 popUpPresent = false;
-                dropdownValue = 'Habitat Type';
-                dropDownNew = true;
               });
             },
           ),

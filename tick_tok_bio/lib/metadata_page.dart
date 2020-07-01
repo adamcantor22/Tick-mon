@@ -340,7 +340,6 @@ class MetadataSectionState extends State<MetadataSection>
           getFile(name);
           viewingData = true;
           viewingDrags = false;
-          dropDownNew = false;
         });
       },
       child: Container(
@@ -880,7 +879,7 @@ class MetadataSectionState extends State<MetadataSection>
 
   Widget dropDownMenu(List<String> items, int dropIndex,
       TextEditingController controller, String jsonVal, String label) {
-    controller.text = dropVals[dropIndex];
+    dropVals[dropIndex] = fileContent[jsonVal];
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
