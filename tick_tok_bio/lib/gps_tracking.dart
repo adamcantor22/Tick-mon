@@ -10,7 +10,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+//import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:gpx/gpx.dart';
 import 'package:tick_tok_bio/super_listener.dart';
@@ -25,6 +25,9 @@ import 'super_listener.dart';
 import 'package:date_format/date_format.dart';
 import 'weather_tracker.dart';
 import 'player.dart';
+import 'metadata_page.dart';
+import 'package:flutter_map/plugin_api.dart';
+import 'package:latlong/latlong.dart';
 
 bool trackingRoute = false;
 
@@ -38,14 +41,14 @@ class Maps extends StatefulWidget {
 
 class MapsState extends State<Maps> {
   Geolocator locator;
-  CameraPosition initialPosition;
-  GoogleMapController _controller;
+  //CameraPosition initialPosition;
+  MapController _mapController = MapController();
   Position currentPosition;
   Set<Marker> _markers = Set<Marker>();
   Set<Polyline> _polylines = Set<Polyline>();
   List<LatLng> polylineCoordinates = [];
   List<Wpt> wpts = new List<Wpt>();
-  PolylinePoints polylinePoints;
+  //PolylinePoints polylinePoints;
   StreamSubscription<Position> positionSubscription;
   double currentVal = 0;
   String latestFilename;
@@ -55,22 +58,30 @@ class MapsState extends State<Maps> {
   double cancelDragVal = 0.0;
   bool confirmationButton = false;
   bool popUpDeletion = false;
+  var currentLat = 37.3216;
+  var currentLong = -121.9535;
+  double zoomLevel = 10.0;
 
   void initState() {
     super.initState();
+    getInitPos();
     SuperListener.setPages(mPage: this);
-    initPlayer();
   }
 
   //A method which allows the map to start at the user's location, rather than
   // a random hardcoded spot
-  Future<CameraPosition> getInitialPos() async {
-    Position tmpP = await Geolocator().getCurrentPosition();
-    final cPos = CameraPosition(
-      target: LatLng(tmpP.latitude, tmpP.longitude),
-      zoom: 18.0,
-    );
-    return cPos;
+//  Future<CameraPosition> getInitialPos() async {
+//    Position tmpP = await Geolocator().getCurrentPosition();
+//    final cPos = CameraPosition(
+//      target: LatLng(tmpP.latitude, tmpP.longitude),
+//      zoom: 18.0,
+//    );
+//    return cPos;
+//  }
+
+  void getInitPos() async {
+    Position pos = await Geolocator().getCurrentPosition();
+    _mapController.move(LatLng(pos.latitude, pos.longitude), zoomLevel);
   }
 
   //This is the filename for the gpx files, created to be the current datetime
@@ -121,6 +132,7 @@ class MapsState extends State<Maps> {
   }
 
   //Set up location tracking subscription and polyline creation
+
   void startNewRoute() async {
     await audioCache.play('start.mp3');
     StreamSubscription<void> sub;
@@ -128,78 +140,106 @@ class MapsState extends State<Maps> {
       setState(() {
         locator = new Geolocator();
         wpts = new List<Wpt>();
-        polylinePoints = PolylinePoints();
+        //polylinePoints = PolylinePoints();
+        polylineCoordinates = [];
         trackingRoute = true;
         updateLocation();
         sub.cancel();
       });
-    });
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return Helper().message('Login to start new drag!', context);
+        },
+      );
+    }
   }
 
   //Cancel location tracking and sent the list of waypoints to be stored as gpx
   void finishRoute() async {
-    await playSound('end.mp3');
     Trkseg seg = new Trkseg(
       trkpts: wpts,
     );
+
     WeatherTracker.updateLocation(currentPosition);
     storeRouteInformation(seg);
 
-    print('tracking ROUTE ABOUT TO BE FALSe');
     setState(() {
       trackingRoute = false;
       positionSubscription.cancel();
       polylineCoordinates.clear();
     });
-
+    print('I made it to moving Drag PArt');
     SuperListener.moveAndCreateDrag(latestFilename);
+  }
+
+  void getLoc() async {
+    locator = new Geolocator();
+    Position position = await locator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best);
+
+    currentLat = position.latitude;
+    currentLong = position.longitude;
+    setState(() {
+      currentLat = position.latitude;
+      currentLong = position.longitude;
+      _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
+//      polylineCoordinates.add(LatLng(currentLat, currentLong));
+      print(LatLng(currentLat, currentLong));
+    });
   }
 
   //Tracking location subscription, update every point as it comes up
   void updateLocation() async {
-    setState(() {
-      LocationOptions options = LocationOptions(
-        accuracy: LocationAccuracy.best,
-        distanceFilter: 0, //Testing at distanceFilter: 1? was previously 0
-      );
-      positionSubscription =
-          locator.getPositionStream(options).listen((Position cPos) {
+    LocationOptions options = LocationOptions(
+      accuracy: LocationAccuracy.best,
+      distanceFilter: 0, //Testing at distanceFilter: 1? was previously 0
+    );
+    positionSubscription =
+        locator.getPositionStream(options).listen((Position cPos) {
+      setState(() {
         currentPosition = cPos;
-        LatLng pos =
-            new LatLng(currentPosition.latitude, currentPosition.longitude);
+        currentLat = cPos.latitude;
+        currentLong = cPos.longitude;
+        print(currentLat);
+        print(currentLong);
+        //LatLng pos = LatLng(cPos.latitude, cPos.longitude);
         Wpt pt = new Wpt(
-          lat: currentPosition.latitude,
-          lon: currentPosition.longitude,
-          ele: currentPosition.altitude,
+          lat: currentLat,
+          lon: currentLong,
+          ele: cPos.altitude,
           time: DateTime.now(),
         );
+        _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
         wpts.add(pt);
-        polylineCoordinates.add(pos);
-        updatePolyline();
+        polylineCoordinates.add(LatLng(currentLat, currentLong));
+        print('Points added');
+        //updatePolyline();
       });
     });
   }
 
   //Adds new segments to the polyline. Can probably be optimized?
-  void updatePolyline() async {
-    setState(() {
-      _polylines.add(
-        Polyline(
-          width: 5, // set the width of the polylines
-          polylineId: PolylineId('poly'),
-          color: Color.fromARGB(255, 40, 122, 198),
-          points: polylineCoordinates,
-        ),
-      );
-    });
-  }
+//  void updatePolyline() async {
+//    setState(() {
+//      _polylines.add(
+//        Polyline(
+//          width: 5, // set the width of the polylines
+//          polylineId: PolylineId('poly'),
+//          color: Color.fromARGB(255, 40, 122, 198),
+//          points: polylineCoordinates,
+//        ),
+//      );
+//    });
+//  }
 
   //This is a bit spaghetti, but calls the function that gets the initialPosition
-  Future<CameraPosition> googleMap() async {
-    final initPos = await getInitialPos();
-    initialPosition = initPos;
-    return initialPosition;
-  }
+//  Future<CameraPosition> googleMap() async {
+//    final initPos = await getInitialPos();
+//    initialPosition = initPos;
+//    return initialPosition;
+//  }
 
   Widget doneConfirmation() {
     return Visibility(
@@ -215,10 +255,10 @@ class MapsState extends State<Maps> {
             ),
             onPressed: () {
               setState(() {
-                trackingRoute = false;
                 finishRoute();
                 popUpPresent = false;
-                trackingRoute = false;
+                dropdownValue = 'Habitat Type';
+                dropDownNew = true;
               });
             },
           ),
@@ -261,10 +301,9 @@ class MapsState extends State<Maps> {
             flex: 3,
             child: SliderTheme(
               data: SliderThemeData(
-                trackShape: RoundedRectSliderTrackShape(),
-                trackHeight: 50.0,
-                activeTrackColor: Colors.red,
-              ),
+                  trackShape: RoundedRectSliderTrackShape(),
+                  trackHeight: 50.0,
+                  activeTrackColor: Colors.red),
               child: Slider(
                 value: cancellationPopUpPresent == false ? currentVal : 0.0,
                 onChanged: (double val) {
@@ -326,52 +365,50 @@ class MapsState extends State<Maps> {
             'Are you sure you would like to cancel this drag? Slide and confirm.'),
         actions: <Widget>[
           SliderTheme(
-            data: SliderThemeData(
-                activeTrackColor: Colors.red,
-                trackShape: RoundedRectSliderTrackShape(),
-                trackHeight: 50.0),
-            child: Center(
-              child: Slider(
-                min: 0.0,
-                max: 10.0,
-                value: cancelDragVal,
-                onChanged: (newVal) {
-                  setState(() {
-                    cancelDragVal = newVal;
-                    if (newVal == 10.0) {
-                      confirmationButton = true;
+              data: SliderThemeData(
+                  activeTrackColor: Colors.red,
+                  trackShape: RoundedRectSliderTrackShape(),
+                  trackHeight: 50.0),
+              child: Center(
+                child: Slider(
+                  min: 0.0,
+                  max: 10.0,
+                  value: cancelDragVal,
+                  onChanged: (newVal) {
+                    setState(() {
+                      cancelDragVal = newVal;
+                      if (newVal == 10.0) {
+                        confirmationButton = true;
+                      }
+                    });
+                  },
+                  onChangeEnd: (double endPoint) {
+                    if (endPoint != 10.0) {
+                      setState(() {
+                        confirmationButton = false;
+                        cancelDragVal = 0.0;
+                      });
                     }
+                  },
+                ),
+              )),
+          Visibility(
+              visible: confirmationButton,
+              child: FlatButton(
+                child: Text(
+                  'Delete Drag',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onPressed: () {
+                  setState(() {
+                    trackingRoute = false;
+                    positionSubscription.cancel();
+                    polylineCoordinates.clear();
+                    cancellationPopUpPresent = false;
+                    cancelDragVal = 0.0;
                   });
                 },
-                onChangeEnd: (double endPoint) {
-                  if (endPoint != 10.0) {
-                    setState(() {
-                      confirmationButton = false;
-                      cancelDragVal = 0.0;
-                    });
-                  }
-                },
-              ),
-            ),
-          ),
-          Visibility(
-            visible: confirmationButton,
-            child: FlatButton(
-              child: Text(
-                'Delete Drag',
-                style: TextStyle(color: Colors.red),
-              ),
-              onPressed: () {
-                setState(() {
-                  trackingRoute = false;
-                  positionSubscription.cancel();
-                  polylineCoordinates.clear();
-                  cancellationPopUpPresent = false;
-                  cancelDragVal = 0.0;
-                });
-              },
-            ),
-          )
+              ))
         ],
       ),
     );
@@ -384,62 +421,126 @@ class MapsState extends State<Maps> {
           title: trackingRoute == true
               ? Text('Tracking in Progress')
               : Text('Tracking Not in Progress.')),
-      body: Stack(
-        children: <Widget>[
-          FutureBuilder(
-              future: googleMap(),
-              // ignore: missing_return
-              builder: (context, snapshot) {
-                if (initialPosition == null) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else {
-                  return GoogleMap(
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: true,
-                    compassEnabled: true,
-                    markers: _markers,
-                    polylines: _polylines,
-                    mapType: MapType.hybrid,
-                    initialCameraPosition: initialPosition,
-                    onMapCreated: (GoogleMapController controller) {
-                      _controller = controller;
-                    },
-                  );
-                }
-              }),
-          Positioned(
-            bottom: 10.0,
-            left: 1.0,
-            right: 5.0,
-            child: startStop(),
+      body: Stack(children: <Widget>[
+//        FutureBuilder(
+//            future: googleMap(),
+//            // ignore: missing_return
+//            builder: (context, snapshot) {
+//              if (initialPosition == null) {
+//                return Center(
+//                  child: CircularProgressIndicator(),
+//                );
+//              } else {
+//                return GoogleMap(
+//                  myLocationEnabled: true,
+//                  myLocationButtonEnabled: true,
+//                  compassEnabled: true,
+//                  markers: _markers,
+//                  polylines: _polylines,
+//                  mapType: MapType.hybrid,
+//                  initialCameraPosition: initialPosition,
+//                  onMapCreated: (GoogleMapController controller) {
+//                    _controller = controller;
+//                  },
+//                );
+//              }
+//            }),
+
+        FlutterMap(
+          options: MapOptions(
+            center: LatLng(currentLat, currentLong),
+            zoom: zoomLevel,
           ),
-          Visibility(
-            visible: trackingRoute == true ? true : false,
-            child: Container(
-              height: 40.0,
-              width: 40.0,
-              margin: EdgeInsets.all(10.0),
-              color: Colors.grey[200],
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                icon: Icon(Icons.clear),
-                iconSize: 30.0,
-                color: Colors.red,
+          mapController: _mapController,
+          layers: [
+            TileLayerOptions(
+                urlTemplate:
+                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                subdomains: ['a', 'b', 'c']),
+            MarkerLayerOptions(markers: [
+              Marker(
+                  width: 15.0,
+                  height: 15.0,
+                  point: currentLat != null
+                      ? LatLng(currentLat, currentLong)
+                      : LatLng(50.0, 50.0),
+                  builder: (build) => Container(
+                          child: Icon(
+                        Icons.my_location,
+                        color: Colors.blue,
+                        size: 30.0,
+                      )))
+            ]),
+            PolylineLayerOptions(
+              polylines: [
+                Polyline(
+                  strokeWidth: 5.0,
+                  color: Colors.lightBlue,
+                  borderColor: Colors.white,
+                  points: polylineCoordinates,
+                )
+              ],
+            )
+          ],
+        ),
+        Positioned(
+            bottom: 150.0,
+            right: 10.0,
+            child: IconButton(
+                iconSize: 50.0,
+                icon: Icon(Icons.zoom_in),
                 onPressed: () {
                   setState(() {
-                    confirmationButton = false;
-                    cancellationPopUpPresent = true;
+                    zoomLevel += 1;
                   });
-                },
-              ),
+                })),
+        Positioned(
+            bottom: 100.0,
+            right: 10.0,
+            child: IconButton(
+                iconSize: 50.0,
+                icon: Icon(Icons.zoom_out),
+                onPressed: () {
+                  setState(() {
+                    zoomLevel -= 1;
+                  });
+                })),
+        Positioned(
+            top: 15.0,
+            right: 10.0,
+            child: Container(
+              color: Colors.blue,
+              child: IconButton(
+                  icon: Icon(Icons.location_on),
+                  color: Colors.red,
+                  onPressed: () {
+                    setState(() {
+                      getLoc();
+                    });
+                  }),
+            )),
+        Positioned(bottom: 10.0, left: 1.0, right: 5.0, child: startStop()),
+        Visibility(
+          visible: trackingRoute == true ? true : false,
+          child: Positioned(
+            top: 3.0,
+            left: 3.0,
+            child: IconButton(
+              icon: Icon(Icons.clear),
+              iconSize: 40.0,
+              color: Colors.red,
+              onPressed: () {
+                setState(() {
+                  confirmationButton = false;
+                  cancellationPopUpPresent = true;
+                });
+              },
             ),
           ),
-          dragCancellationPopUp(),
-          doneConfirmation()
-        ],
-      ),
+        ),
+        dragCancellationPopUp(),
+        doneConfirmation()
+      ]),
     );
   }
 }
