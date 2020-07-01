@@ -29,6 +29,8 @@ import 'metadata_page.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong/latlong.dart';
 
+bool trackingRoute = false;
+
 class Maps extends StatefulWidget {
   bool get wantKeepAlive => true;
   const Maps({Key key}) : super(key: key);
@@ -48,7 +50,6 @@ class MapsState extends State<Maps> {
   List<Wpt> wpts = new List<Wpt>();
   //PolylinePoints polylinePoints;
   StreamSubscription<Position> positionSubscription;
-  bool trackingRoute = false;
   double currentVal = 0;
   String latestFilename;
   bool popUpPresent = false;
@@ -131,9 +132,11 @@ class MapsState extends State<Maps> {
   }
 
   //Set up location tracking subscription and polyline creation
-  void startNewRoute() {
-    //FIXME: DO NOT LEAVE THE TRUE IN HERE, IT IS FOR TESTING CONVENIENCE
-    if (true || SuperListener.getUser() != null) {
+
+  void startNewRoute() async {
+    await audioCache.play('start.mp3');
+    StreamSubscription<void> sub;
+    sub = audioCache.fixedPlayer.onPlayerCompletion.listen((event) {
       setState(() {
         locator = new Geolocator();
         wpts = new List<Wpt>();
@@ -141,6 +144,7 @@ class MapsState extends State<Maps> {
         polylineCoordinates = [];
         trackingRoute = true;
         updateLocation();
+        sub.cancel();
       });
     } else {
       showDialog(

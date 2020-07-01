@@ -135,30 +135,43 @@ class UserPageState extends State<UserPage> {
                       EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
                   child: Column(
                     children: <Widget>[
-                      RaisedButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0)),
-                        color: Colors.blue,
-                        onPressed: () {
-                          setState(() {
-                            SuperListener.logInSwitch();
-                          });
-                          signInWithGoogle();
-                        },
-                        child: Row(
-                          children: [
-                            Image(
-                              image: AssetImage('images/google_logo.png'),
-                              height: 40.0,
-                              width: 50.0,
+                      Container(
+                        height: 55.0,
+                        child: RaisedButton(
+                          elevation: 5.0,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                              color: Colors.blue,
+                              width: 2.0,
                             ),
-                            Text(
-                              'Login with Google',
-                              style: TextStyle(
-                                color: Colors.white,
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                          color: Colors.white,
+                          onPressed: () {
+                            setState(() {
+                              SuperListener.logInSwitch();
+                            });
+                            signInWithGoogle();
+                          },
+                          child: Row(
+                            children: [
+                              Image(
+                                image: AssetImage('images/google_logo.png'),
+                                height: 40.0,
+                                width: 50.0,
                               ),
-                            ),
-                          ],
+                              SizedBox(
+                                width: 20.0,
+                              ),
+                              Text(
+                                'Login with Google',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],

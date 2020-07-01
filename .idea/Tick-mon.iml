@@ -125,6 +125,9 @@
       <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/ios/.symlinks/plugins/path_provider_macos/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/ios/.symlinks/plugins/path_provider_macos/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/tick_tok_bio/ios/.symlinks/plugins/path_provider_macos/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/tick_tok_web/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/tick_tok_web/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/tick_tok_web/build" />
     </content>
     <orderEntry type="jdk" jdkName="Android API 29 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
