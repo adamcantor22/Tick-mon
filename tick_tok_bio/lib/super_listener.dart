@@ -53,4 +53,8 @@ class SuperListener {
     if (dataPage == null) return 2;
     return -1;
   }
+
+  static void tempCelsius(bool state) {
+    dataPage.tempCelsius(state);
+  }
 }

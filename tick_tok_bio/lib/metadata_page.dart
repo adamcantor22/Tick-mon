@@ -65,6 +65,7 @@ class MetadataSectionState extends State<MetadataSection>
   //svar dropMenuItem = 'Habitat Type';
   bool changesMade;
   bool loadingData = false;
+  bool celsius = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -520,11 +521,21 @@ class MetadataSectionState extends State<MetadataSection>
 
   Future<bool> addDeterminedFields() async {
     final b = await getFile(editingFilename);
-    fileContent['Temp'] =
-        curWeather.temperature.fahrenheit.toStringAsPrecision(5).toString();
+
+    fileContent['Temp'] = (celsius
+            ? curWeather.temperature.celsius
+            : curWeather.temperature.fahrenheit)
+        .toStringAsPrecision(5)
+        .toString();
     fileContent['Humidity'] = curWeather.humidity.toString();
     fileContent['Name'] = name;
     return b;
+  }
+
+  void tempCelsius(bool state) {
+    setState(() {
+      celsius = state;
+    });
   }
 
   //This is the screen that appears if on clicks over to the metaData tag.
