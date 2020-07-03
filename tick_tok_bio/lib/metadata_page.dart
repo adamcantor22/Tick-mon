@@ -48,8 +48,7 @@ class MetadataSection extends StatefulWidget {
   MetadataSectionState createState() => MetadataSectionState();
 }
 
-class MetadataSectionState extends State<MetadataSection>
-    with AutomaticKeepAliveClientMixin<MetadataSection> {
+class MetadataSectionState extends State<MetadataSection> {
   File jsonFile;
   Directory dir;
   Directory gpxDir;
@@ -65,9 +64,6 @@ class MetadataSectionState extends State<MetadataSection>
   //svar dropMenuItem = 'Habitat Type';
   bool changesMade;
   bool loadingData = false;
-
-  @override
-  bool get wantKeepAlive => true;
 
   List habitatList = <String>[
     'Field/Grass',

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -60,6 +61,7 @@ class MapsState extends State<Maps> {
   Position lastDropPoint;
   bool afterFirstDrop = false;
   List<Marker> markerLis = [];
+  final player = AudioCache();
 
   void initState() {
     super.initState();
@@ -186,13 +188,20 @@ class MapsState extends State<Maps> {
       _mapController.move(
           LatLng(currentPosition.latitude, currentPosition.longitude),
           zoomLevel);
-      markerLis.add(Marker(
-          height: 15.0,
-          width: 15.0,
-          point: LatLng(currentPosition.latitude, currentPosition.longitude),
-          builder: (build) => Container(
-                child: FlutterLogo(),
-              )));
+      if (trackingRoute == false) {
+        markerLis.clear();
+        markerLis.add(Marker(
+            height: 15.0,
+            width: 15.0,
+            point: LatLng(currentPosition.latitude, currentPosition.longitude),
+            builder: (build) => Container(
+                  child: Icon(
+                    Icons.location_on,
+                    color: Colors.red,
+                  ),
+                )));
+      }
+
 //      polylineCoordinates.add(LatLng(currentLat, currentLong));
       //print(LatLng(currentLat, currentLong));
     });
@@ -268,6 +277,10 @@ class MapsState extends State<Maps> {
               setState(() {
                 finishRoute();
                 popUpPresent = false;
+                lastDropPoint = null;
+                afterFirstDrop = false;
+                markerLis.clear();
+                lastDropPoint = null;
               });
             },
           ),
@@ -299,6 +312,7 @@ class MapsState extends State<Maps> {
           currentPosition.longitude);
       print(currentDistance);
       if (currentDistance >= 20.0) {
+        player.play('/sounds/bell.mp3');
         setState(() {
           print('PLace Marker');
           markerLis.add(Marker(
@@ -307,7 +321,10 @@ class MapsState extends State<Maps> {
               point:
                   LatLng(currentPosition.latitude, currentPosition.longitude),
               builder: (build) => Container(
-                    child: FlutterLogo(),
+                    child: Icon(
+                      Icons.my_location,
+                      color: Colors.red,
+                    ),
                   )));
           lastDropPoint = currentPosition;
         });
@@ -323,6 +340,7 @@ class MapsState extends State<Maps> {
         onPressed: () {
           if (!trackingRoute) {
             startNewRoute();
+            markerLis.clear();
           } else {
             finishRoute();
             setState(() {});
@@ -443,6 +461,8 @@ class MapsState extends State<Maps> {
                     cancellationPopUpPresent = false;
                     cancelDragVal = 0.0;
                     markerLis = [];
+                    lastDropPoint = null;
+                    afterFirstDrop = false;
                   });
                 },
               ))
