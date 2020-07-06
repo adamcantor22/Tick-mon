@@ -62,6 +62,10 @@ class MapsState extends State<Maps> {
   bool afterFirstDrop = false;
   List<Marker> markerLis = [];
   final player = AudioCache();
+  double distancePerMarker = 20.0;
+  int checkPointsPerMarker;
+  int checkPointsCleared = 0;
+  double currentDistance = 0.0;
 
   void initState() {
     super.initState();
@@ -299,37 +303,59 @@ class MapsState extends State<Maps> {
   }
 
   void markerUpdate() async {
+    checkPointsPerMarker = (distancePerMarker / 5).toInt();
     if (afterFirstDrop == false) {
       lastDropPoint = await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
       afterFirstDrop = true;
     }
     if (lastDropPoint != null) {
-      double currentDistance = await Geolocator().distanceBetween(
+      currentDistance = await Geolocator().distanceBetween(
           lastDropPoint.latitude,
           lastDropPoint.longitude,
           currentPosition.latitude,
           currentPosition.longitude);
-      print(currentDistance);
-      if (currentDistance >= 20.0) {
-        player.play('/sounds/bell.mp3');
-        setState(() {
-          print('PLace Marker');
-          markerLis.add(Marker(
-              height: 15.0,
-              width: 15.0,
-              point:
-                  LatLng(currentPosition.latitude, currentPosition.longitude),
-              builder: (build) => Container(
-                    child: Icon(
-                      Icons.my_location,
-                      color: Colors.red,
-                    ),
-                  )));
-          lastDropPoint = currentPosition;
-        });
+      if (currentDistance >= 5.0) {
+        checkPointsCleared += 1;
+        lastDropPoint = currentPosition;
+        print('CheckPoint Cleared');
+        if (checkPointsCleared == checkPointsPerMarker) {
+          checkPointsCleared = 0;
+          player.play('/sounds/bell.mp3');
+          setState(() {
+            print('PLace Marker');
+            markerLis.add(Marker(
+                height: 15.0,
+                width: 15.0,
+                point:
+                    LatLng(currentPosition.latitude, currentPosition.longitude),
+                builder: (build) => Container(
+                      child: Icon(
+                        Icons.my_location,
+                        color: Colors.red,
+                      ),
+                    )));
+            lastDropPoint = currentPosition;
+          });
+        }
       }
     }
+    print(currentDistance);
+  }
+
+  void manualMarkerPlacement() {
+    setState(() {
+      markerLis.add(Marker(
+          height: 15.0,
+          width: 15.0,
+          point: LatLng(currentPosition.latitude, currentPosition.longitude),
+          builder: (build) => Container(
+                child: Icon(
+                  Icons.my_location,
+                  color: Colors.green,
+                ),
+              )));
+    });
   }
 
   Widget startStop() {
@@ -574,8 +600,24 @@ class MapsState extends State<Maps> {
             ),
           ),
         ),
+        Visibility(
+          visible: trackingRoute == true ? true : false,
+          child: Positioned(
+              top: 100.0,
+              right: 10.0,
+              child: Container(
+                color: Colors.blue,
+                child: IconButton(
+                    icon: Icon(Icons.my_location),
+                    onPressed: () {
+                      setState(() {
+                        manualMarkerPlacement();
+                      });
+                    }),
+              )),
+        ),
         dragCancellationPopUp(),
-        doneConfirmation()
+        doneConfirmation(),
       ]),
     );
   }
