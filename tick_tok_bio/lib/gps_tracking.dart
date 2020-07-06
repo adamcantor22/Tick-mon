@@ -303,7 +303,7 @@ class MapsState extends State<Maps> {
   }
 
   void markerUpdate() async {
-    checkPointsPerMarker = (distancePerMarker / 5).toInt();
+    checkPointsPerMarker = (distancePerMarker ~/ 5);
     if (afterFirstDrop == false) {
       lastDropPoint = await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
