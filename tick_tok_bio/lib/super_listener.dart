@@ -8,12 +8,14 @@ import 'package:tick_tok_bio/gps_tracking.dart';
 import 'user_page.dart';
 import 'main.dart';
 import 'metadata_page.dart';
+import 'settings_page.dart';
 
 class SuperListener {
   static HomePageState homePage;
   static MapsState mapPage;
   static UserPageState userPage;
   static MetadataSectionState dataPage;
+  static Settings settings;
 
   //Essentially a static constructor, can take any number of arguments
   static void setPages({
@@ -21,11 +23,13 @@ class SuperListener {
     MapsState mPage,
     UserPageState uPage,
     MetadataSectionState dPage,
+    Settings sPage,
   }) {
     if (hPage != null) homePage = hPage;
     if (mPage != null) mapPage = mPage;
     if (uPage != null) userPage = uPage;
     if (dPage != null) dataPage = dPage;
+    if (sPage != null) settings = sPage;
   }
 
   static void logInSwitch() {
@@ -51,6 +55,11 @@ class SuperListener {
     if (userPage == null) return 0;
     if (mapPage == null) return 1;
     if (dataPage == null) return 2;
+
     return -1;
+  }
+
+  static void tempCelsius(bool state) {
+    dataPage.tempCelsius(state);
   }
 }

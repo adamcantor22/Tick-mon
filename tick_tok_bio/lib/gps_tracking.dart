@@ -66,6 +66,7 @@ class MapsState extends State<Maps> {
   int checkPointsPerMarker;
   int checkPointsCleared = 0;
   double currentDistance = 0.0;
+  bool autoMarking;
 
   void initState() {
     super.initState();
@@ -73,6 +74,7 @@ class MapsState extends State<Maps> {
     markerUpdate();
     lastDropPoint = currentPosition;
     SuperListener.setPages(mPage: this);
+
     initPlayer();
   }
 
@@ -243,27 +245,6 @@ class MapsState extends State<Maps> {
       });
     });
   }
-
-  //Adds new segments to the polyline. Can probably be optimized?
-//  void updatePolyline() async {
-//    setState(() {
-//      _polylines.add(
-//        Polyline(
-//          width: 5, // set the width of the polylines
-//          polylineId: PolylineId('poly'),
-//          color: Color.fromARGB(255, 40, 122, 198),
-//          points: polylineCoordinates,
-//        ),
-//      );
-//    });
-//  }
-
-  //This is a bit spaghetti, but calls the function that gets the initialPosition
-//  Future<CameraPosition> googleMap() async {
-//    final initPos = await getInitialPos();
-//    initialPosition = initPos;
-//    return initialPosition;
-//  }
 
   Widget doneConfirmation() {
     return Visibility(
