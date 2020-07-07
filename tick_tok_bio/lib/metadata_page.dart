@@ -1,6 +1,5 @@
 //import 'dart:html';
 //  import 'dart:html';
-
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -56,8 +55,7 @@ class MetadataSection extends StatefulWidget {
   MetadataSectionState createState() => MetadataSectionState();
 }
 
-class MetadataSectionState extends State<MetadataSection>
-    with AutomaticKeepAliveClientMixin<MetadataSection> {
+class MetadataSectionState extends State<MetadataSection> {
   File jsonFile;
   Directory dir;
   Directory gpxDir;
