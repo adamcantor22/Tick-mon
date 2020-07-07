@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tick_tok_bio/decorationInfo.dart';
 import 'package:tick_tok_bio/logged_in_screen.dart';
+import 'package:tick_tok_bio/settings_page.dart';
 import 'package:tick_tok_bio/user_page.dart';
 import 'database.dart';
 import 'gps_tracking.dart';
@@ -10,6 +11,7 @@ import 'super_listener.dart';
 import 'dart:async';
 import 'user_page.dart';
 import 'weather_tracker.dart';
+import 'settings_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -38,6 +40,7 @@ class HomePageState extends State<HomePage> {
   Maps maps = Maps();
   LoggedInScreen loggedInPage = LoggedInScreen();
   UserPage userPage = UserPage();
+  Settings settings = Settings();
 
   int pageIndex = 0;
 
@@ -86,7 +89,7 @@ class HomePageState extends State<HomePage> {
 
   void pageNavigator(int num) {
     setState(() {
-      print('WE SHOULD BE CHANGIONG PAGES');
+      print('WE SHOULD BE CHANGING PAGES');
       pageIndex = num;
     });
   }
@@ -118,6 +121,7 @@ class HomePageState extends State<HomePage> {
         navBarItem(Icons.person, 'Welcome Screen'),
         navBarItem(Icons.explore, 'Map'),
         navBarItem(Icons.storage, 'Drags'),
+        navBarItem(Icons.settings, 'Settings'),
       ],
     );
   }
@@ -163,6 +167,7 @@ class HomePageState extends State<HomePage> {
                 loggedInPage,
                 maps,
                 metadataSection,
+                settings,
               ],
             ),
           ),

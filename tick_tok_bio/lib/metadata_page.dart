@@ -1,6 +1,5 @@
 //import 'dart:html';
 //  import 'dart:html';
-
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -33,6 +32,14 @@ var myController6 = TextEditingController();
 var myController7 = TextEditingController();
 var myController8 = TextEditingController();
 
+List<TextEditingController> subs = [
+  TextEditingController(),
+  TextEditingController(),
+  TextEditingController(),
+  TextEditingController(),
+  TextEditingController(),
+];
+
 List dropVals = <dynamic>[
   '',
   '',
@@ -48,8 +55,7 @@ class MetadataSection extends StatefulWidget {
   MetadataSectionState createState() => MetadataSectionState();
 }
 
-class MetadataSectionState extends State<MetadataSection>
-    with AutomaticKeepAliveClientMixin<MetadataSection> {
+class MetadataSectionState extends State<MetadataSection> {
   File jsonFile;
   Directory dir;
   Directory gpxDir;
@@ -65,6 +71,7 @@ class MetadataSectionState extends State<MetadataSection>
   //svar dropMenuItem = 'Habitat Type';
   bool changesMade;
   bool loadingData = false;
+  bool celsius = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -520,11 +527,21 @@ class MetadataSectionState extends State<MetadataSection>
 
   Future<bool> addDeterminedFields() async {
     final b = await getFile(editingFilename);
-    fileContent['Temp'] =
-        curWeather.temperature.fahrenheit.toStringAsPrecision(5).toString();
+
+    fileContent['Temp'] = (celsius
+            ? curWeather.temperature.celsius
+            : curWeather.temperature.fahrenheit)
+        .toStringAsPrecision(5)
+        .toString();
     fileContent['Humidity'] = curWeather.humidity.toString();
     fileContent['Name'] = name;
     return b;
+  }
+
+  void tempCelsius(bool state) {
+    setState(() {
+      celsius = state;
+    });
   }
 
   //This is the screen that appears if on clicks over to the metaData tag.
@@ -775,6 +792,7 @@ class MetadataSectionState extends State<MetadataSection>
                     'HabitatType',
                     'Habitat Type',
                   ),
+                  markerInfo(5),
                   dataField(
                     myController6,
                     'Number of Nymphs',
@@ -875,6 +893,44 @@ class MetadataSectionState extends State<MetadataSection>
     uploader.fileUpload(f, '$editingFilename.json').then((val) {
       print(val);
     });
+  }
+
+  Widget markerInfo(int segmentCount) {
+    List<Widget> entries = new List<Widget>();
+    for (int i = 0; i < segmentCount; i++) {
+      entries.add(
+        dataField(
+          subs[i],
+          'Segment $i',
+          'Segment $i',
+          false,
+        ),
+      );
+    }
+    return Flex(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      direction: Axis.horizontal,
+      children: <Widget>[
+        Flexible(
+          flex: 1,
+          child: SizedBox(),
+        ),
+        Flexible(
+          flex: 1,
+          child: Container(
+            height: 50.0 * segmentCount,
+            width: 3.0,
+            color: Colors.blue[900],
+          ),
+        ),
+        Flexible(
+          flex: 6,
+          child: Column(
+            children: entries,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget dropDownMenu(List<String> items, int dropIndex,
