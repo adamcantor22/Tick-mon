@@ -89,7 +89,7 @@ class HomePageState extends State<HomePage> {
 
   void pageNavigator(int num) {
     setState(() {
-      print('WE SHOULD BE CHANGIONG PAGES');
+      print('WE SHOULD BE CHANGING PAGES');
       pageIndex = num;
     });
   }

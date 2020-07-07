@@ -32,6 +32,14 @@ var myController6 = TextEditingController();
 var myController7 = TextEditingController();
 var myController8 = TextEditingController();
 
+List<TextEditingController> subs = [
+  TextEditingController(),
+  TextEditingController(),
+  TextEditingController(),
+  TextEditingController(),
+  TextEditingController(),
+];
+
 List dropVals = <dynamic>[
   '',
   '',
@@ -784,6 +792,7 @@ class MetadataSectionState extends State<MetadataSection> {
                     'HabitatType',
                     'Habitat Type',
                   ),
+                  markerInfo(5),
                   dataField(
                     myController6,
                     'Number of Nymphs',
@@ -884,6 +893,44 @@ class MetadataSectionState extends State<MetadataSection> {
     uploader.fileUpload(f, '$editingFilename.json').then((val) {
       print(val);
     });
+  }
+
+  Widget markerInfo(int segmentCount) {
+    List<Widget> entries = new List<Widget>();
+    for (int i = 0; i < segmentCount; i++) {
+      entries.add(
+        dataField(
+          subs[i],
+          'Segment $i',
+          'Segment $i',
+          false,
+        ),
+      );
+    }
+    return Flex(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      direction: Axis.horizontal,
+      children: <Widget>[
+        Flexible(
+          flex: 1,
+          child: SizedBox(),
+        ),
+        Flexible(
+          flex: 1,
+          child: Container(
+            height: 50.0 * segmentCount,
+            width: 3.0,
+            color: Colors.blue[900],
+          ),
+        ),
+        Flexible(
+          flex: 6,
+          child: Column(
+            children: entries,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget dropDownMenu(List<String> items, int dropIndex,

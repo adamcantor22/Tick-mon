@@ -42,6 +42,8 @@ class MapsState extends State<Maps> {
   Set<Polyline> _polylines = Set<Polyline>();
   List<LatLng> polylineCoordinates = [];
   List<Wpt> wpts = new List<Wpt>();
+  List<Trkseg> segments = new List<Trkseg>();
+  //PolylinePoints polylinePoints;
   StreamSubscription<Position> positionSubscription;
   double currentVal = 0;
   String latestFilename;
@@ -117,12 +119,10 @@ class MapsState extends State<Maps> {
   }
 
   //Write information to gpx file, record to local disk and send to FileUploader
-  void storeRouteInformation(Trkseg seg) async {
+  void storeRouteInformation() async {
     GpxWriter writer = new GpxWriter();
     Gpx g = new Gpx();
-    List<Trkseg> segs = new List<Trkseg>();
-    segs.add(seg);
-    Trk trk = new Trk(trksegs: segs);
+    Trk trk = new Trk(trksegs: segments);
     g.creator = 'TickTok-Flutter';
     g.metadata = Metadata(
       time: DateTime.now(),
@@ -159,6 +159,8 @@ class MapsState extends State<Maps> {
       setState(() {
         locator = new Geolocator();
         wpts = new List<Wpt>();
+        segments = new List<Trkseg>();
+        segments.add(new Trkseg());
         //polylinePoints = PolylinePoints();
         polylineCoordinates = [];
         trackingRoute = true;
@@ -170,12 +172,8 @@ class MapsState extends State<Maps> {
 
   //Cancel location tracking and sent the list of waypoints to be stored as gpx
   void finishRoute() async {
-    Trkseg seg = new Trkseg(
-      trkpts: wpts,
-    );
-
     WeatherTracker.updateLocation(currentPosition);
-    storeRouteInformation(seg);
+    storeRouteInformation();
 
     setState(() {
       trackingRoute = false;
@@ -237,9 +235,8 @@ class MapsState extends State<Maps> {
           ele: cPos.altitude,
           time: DateTime.now(),
         );
-        _mapController.move(
-            LatLng(currentPosition.latitude, currentPosition.longitude),
-            zoomLevel);
+        _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
+        segments[segments.length - 1].trkpts.add(pt);
         wpts.add(pt);
         polylineCoordinates
             .add(LatLng(currentPosition.latitude, currentPosition.longitude));
@@ -248,6 +245,10 @@ class MapsState extends State<Maps> {
         autoMarking == true ? markerUpdate() : print('No Auto Mark');
       });
     });
+  }
+
+  void dropTrackBreakPoint() {
+    segments.add(new Trkseg());
   }
 
   Widget doneConfirmation() {

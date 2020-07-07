@@ -45,16 +45,16 @@ class UserPageState extends State<UserPage> {
     final GoogleSignInAuthentication googleSignInAuthentication =
         await googleSignInAccount.authentication;
 
-    print('THIS IS AN SOSOSOOSS');
+//    print('THIS IS AN SOSOSOOSS');
     final AuthCredential credential = GoogleAuthProvider.getCredential(
         idToken: googleSignInAuthentication.idToken,
         accessToken: googleSignInAuthentication.accessToken);
-    print('THIS IS AN SOSOSOOSS');
+//    print('THIS IS AN SOSOSOOSS');
     final AuthResult authResult = await _auth.signInWithCredential(credential);
-    print('THIS IS AN SOSOSOOSS');
+//    print('THIS IS AN SOSOSOOSS');
     final FirebaseUser user = authResult.user;
-    print('THIS IS AN SOSOSOOSS');
-
+//    print('THIS IS AN SOSOSOOSS');
+//
     if (user.displayName != null) {
       setState(() {
         name = user.displayName;
@@ -66,6 +66,7 @@ class UserPageState extends State<UserPage> {
     }
     if (user.email != null) {
       email = user.email;
+      print(email);
     } else {
       email = "";
     }
