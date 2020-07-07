@@ -297,10 +297,11 @@ class MapsState extends State<Maps> {
     }
     if (lastDropPoint != null) {
       currentDistance = await Geolocator().distanceBetween(
-          lastDropPoint.latitude,
-          lastDropPoint.longitude,
-          currentPosition.latitude,
-          currentPosition.longitude);
+        lastDropPoint.latitude,
+        lastDropPoint.longitude,
+        currentPosition.latitude,
+        currentPosition.longitude,
+      );
       if (currentDistance >= 5.0) {
         checkPointsCleared += 1;
         lastDropPoint = currentPosition;
@@ -308,19 +309,23 @@ class MapsState extends State<Maps> {
         if (checkPointsCleared == checkPointsPerMarker) {
           checkPointsCleared = 0;
           player.play('/sounds/bell.mp3');
+          dropTrackBreakPoint();
           setState(() {
             print('PLace Marker');
-            markerLis.add(Marker(
+            markerLis.add(
+              Marker(
                 height: 15.0,
                 width: 15.0,
                 point:
                     LatLng(currentPosition.latitude, currentPosition.longitude),
                 builder: (build) => Container(
-                      child: Icon(
-                        Icons.my_location,
-                        color: Colors.red,
-                      ),
-                    )));
+                  child: Icon(
+                    Icons.my_location,
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+            );
             lastDropPoint = currentPosition;
           });
         }
@@ -330,17 +335,21 @@ class MapsState extends State<Maps> {
   }
 
   void manualMarkerPlacement() {
+    dropTrackBreakPoint();
     setState(() {
-      markerLis.add(Marker(
+      markerLis.add(
+        Marker(
           height: 15.0,
           width: 15.0,
           point: LatLng(currentPosition.latitude, currentPosition.longitude),
           builder: (build) => Container(
-                child: Icon(
-                  Icons.my_location,
-                  color: Colors.green,
-                ),
-              )));
+            child: Icon(
+              Icons.my_location,
+              color: Colors.green,
+            ),
+          ),
+        ),
+      );
     });
   }
 
