@@ -10,7 +10,7 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   bool temperatureState = false;
-  bool autoMarker = false;
+  bool autoMarker = true;
   Widget twoChoiceSwitch(String choice1, String choice2) {
     return Row(
       children: [],
@@ -55,18 +55,22 @@ class _SettingsState extends State<Settings> {
               ],
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Auto-Marker',
-                  style: TextStyle(fontSize: 18.0),
-                ),
+                Text('Auto-Marker Off'),
                 Switch(
                     value: autoMarker,
                     onChanged: (val) {
                       setState(() {
+                        SuperListener.autoMarking(val);
+                        print(val);
                         autoMarker = val;
                       });
-                    })
+                    }),
+                Text(
+                  'Auto-Marker On',
+                  style: TextStyle(fontSize: 18.0),
+                ),
               ],
             )
           ],

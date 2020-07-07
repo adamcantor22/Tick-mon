@@ -55,11 +55,16 @@ class SuperListener {
     if (userPage == null) return 0;
     if (mapPage == null) return 1;
     if (dataPage == null) return 2;
+    if (settings == null) return 3;
 
     return -1;
   }
 
   static void tempCelsius(bool state) {
     dataPage.tempCelsius(state);
+  }
+
+  static void autoMarking(bool state) {
+    mapPage.setAutoTracking(state);
   }
 }

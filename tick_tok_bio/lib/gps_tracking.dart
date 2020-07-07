@@ -100,6 +100,13 @@ class MapsState extends State<Maps> {
     });
   }
 
+  void setAutoTracking(bool setting) {
+    setState(() {
+      autoMarking = setting;
+      print(autoMarking);
+    });
+  }
+
   //This is the filename for the gpx files, created to be the current datetime
   String currentTime() {
     DateTime now = DateTime.now();
@@ -241,7 +248,8 @@ class MapsState extends State<Maps> {
         polylineCoordinates
             .add(LatLng(currentPosition.latitude, currentPosition.longitude));
         //updatePolyline();
-        markerUpdate();
+
+        autoMarking == true ? markerUpdate() : print('No Auto Mark');
       });
     });
   }
