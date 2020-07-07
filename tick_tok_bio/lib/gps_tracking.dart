@@ -36,15 +36,12 @@ class Maps extends StatefulWidget {
 
 class MapsState extends State<Maps> {
   Geolocator locator;
-  //CameraPosition initialPosition;
-  //CameraPosition initialPsition;
   MapController _mapController = MapController();
   Position currentPosition;
   Set<Marker> _markers = Set<Marker>();
   Set<Polyline> _polylines = Set<Polyline>();
   List<LatLng> polylineCoordinates = [];
   List<Wpt> wpts = new List<Wpt>();
-  //PolylinePoints polylinePoints;
   StreamSubscription<Position> positionSubscription;
   double currentVal = 0;
   String latestFilename;
@@ -66,7 +63,7 @@ class MapsState extends State<Maps> {
   int checkPointsPerMarker;
   int checkPointsCleared = 0;
   double currentDistance = 0.0;
-  bool autoMarking;
+  bool autoMarking = true;
 
   void initState() {
     super.initState();
@@ -74,7 +71,6 @@ class MapsState extends State<Maps> {
     markerUpdate();
     lastDropPoint = currentPosition;
     SuperListener.setPages(mPage: this);
-
     initPlayer();
   }
 
@@ -486,6 +482,12 @@ class MapsState extends State<Maps> {
     );
   }
 
+  void setDistanceMarker(double dist) {
+    setState(() {
+      distancePerMarker = dist;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -543,6 +545,9 @@ class MapsState extends State<Maps> {
                 onPressed: () {
                   setState(() {
                     zoomLevel += 1;
+                    _mapController.move(
+                        LatLng(currentLat, currentLong), zoomLevel);
+                    print(distancePerMarker);
                   });
                 })),
         Positioned(
@@ -554,6 +559,8 @@ class MapsState extends State<Maps> {
                 onPressed: () {
                   setState(() {
                     zoomLevel -= 1;
+                    _mapController.move(
+                        LatLng(currentLat, currentLong), zoomLevel);
                   });
                 })),
         Positioned(

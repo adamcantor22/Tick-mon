@@ -15,7 +15,7 @@ class SuperListener {
   static MapsState mapPage;
   static UserPageState userPage;
   static MetadataSectionState dataPage;
-  static Settings settings;
+  static SettingsState settings;
 
   //Essentially a static constructor, can take any number of arguments
   static void setPages({
@@ -23,7 +23,7 @@ class SuperListener {
     MapsState mPage,
     UserPageState uPage,
     MetadataSectionState dPage,
-    Settings sPage,
+    SettingsState sPage,
   }) {
     if (hPage != null) homePage = hPage;
     if (mPage != null) mapPage = mPage;
@@ -66,5 +66,14 @@ class SuperListener {
 
   static void autoMarking(bool state) {
     mapPage.setAutoTracking(state);
+  }
+
+  static void setMarkingDistance(double distance) {
+    mapPage.setDistanceMarker(distance);
+  }
+
+  static double getMarkingDistance() {
+    double dis = settings.getDistancePerMarker();
+    return dis;
   }
 }
