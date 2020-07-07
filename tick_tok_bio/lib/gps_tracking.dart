@@ -76,17 +76,6 @@ class MapsState extends State<Maps> {
     initPlayer();
   }
 
-  //A method which allows the map to start at the user's location, rather than
-  // a random hardcoded spot
-//  Future<CameraPosition> getInitialPos() async {
-//    Position tmpP = await Geolocator().getCurrentPosition();
-//    final cPos = CameraPosition(
-//      target: LatLng(tmpP.latitude, tmpP.longitude),
-//      zoom: 18.0,
-//    );
-//    return cPos;
-//  }
-
   void getInitPos() async {
     Position pos = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
@@ -161,7 +150,6 @@ class MapsState extends State<Maps> {
         wpts = new List<Wpt>();
         segments = new List<Trkseg>();
         segments.add(new Trkseg());
-        //polylinePoints = PolylinePoints();
         polylineCoordinates = [];
         trackingRoute = true;
         updateLocation();

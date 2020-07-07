@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tick_tok_bio/metadata_page.dart';
 import 'package:tick_tok_bio/super_listener.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'dart:convert';
 
 class Settings extends StatefulWidget {
   const Settings({Key key}) : super(key: key);
@@ -13,11 +16,51 @@ class SettingsState extends State<Settings> {
   bool autoMarker = true;
   List<double> distancePerMarker = [5.0, 20.0, 50.0];
   double selectedDistancePerMarker = 20.0;
+  bool timeTracking = false;
+  File jsonFile;
+  Directory dir;
+  String fileName = 'settings.json';
+  bool fileExists;
+  Map fileContent;
 
   @override
   void initState() {
     super.initState();
     SuperListener.setPages(sPage: this);
+    getApplicationDocumentsDirectory().then((Directory directory) {
+      dir = directory;
+      jsonFile = File(dir.path + '/' + fileName);
+      fileExists = jsonFile.existsSync();
+      if (fileExists) {
+        setState(() {
+          fileContent = jsonDecode(jsonFile.readAsStringSync());
+        });
+      } else {}
+    });
+  }
+
+  void createFile(Map content) {
+    print('creating File');
+    File file = File(dir.path + '/' + fileName);
+    fileExists = true;
+    file.writeAsStringSync(jsonEncode(content));
+  }
+
+  void writeToFile(String key, dynamic value) {
+    print('Writing to File');
+    Map content = {key: value};
+    if (fileExists) {
+      print('FIle Exists');
+      Map jsonFileContent = jsonDecode(jsonFile.readAsStringSync());
+      jsonFileContent.addAll(content);
+      jsonFile.writeAsStringSync(jsonEncode(jsonFileContent));
+    } else {
+      print('File does not exist');
+      createFile(content);
+    }
+    setState(() {
+      fileContent = jsonDecode(jsonFile.readAsStringSync());
+    });
   }
 
   double getDistancePerMarker() {
@@ -68,6 +111,8 @@ class SettingsState extends State<Settings> {
                 style: TextStyle(fontSize: 18.0),
               ),
               Switch(
+                  inactiveThumbColor: Colors.red,
+                  inactiveTrackColor: Colors.red.shade200,
                   value: autoMarker,
                   onChanged: (val) {
                     setState(() {
@@ -83,7 +128,31 @@ class SettingsState extends State<Settings> {
             ],
           ),
           Visibility(
-            visible: autoMarker == true ? true : false,
+              visible: autoMarker == true ? true : false,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Distance',
+                    style: TextStyle(fontSize: 18.0),
+                  ),
+                  Switch(
+                      inactiveThumbColor: Colors.red,
+                      inactiveTrackColor: Colors.red.shade200,
+                      value: timeTracking,
+                      onChanged: (bool val) {
+                        setState(() {
+                          timeTracking = val;
+                        });
+                      }),
+                  Text(
+                    'Time',
+                    style: TextStyle(fontSize: 18.0),
+                  ),
+                ],
+              )),
+          Visibility(
+            visible: timeTracking == false && autoMarker == true ? true : false,
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
               child: DropdownButtonFormField(
