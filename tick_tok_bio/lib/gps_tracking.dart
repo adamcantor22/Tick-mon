@@ -66,6 +66,7 @@ class MapsState extends State<Maps> {
   int checkPointsCleared = 0;
   double currentDistance = 0.0;
   bool autoMarking = true;
+  bool soundsPresent = true;
 
   void initState() {
     super.initState();
@@ -84,6 +85,12 @@ class MapsState extends State<Maps> {
       currentPosition = pos;
       currentLat = pos.latitude;
       currentLong = pos.longitude;
+    });
+  }
+
+  void setSoundPref(bool soundSet) {
+    setState(() {
+      soundsPresent = soundSet;
     });
   }
 
@@ -142,20 +149,30 @@ class MapsState extends State<Maps> {
   //Set up location tracking subscription and polyline creation
 
   void startNewRoute() async {
-    await audioCache.play('start.mp3');
-    StreamSubscription<void> sub;
-    sub = audioCache.fixedPlayer.onPlayerCompletion.listen((event) {
-      setState(() {
-        locator = new Geolocator();
-        wpts = new List<Wpt>();
-        segments = new List<Trkseg>();
-        segments.add(new Trkseg());
-        polylineCoordinates = [];
-        trackingRoute = true;
-        updateLocation();
-        sub.cancel();
+    if (soundsPresent == true) {
+      await audioCache.play('start.mp3');
+      StreamSubscription<void> sub;
+      sub = audioCache.fixedPlayer.onPlayerCompletion.listen((event) {
+        setState(() {
+          locator = new Geolocator();
+          wpts = new List<Wpt>();
+          segments = new List<Trkseg>();
+          segments.add(new Trkseg());
+          polylineCoordinates = [];
+          trackingRoute = true;
+          updateLocation();
+          sub.cancel();
+        });
       });
-    });
+    } else {
+      locator = new Geolocator();
+      wpts = new List<Wpt>();
+      segments = new List<Trkseg>();
+      segments.add(new Trkseg());
+      polylineCoordinates = [];
+      trackingRoute = true;
+      updateLocation();
+    }
   }
 
   //Cancel location tracking and sent the list of waypoints to be stored as gpx
@@ -259,6 +276,7 @@ class MapsState extends State<Maps> {
                 afterFirstDrop = false;
                 markerLis.clear();
                 lastDropPoint = null;
+                checkPointsCleared = 0;
               });
             },
           ),
@@ -278,6 +296,7 @@ class MapsState extends State<Maps> {
 
   void markerUpdate() async {
     checkPointsPerMarker = (distancePerMarker ~/ 5);
+    print(checkPointsPerMarker);
     if (afterFirstDrop == false) {
       lastDropPoint = await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
@@ -292,11 +311,17 @@ class MapsState extends State<Maps> {
       );
       if (currentDistance >= 5.0) {
         checkPointsCleared += 1;
+        print(checkPointsCleared);
+
         lastDropPoint = currentPosition;
         print('CheckPoint Cleared');
         if (checkPointsCleared == checkPointsPerMarker) {
           checkPointsCleared = 0;
-          player.play('/sounds/bell.mp3');
+
+          if (soundsPresent == true) {
+            player.play('/sounds/bell.mp3');
+          }
+
           dropTrackBreakPoint();
           setState(() {
             print('PLace Marker');
@@ -472,6 +497,7 @@ class MapsState extends State<Maps> {
                     markerLis = [];
                     lastDropPoint = null;
                     afterFirstDrop = false;
+                    checkPointsCleared = 0;
                   });
                 },
               ))

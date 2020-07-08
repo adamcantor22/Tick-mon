@@ -81,4 +81,8 @@ class SuperListener {
     double dis = settings.getDistancePerMarker();
     return dis;
   }
+
+  static void settingSoundPref(bool set) {
+    mapPage.setSoundPref(set);
+  }
 }

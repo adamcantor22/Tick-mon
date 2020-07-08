@@ -21,7 +21,8 @@ class SettingsState extends State<Settings> {
   Directory dir;
   String fileName = 'settings.json';
   bool fileExists;
-  Map fileContent;
+  Map fileContentSettings;
+  bool soundOn = true;
 
   @override
   void initState() {
@@ -33,33 +34,59 @@ class SettingsState extends State<Settings> {
       fileExists = jsonFile.existsSync();
       if (fileExists) {
         setState(() {
-          fileContent = jsonDecode(jsonFile.readAsStringSync());
+          fileContentSettings = jsonDecode(jsonFile.readAsStringSync());
+
+          if (fileContentSettings['Sound'] != null) {
+            configureSettings();
+          }
         });
       } else {}
     });
   }
 
-  void createFile(Map content) {
+  void configureSettings() {
+    setState(() {
+      soundOn = fileContentSettings['Sound'];
+      SuperListener.settingSoundPref(soundOn);
+      temperatureState = fileContentSettings['TempStatus'];
+      SuperListener.tempCelsius(temperatureState);
+      autoMarker = fileContentSettings['Auto-Marker'];
+      SuperListener.autoMarking(autoMarker);
+      timeTracking = fileContentSettings['TimeTracking'];
+
+      selectedDistancePerMarker = fileContentSettings['Distance'];
+      SuperListener.setMarkingDistance(selectedDistancePerMarker);
+    });
+  }
+
+  void createFile(Map<dynamic, dynamic> content) {
     print('creating File');
     File file = File(dir.path + '/' + fileName);
     fileExists = true;
     file.writeAsStringSync(jsonEncode(content));
   }
 
-  void writeToFile(String key, dynamic value) {
+  void writeToFile(val, val1, val2, val3, val4) {
     print('Writing to File');
-    Map content = {key: value};
+    Map<String, dynamic> content = {
+      'Sound': val,
+      'TempStatus': val1,
+      'Auto-Marker': val2,
+      'TimeTracking': val3,
+      'Distance': val4,
+    };
     if (fileExists) {
       print('FIle Exists');
-      Map jsonFileContent = jsonDecode(jsonFile.readAsStringSync());
-      jsonFileContent.addAll(content);
-      jsonFile.writeAsStringSync(jsonEncode(jsonFileContent));
+      Map<String, dynamic> jsonFileContent1 =
+          jsonDecode(jsonFile.readAsStringSync());
+      jsonFileContent1.addAll(content);
+      jsonFile.writeAsStringSync(jsonEncode(jsonFileContent1));
     } else {
       print('File does not exist');
       createFile(content);
     }
     setState(() {
-      fileContent = jsonDecode(jsonFile.readAsStringSync());
+      fileContentSettings = jsonDecode(jsonFile.readAsStringSync());
     });
   }
 
@@ -79,6 +106,30 @@ class SettingsState extends State<Settings> {
       ),
       body: Center(
         child: Column(children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Sound Off',
+                style: TextStyle(fontSize: 18.0),
+              ),
+              Switch(
+                value: soundOn,
+                inactiveTrackColor: Colors.red[200],
+                inactiveThumbColor: Colors.red,
+                onChanged: (val) {
+                  setState(() {
+                    soundOn = val;
+                    SuperListener.settingSoundPref(val);
+                  });
+                },
+              ),
+              Text(
+                'Sound On',
+                style: TextStyle(fontSize: 18.0),
+              )
+            ],
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -188,6 +239,24 @@ class SettingsState extends State<Settings> {
               ),
             ),
           ),
+          FlatButton.icon(
+              color: Colors.blue,
+              onPressed: () {
+                setState(() {
+                  writeToFile(soundOn, temperatureState, autoMarker,
+                      timeTracking, selectedDistancePerMarker);
+                  print(fileContentSettings['Distance']);
+                });
+              },
+              icon: Icon(Icons.check),
+              label: Text('Apply Changes')),
+          FlatButton(
+              onPressed: () {
+                setState(() {
+                  configureSettings();
+                });
+              },
+              child: Text('Refresh'))
         ]),
       ),
     );
