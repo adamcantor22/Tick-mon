@@ -154,6 +154,7 @@ class MapsState extends State<Maps> {
       StreamSubscription<void> sub;
       sub = audioCache.fixedPlayer.onPlayerCompletion.listen((event) {
         setState(() {
+          sliderVisibility = true;
           locator = new Geolocator();
           wpts = new List<Wpt>();
           segments = new List<Trkseg>();
@@ -165,6 +166,7 @@ class MapsState extends State<Maps> {
         });
       });
     } else {
+      sliderVisibility = true;
       locator = new Geolocator();
       wpts = new List<Wpt>();
       segments = new List<Trkseg>();
