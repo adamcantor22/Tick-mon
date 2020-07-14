@@ -62,6 +62,7 @@ class LoggedInScreenState extends State<LoggedInScreen> {
                     googleSignIn.signOut();
                     access = false;
                     Navigator.pushReplacementNamed(context, 'LoginScreen');
+                    SuperListener.cancelCurrentDrag();
                   });
                 },
                 child: Text(

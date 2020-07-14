@@ -142,23 +142,25 @@ class MapsState extends State<Maps> {
   }
 
   void stepsToTerminateNDelete() {
-    setState(() {
-      if (markerViaTime == true) {
-        timer.cancel();
-      }
-      trackingRoute = false;
-      positionSubscription.cancel();
-      polylineCoordinates.clear();
-      cancellationPopUpPresent = false;
-      cancelDragVal = 0.0;
-      markerLis = [];
-      lastDropPoint = null;
-      afterFirstDrop = false;
-      checkPointsCleared = 0;
-      timerVisibility = false;
-      positionMarker();
-      autoCameraMoveVisibility = false;
-    });
+    if (trackingRoute == true) {
+      setState(() {
+        if (markerViaTime == true) {
+          timer.cancel();
+        }
+        trackingRoute = false;
+        positionSubscription.cancel();
+        polylineCoordinates.clear();
+        cancellationPopUpPresent = false;
+        cancelDragVal = 0.0;
+        markerLis = [];
+        lastDropPoint = null;
+        afterFirstDrop = false;
+        checkPointsCleared = 0;
+        timerVisibility = false;
+        positionMarker();
+        autoCameraMoveVisibility = false;
+      });
+    }
   }
 
   void positionMarker() {

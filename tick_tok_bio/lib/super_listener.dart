@@ -93,4 +93,8 @@ class SuperListener {
   static void setTimePerMarker(double time) {
     mapPage.setTimeOfMarker(time);
   }
+
+  static void cancelCurrentDrag() {
+    mapPage.stepsToTerminateNDelete();
+  }
 }
