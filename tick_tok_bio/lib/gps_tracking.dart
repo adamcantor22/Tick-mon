@@ -87,6 +87,14 @@ class MapsState extends State<Maps> {
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
     _mapController.move(LatLng(pos.latitude, pos.longitude), zoomLevel);
     setState(() {
+      markerLis.add(Marker(
+          point: LatLng(pos.latitude, pos.longitude),
+          builder: (build) => Container(
+                child: Icon(
+                  Icons.location_on,
+                  color: Colors.red,
+                ),
+              )));
       currentPosition = pos;
       currentLat = pos.latitude;
       currentLong = pos.longitude;
@@ -127,6 +135,20 @@ class MapsState extends State<Maps> {
           counter--;
         }
       });
+    });
+  }
+
+  positionMarker() {
+    setState(() {
+      markerLis.clear();
+      markerLis.add(Marker(
+          point: LatLng(currentLat, currentLong),
+          builder: (build) => Container(
+                child: Icon(
+                  Icons.location_on,
+                  color: Colors.red,
+                ),
+              )));
     });
   }
 
@@ -313,6 +335,8 @@ class MapsState extends State<Maps> {
                 markerLis.clear();
                 lastDropPoint = null;
                 checkPointsCleared = 0;
+
+                positionMarker();
               });
             },
           ),
@@ -565,6 +589,7 @@ class MapsState extends State<Maps> {
                     checkPointsCleared = 0;
                     timer.cancel();
                     timerVisibility = false;
+                    positionMarker();
                   });
                 },
               ))
