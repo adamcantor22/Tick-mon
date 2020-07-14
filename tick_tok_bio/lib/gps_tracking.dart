@@ -172,6 +172,8 @@ class MapsState extends State<Maps> {
 
   //Cancel location tracking and sent the list of waypoints to be stored as gpx
   void finishRoute() async {
+    await playSound('end.mp3');
+
     WeatherTracker.updateLocation(currentPosition);
     storeRouteInformation();
 
