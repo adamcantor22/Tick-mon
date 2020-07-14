@@ -5,8 +5,6 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:convert';
 
-double selectedTimePerMarker = 1.0;
-
 class Settings extends StatefulWidget {
   const Settings({Key key}) : super(key: key);
   @override
@@ -19,7 +17,7 @@ class SettingsState extends State<Settings> {
   List<double> distancePerMarker = [5.0, 20.0, 50.0];
   double selectedDistancePerMarker = 20.0;
   List<double> timerPerMarker = [1.0, 2.0, 3.0, 4.0, 5.0];
-
+  double selectedTimePerMarker = 1.0;
   bool timeTracking = false;
   File jsonFile;
   Directory dir;
@@ -27,6 +25,14 @@ class SettingsState extends State<Settings> {
   bool fileExists;
   Map fileContentSettings;
   bool soundOn = true;
+  bool notesDisplayed = false;
+  bool notesUp = false;
+  String markerPlaceDes =
+      'This should be pressed when the user wants to make a marker of their location and enter data for the subsection of the drag.';
+  String getLocDes =
+      "Pressing this icon updates the camera to pinpoint your position to be central on the map. This is useful if a drag is not in progress or you have auto-camera updates turned off during a drag.";
+  String freeLookDes =
+      "This button toggles whether the camera during a drag will automatically move the camera throughout, or whether you are able to look around the map by dragging.";
 
   @override
   void initState() {
@@ -40,37 +46,41 @@ class SettingsState extends State<Settings> {
         setState(() {
           fileContentSettings = jsonDecode(jsonFile.readAsStringSync());
           configureSettings();
+          configureMapState();
         });
       } else {}
     });
   }
 
+  void configureMapState() {
+    SuperListener.settingSoundPref(soundOn);
+    SuperListener.tempCelsius(temperatureState);
+    SuperListener.autoMarking(autoMarker);
+    SuperListener.settingMarkerMethod(timeTracking);
+    SuperListener.setMarkingDistance(selectedDistancePerMarker);
+    SuperListener.setTimePerMarker(selectedTimePerMarker);
+  }
+
   void configureSettings() {
     setState(() {
       soundOn = fileContentSettings['Sound'];
-      SuperListener.settingSoundPref(soundOn);
       temperatureState = fileContentSettings['TempStatus'];
-      SuperListener.tempCelsius(temperatureState);
       autoMarker = fileContentSettings['Auto-Marker'];
-      SuperListener.autoMarking(autoMarker);
       timeTracking = fileContentSettings['TimeTracking'];
-      SuperListener.settingMarkerMethod(timeTracking);
       selectedDistancePerMarker = fileContentSettings['Distance'];
-      SuperListener.setMarkingDistance(selectedDistancePerMarker);
       selectedTimePerMarker = fileContentSettings['Time'];
-//      SuperListener.setTimePerMarker(selectedTimePerMarker);
     });
   }
 
   void createFile(Map<dynamic, dynamic> content) {
-    print('creating File');
+//    print('creating File');
     File file = File(dir.path + '/' + fileName);
     fileExists = true;
     file.writeAsStringSync(jsonEncode(content));
   }
 
   void writeToFile(val, val1, val2, val3, val4, val5) {
-    print('Writing to File');
+//    print('Writing to File');
     Map<String, dynamic> content = {
       'Sound': val,
       'TempStatus': val1,
@@ -80,13 +90,13 @@ class SettingsState extends State<Settings> {
       'Time': val5
     };
     if (fileExists) {
-      print('FIle Exists');
+//      print('FIle Exists');
       Map<String, dynamic> jsonFileContent1 =
           jsonDecode(jsonFile.readAsStringSync());
       jsonFileContent1.addAll(content);
       jsonFile.writeAsStringSync(jsonEncode(jsonFileContent1));
     } else {
-      print('File does not exist');
+      //print('File does not exist');
       createFile(content);
     }
     setState(() {
@@ -98,8 +108,77 @@ class SettingsState extends State<Settings> {
     return selectedDistancePerMarker;
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget iconDescription(icon, String description) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.9,
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 10.0),
+            color: Colors.blue,
+            child: Icon(
+              icon,
+              color: Colors.red,
+              size: 40.0,
+            ),
+          ),
+          Flexible(
+            child: Text(description),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget pageChooser() {
+    if (notesUp == true) {
+      return notesPage();
+    } else {
+      return settingsOptions();
+    }
+  }
+
+  Widget notesPage() {
+    return Scaffold(
+      appBar: AppBar(
+          title: Row(
+        children: [
+          IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                size: 30.0,
+              ),
+              onPressed: () {
+                setState(() {
+                  notesUp = false;
+                });
+              }),
+          SizedBox(
+            width: 80.0,
+          ),
+          Text('Notes for User'),
+        ],
+      )),
+      body: ListView(children: [
+        Column(
+          children: [
+            Center(
+              child: Text(
+                'Icons Functionality',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
+              ),
+            ),
+            iconDescription(Icons.my_location, markerPlaceDes),
+            iconDescription(Icons.location_on, getLocDes),
+            iconDescription(Icons.remove_red_eye, freeLookDes),
+          ],
+        ),
+      ]),
+    );
+  }
+
+  Widget settingsOptions() {
     return Scaffold(
       appBar: AppBar(
         title: Center(
@@ -149,7 +228,6 @@ class SettingsState extends State<Settings> {
                     setState(() {
                       temperatureState = value;
                       SuperListener.tempCelsius(value);
-                      print(temperatureState);
                     });
                   }),
               Text(
@@ -172,7 +250,6 @@ class SettingsState extends State<Settings> {
                   onChanged: (val) {
                     setState(() {
                       SuperListener.autoMarking(val);
-                      print(val);
                       autoMarker = val;
                     });
                   }),
@@ -283,6 +360,7 @@ class SettingsState extends State<Settings> {
               color: Colors.blue,
               onPressed: () {
                 setState(() {
+                  configureMapState();
                   writeToFile(
                       soundOn,
                       temperatureState,
@@ -290,8 +368,6 @@ class SettingsState extends State<Settings> {
                       timeTracking,
                       selectedDistancePerMarker,
                       selectedTimePerMarker);
-                  print(fileContentSettings['Time']);
-                  print(autoMarker);
                 });
               },
               icon: Icon(Icons.check),
@@ -299,12 +375,17 @@ class SettingsState extends State<Settings> {
           FlatButton(
               onPressed: () {
                 setState(() {
-                  configureSettings();
+                  notesUp = true;
                 });
               },
-              child: Text('Refresh'))
+              child: Text('Notes for Users')),
         ]),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return pageChooser();
   }
 }

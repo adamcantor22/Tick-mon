@@ -56,7 +56,7 @@ class MapsState extends State<Maps> {
   bool popUpDeletion = false;
   var currentLat = 37.3216;
   var currentLong = -121.9535;
-  double zoomLevel = 10.0;
+  double zoomLevel = 17.0;
   double distanceBetweenPoints;
   Position lastDropPoint;
   bool afterFirstDrop = false;
@@ -74,6 +74,7 @@ class MapsState extends State<Maps> {
   bool timerVisibility = false;
   bool autoCamerMove = false;
   bool autoCameraMoveVisibility = false;
+  double timePmarker;
 
   void initState() {
     super.initState();
@@ -112,7 +113,6 @@ class MapsState extends State<Maps> {
   void setAutoTracking(bool setting) {
     setState(() {
       autoMarking = setting;
-      print(autoMarking);
     });
   }
 
@@ -124,13 +124,13 @@ class MapsState extends State<Maps> {
 
   void setTimeOfMarker(double time) {
     setState(() {
-      selectedTimePerMarker = time;
+      timePmarker = time;
     });
   }
 
   void startTimer() {
     print('new Timer created');
-    counter = selectedTimePerMarker.toInt() * 60;
+    counter = timePmarker.toInt() * 60;
     print(counter);
     timer = new Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
@@ -141,7 +141,27 @@ class MapsState extends State<Maps> {
     });
   }
 
-  positionMarker() {
+  void stepsToTerminateNDelete() {
+    setState(() {
+      if (markerViaTime == true) {
+        timer.cancel();
+      }
+      trackingRoute = false;
+      positionSubscription.cancel();
+      polylineCoordinates.clear();
+      cancellationPopUpPresent = false;
+      cancelDragVal = 0.0;
+      markerLis = [];
+      lastDropPoint = null;
+      afterFirstDrop = false;
+      checkPointsCleared = 0;
+      timerVisibility = false;
+      positionMarker();
+      autoCameraMoveVisibility = false;
+    });
+  }
+
+  void positionMarker() {
     setState(() {
       markerLis.clear();
       markerLis.add(Marker(
@@ -186,9 +206,7 @@ class MapsState extends State<Maps> {
     fileRef.then((file) {
       print(file.path);
       FileUploader uploader = new FileUploader();
-      final url = uploader.fileUpload(file, filename).then((val) {
-        print(val);
-      });
+      final url = uploader.fileUpload(file, filename).then((val) {});
     });
   }
 
@@ -203,16 +221,18 @@ class MapsState extends State<Maps> {
   //Set up location tracking subscription and polyline creation
 
   void startNewRoute() async {
+    autoCameraMoveVisibility = true;
+    getLoc();
+    if (markerViaTime == true) {
+      startTimer();
+      timerVisibility = true;
+    }
     if (soundsPresent == true) {
       await audioCache.play('start.mp3');
       StreamSubscription<void> sub;
       sub = audioCache.fixedPlayer.onPlayerCompletion.listen((event) {
         setState(() {
-          if (markerViaTime == true) {
-            startTimer();
-            timerVisibility = true;
-          }
-
+          print('Marking by time is' + markerViaTime.toString());
           sliderVisibility = true;
           locator = new Geolocator();
           wpts = new List<Wpt>();
@@ -222,7 +242,6 @@ class MapsState extends State<Maps> {
           trackingRoute = true;
           updateLocation();
           sub.cancel();
-          autoCameraMoveVisibility = true;
         });
       });
     } else {
@@ -251,7 +270,7 @@ class MapsState extends State<Maps> {
   }
 
   void getLoc() async {
-    locator = new Geolocator();
+    locator = Geolocator();
     Position position = await locator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best);
 
@@ -293,8 +312,6 @@ class MapsState extends State<Maps> {
         currentPosition = cPos;
         currentLat = cPos.latitude;
         currentLong = cPos.longitude;
-//            print(currentLat);
-//            print(currentLong);
         //LatLng pos = LatLng(cPos.latitude, cPos.longitude);
         Wpt pt = new Wpt(
           lat: currentPosition.latitude,
@@ -332,6 +349,10 @@ class MapsState extends State<Maps> {
             ),
             onPressed: () {
               setState(() {
+                if (markerViaTime == true) {
+                  timer.cancel();
+                  timerVisibility = false;
+                }
                 finishRoute();
                 popUpPresent = false;
                 lastDropPoint = null;
@@ -339,8 +360,8 @@ class MapsState extends State<Maps> {
                 markerLis.clear();
                 lastDropPoint = null;
                 checkPointsCleared = 0;
-                timer.cancel();
                 positionMarker();
+                autoCameraMoveVisibility = false;
               });
             },
           ),
@@ -360,7 +381,6 @@ class MapsState extends State<Maps> {
 
   void markerUpdate() async {
     checkPointsPerMarker = (distancePerMarker ~/ 5);
-    print(checkPointsPerMarker);
     if (afterFirstDrop == false) {
       lastDropPoint = await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
@@ -412,7 +432,7 @@ class MapsState extends State<Maps> {
       }
       if (markerViaTime == true) {
         if (counter == 0) {
-          counter = selectedTimePerMarker.toInt() * 60;
+          counter = timePmarker.toInt() * 60;
           if (soundsPresent == true) {
             player.play('/sounds/bell.mp3');
           }
@@ -505,7 +525,6 @@ class MapsState extends State<Maps> {
                   if (val != 10.0) {
                     setState(() {
                       currentVal = 0;
-                      print('HOOPLA');
                     });
                   }
                 },
@@ -582,6 +601,9 @@ class MapsState extends State<Maps> {
                 ),
                 onPressed: () {
                   setState(() {
+                    if (markerViaTime == true) {
+                      timer.cancel();
+                    }
                     trackingRoute = false;
                     positionSubscription.cancel();
                     polylineCoordinates.clear();
@@ -591,9 +613,9 @@ class MapsState extends State<Maps> {
                     lastDropPoint = null;
                     afterFirstDrop = false;
                     checkPointsCleared = 0;
-                    timer.cancel();
                     timerVisibility = false;
                     positionMarker();
+                    autoCameraMoveVisibility = false;
                   });
                 },
               ))
@@ -667,7 +689,7 @@ class MapsState extends State<Maps> {
                     zoomLevel += 1;
                     _mapController.move(
                         LatLng(currentLat, currentLong), zoomLevel);
-                    print(selectedTimePerMarker);
+                    print(markerViaTime);
                   });
                 })),
         Positioned(
@@ -724,7 +746,10 @@ class MapsState extends State<Maps> {
               child: Container(
                 color: Colors.blue,
                 child: IconButton(
-                    icon: Icon(Icons.my_location),
+                    icon: Icon(
+                      Icons.my_location,
+                      color: Colors.red,
+                    ),
                     onPressed: () {
                       setState(() {
                         manualMarkerPlacement();
