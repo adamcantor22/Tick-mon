@@ -79,7 +79,7 @@ class MapsState extends State<Maps> {
   void initState() {
     super.initState();
     getInitPos();
-    markerUpdate();
+    //markerUpdate();
     lastDropPoint = currentPosition;
     SuperListener.setPages(mPage: this);
     initPlayer();
@@ -223,6 +223,7 @@ class MapsState extends State<Maps> {
   //Set up location tracking subscription and polyline creation
 
   void startNewRoute() async {
+    markerUpdate();
     autoCameraMoveVisibility = true;
     getLoc();
     if (markerViaTime == true) {
@@ -235,6 +236,7 @@ class MapsState extends State<Maps> {
       sub = audioCache.fixedPlayer.onPlayerCompletion.listen((event) {
         setState(() {
           print('Marking by time is' + markerViaTime.toString());
+          markerLis.clear();
           sliderVisibility = true;
           locator = new Geolocator();
           wpts = new List<Wpt>();
@@ -299,6 +301,28 @@ class MapsState extends State<Maps> {
 
 //      polylineCoordinates.add(LatLng(currentLat, currentLong));
       //print(LatLng(currentLat, currentLong));
+    });
+  }
+
+  void autoTrackingNonDrag() {
+    LocationOptions opt = LocationOptions(
+      accuracy: LocationAccuracy.best,
+      distanceFilter: 0,
+    );
+    positionSubscription =
+        locator.getPositionStream(opt).listen((Position cPos) {
+      setState(() {
+        currentLat = cPos.latitude;
+        currentLong = cPos.longitude;
+        markerLis[0] = Marker(
+            point: LatLng(currentLat, currentLong),
+            builder: (build) => Container(
+                  child: Icon(
+                    Icons.location_on,
+                    color: Colors.red,
+                  ),
+                ));
+      });
     });
   }
 
