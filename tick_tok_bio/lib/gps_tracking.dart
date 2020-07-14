@@ -23,6 +23,7 @@ import 'player.dart';
 import 'metadata_page.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong/latlong.dart';
+import 'package:tick_tok_bio/settings_page.dart';
 
 bool trackingRoute = false;
 
@@ -67,6 +68,10 @@ class MapsState extends State<Maps> {
   double currentDistance = 0.0;
   bool autoMarking = true;
   bool soundsPresent = true;
+  bool markerViaTime = true;
+  int counter;
+  Timer timer;
+  bool timerVisibility = false;
 
   void initState() {
     super.initState();
@@ -98,6 +103,30 @@ class MapsState extends State<Maps> {
     setState(() {
       autoMarking = setting;
       print(autoMarking);
+    });
+  }
+
+  void setMarkerMethod(bool set) {
+    setState(() {
+      markerViaTime = set;
+    });
+  }
+
+  void setTimeOfMarker(double time) {
+    setState(() {
+      selectedTimePerMarker = time;
+    });
+  }
+
+  void startTimer() {
+    counter = selectedTimePerMarker.toInt() * 60;
+    print(counter);
+    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        if (counter > 0) {
+          counter--;
+        }
+      });
     });
   }
 
@@ -154,6 +183,11 @@ class MapsState extends State<Maps> {
       StreamSubscription<void> sub;
       sub = audioCache.fixedPlayer.onPlayerCompletion.listen((event) {
         setState(() {
+          if (markerViaTime == true) {
+            startTimer();
+            timerVisibility = true;
+          }
+
           sliderVisibility = true;
           locator = new Geolocator();
           wpts = new List<Wpt>();
@@ -311,19 +345,49 @@ class MapsState extends State<Maps> {
         currentPosition.latitude,
         currentPosition.longitude,
       );
-      if (currentDistance >= 5.0) {
-        checkPointsCleared += 1;
-        print(checkPointsCleared);
 
-        lastDropPoint = currentPosition;
-        print('CheckPoint Cleared');
-        if (checkPointsCleared == checkPointsPerMarker) {
-          checkPointsCleared = 0;
+      if (markerViaTime == false) {
+        if (currentDistance >= 5.0) {
+          checkPointsCleared += 1;
+          print(checkPointsCleared);
 
+          lastDropPoint = currentPosition;
+          print('CheckPoint Cleared');
+          if (checkPointsCleared == checkPointsPerMarker) {
+            checkPointsCleared = 0;
+
+            if (soundsPresent == true) {
+              player.play('/sounds/bell.mp3');
+            }
+
+            dropTrackBreakPoint();
+            setState(() {
+              print('PLace Marker');
+              markerLis.add(
+                Marker(
+                  height: 15.0,
+                  width: 15.0,
+                  point: LatLng(
+                      currentPosition.latitude, currentPosition.longitude),
+                  builder: (build) => Container(
+                    child: Icon(
+                      Icons.my_location,
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+              );
+              lastDropPoint = currentPosition;
+            });
+          }
+        }
+      }
+      if (markerViaTime == true) {
+        if (counter == 0) {
+          counter = selectedTimePerMarker.toInt() * 60;
           if (soundsPresent == true) {
             player.play('/sounds/bell.mp3');
           }
-
           dropTrackBreakPoint();
           setState(() {
             print('PLace Marker');
@@ -346,7 +410,6 @@ class MapsState extends State<Maps> {
         }
       }
     }
-    print(currentDistance);
   }
 
   void manualMarkerPlacement() {
@@ -500,6 +563,8 @@ class MapsState extends State<Maps> {
                     lastDropPoint = null;
                     afterFirstDrop = false;
                     checkPointsCleared = 0;
+                    timer.cancel();
+                    timerVisibility = false;
                   });
                 },
               ))
@@ -573,7 +638,7 @@ class MapsState extends State<Maps> {
                     zoomLevel += 1;
                     _mapController.move(
                         LatLng(currentLat, currentLong), zoomLevel);
-                    print(distancePerMarker);
+                    print(selectedTimePerMarker);
                   });
                 })),
         Positioned(
@@ -638,6 +703,7 @@ class MapsState extends State<Maps> {
                     }),
               )),
         ),
+        Visibility(visible: timerVisibility, child: Text(counter.toString())),
         dragCancellationPopUp(),
         doneConfirmation(),
       ]),

@@ -77,12 +77,20 @@ class SuperListener {
     mapPage.setDistanceMarker(distance);
   }
 
-  static double getMarkingDistance() {
-    double dis = settings.getDistancePerMarker();
-    return dis;
-  }
+//  static double getMarkingDistance() {
+//    double dis = settings.getDistancePerMarker();
+//    return dis;
+//  }
 
   static void settingSoundPref(bool set) {
     mapPage.setSoundPref(set);
+  }
+
+  static void settingMarkerMethod(bool setting) {
+    mapPage.setMarkerMethod(setting);
+  }
+
+  static void setTimePerMarker(double time) {
+    mapPage.setTimeOfMarker(time);
   }
 }

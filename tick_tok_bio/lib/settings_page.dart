@@ -5,6 +5,8 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:convert';
 
+double selectedTimePerMarker = 1.0;
+
 class Settings extends StatefulWidget {
   const Settings({Key key}) : super(key: key);
   @override
@@ -16,6 +18,8 @@ class SettingsState extends State<Settings> {
   bool autoMarker = true;
   List<double> distancePerMarker = [5.0, 20.0, 50.0];
   double selectedDistancePerMarker = 20.0;
+  List<double> timerPerMarker = [1.0, 2.0, 3.0, 4.0, 5.0];
+
   bool timeTracking = false;
   File jsonFile;
   Directory dir;
@@ -35,10 +39,7 @@ class SettingsState extends State<Settings> {
       if (fileExists) {
         setState(() {
           fileContentSettings = jsonDecode(jsonFile.readAsStringSync());
-
-          if (fileContentSettings['Sound'] != null) {
-            configureSettings();
-          }
+          configureSettings();
         });
       } else {}
     });
@@ -53,9 +54,11 @@ class SettingsState extends State<Settings> {
       autoMarker = fileContentSettings['Auto-Marker'];
       SuperListener.autoMarking(autoMarker);
       timeTracking = fileContentSettings['TimeTracking'];
-
+      SuperListener.settingMarkerMethod(timeTracking);
       selectedDistancePerMarker = fileContentSettings['Distance'];
       SuperListener.setMarkingDistance(selectedDistancePerMarker);
+      selectedTimePerMarker = fileContentSettings['Time'];
+//      SuperListener.setTimePerMarker(selectedTimePerMarker);
     });
   }
 
@@ -66,7 +69,7 @@ class SettingsState extends State<Settings> {
     file.writeAsStringSync(jsonEncode(content));
   }
 
-  void writeToFile(val, val1, val2, val3, val4) {
+  void writeToFile(val, val1, val2, val3, val4, val5) {
     print('Writing to File');
     Map<String, dynamic> content = {
       'Sound': val,
@@ -74,6 +77,7 @@ class SettingsState extends State<Settings> {
       'Auto-Marker': val2,
       'TimeTracking': val3,
       'Distance': val4,
+      'Time': val5
     };
     if (fileExists) {
       print('FIle Exists');
@@ -239,13 +243,55 @@ class SettingsState extends State<Settings> {
               ),
             ),
           ),
+          Visibility(
+            visible: timeTracking == true && autoMarker == true ? true : false,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+              child: DropdownButtonFormField(
+                decoration: InputDecoration(
+                    labelText: 'Time Per Marker Drop',
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Colors.blueAccent, width: 1.5),
+                      borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Colors.blueAccent, width: 2.5),
+                      borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                    )),
+                items: timerPerMarker
+                    .map<DropdownMenuItem<double>>((double value) {
+                  return DropdownMenuItem<double>(
+                      value: value, child: Text(value.toString() + ' minutes'));
+                }).toList(),
+                value: selectedTimePerMarker,
+                onChanged: (value) {
+                  setState(() {
+                    selectedTimePerMarker = value;
+                  });
+                },
+              ),
+            ),
+          ),
           FlatButton.icon(
               color: Colors.blue,
               onPressed: () {
                 setState(() {
-                  writeToFile(soundOn, temperatureState, autoMarker,
-                      timeTracking, selectedDistancePerMarker);
-                  print(fileContentSettings['Distance']);
+                  writeToFile(
+                      soundOn,
+                      temperatureState,
+                      autoMarker,
+                      timeTracking,
+                      selectedDistancePerMarker,
+                      selectedTimePerMarker);
+                  print(fileContentSettings['Time']);
+                  print(autoMarker);
                 });
               },
               icon: Icon(Icons.check),
