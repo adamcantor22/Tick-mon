@@ -72,6 +72,8 @@ class MapsState extends State<Maps> {
   int counter;
   Timer timer;
   bool timerVisibility = false;
+  bool autoCamerMove = false;
+  bool autoCameraMoveVisibility = false;
 
   void initState() {
     super.initState();
@@ -127,9 +129,10 @@ class MapsState extends State<Maps> {
   }
 
   void startTimer() {
+    print('new Timer created');
     counter = selectedTimePerMarker.toInt() * 60;
     print(counter);
-    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    timer = new Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         if (counter > 0) {
           counter--;
@@ -219,6 +222,7 @@ class MapsState extends State<Maps> {
           trackingRoute = true;
           updateLocation();
           sub.cancel();
+          autoCameraMoveVisibility = true;
         });
       });
     } else {
@@ -298,13 +302,13 @@ class MapsState extends State<Maps> {
           ele: cPos.altitude,
           time: DateTime.now(),
         );
-        _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
+        if (autoCamerMove == true) {
+          _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
+        }
         segments[segments.length - 1].trkpts.add(pt);
         wpts.add(pt);
         polylineCoordinates
             .add(LatLng(currentPosition.latitude, currentPosition.longitude));
-        //updatePolyline();
-
         autoMarking == true ? markerUpdate() : print('No Auto Mark');
       });
     });
@@ -335,7 +339,7 @@ class MapsState extends State<Maps> {
                 markerLis.clear();
                 lastDropPoint = null;
                 checkPointsCleared = 0;
-
+                timer.cancel();
                 positionMarker();
               });
             },
@@ -728,6 +732,25 @@ class MapsState extends State<Maps> {
                     }),
               )),
         ),
+        Visibility(
+            visible: autoCameraMoveVisibility,
+            child: Positioned(
+              right: 10.0,
+              top: 200.0,
+              child: Container(
+                color: Colors.blue,
+                child: IconButton(
+                    icon: Icon(
+                      Icons.remove_red_eye,
+                      color: autoCamerMove == true ? Colors.red : Colors.black,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        autoCamerMove = !autoCamerMove;
+                      });
+                    }),
+              ),
+            )),
         Visibility(visible: timerVisibility, child: Text(counter.toString())),
         dragCancellationPopUp(),
         doneConfirmation(),
