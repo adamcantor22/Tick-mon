@@ -311,25 +311,6 @@ class MapsState extends State<Maps> {
         if (checkPointsCleared == checkPointsPerMarker) {
           checkPointsCleared = 0;
           player.play('/sounds/bell.mp3');
-          dropTrackBreakPoint();
-          setState(() {
-            print('PLace Marker');
-            markerLis.add(
-              Marker(
-                height: 15.0,
-                width: 15.0,
-                point:
-                    LatLng(currentPosition.latitude, currentPosition.longitude),
-                builder: (build) => Container(
-                  child: Icon(
-                    Icons.my_location,
-                    color: Colors.red,
-                  ),
-                ),
-              ),
-            );
-            lastDropPoint = currentPosition;
-          });
         }
       }
     }
@@ -339,6 +320,7 @@ class MapsState extends State<Maps> {
   void manualMarkerPlacement() {
     dropTrackBreakPoint();
     setState(() {
+      checkPointsCleared = 0;
       markerLis.add(
         Marker(
           height: 15.0,
@@ -353,6 +335,12 @@ class MapsState extends State<Maps> {
         ),
       );
     });
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Helper().segmentTextDialog(0, context);
+      },
+    );
   }
 
   Widget startStop() {
