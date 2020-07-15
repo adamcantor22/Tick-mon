@@ -555,7 +555,6 @@ class MapsState extends State<Maps> {
                     zoomLevel += 1;
                     _mapController.move(
                         LatLng(currentLat, currentLong), zoomLevel);
-                    print(distancePerMarker);
                   });
                 })),
         Positioned(
