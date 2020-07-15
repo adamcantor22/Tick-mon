@@ -23,6 +23,7 @@ import 'player.dart';
 import 'metadata_page.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong/latlong.dart';
+import 'segment_data.dart';
 
 bool trackingRoute = false;
 
@@ -66,6 +67,7 @@ class MapsState extends State<Maps> {
   int checkPointsCleared = 0;
   double currentDistance = 0.0;
   bool autoMarking = true;
+  List<SegmentData> segmentData;
 
   void initState() {
     super.initState();
@@ -161,7 +163,8 @@ class MapsState extends State<Maps> {
         wpts = new List<Wpt>();
         segments = new List<Trkseg>();
         segments.add(new Trkseg());
-        //polylinePoints = PolylinePoints();
+        segmentData = new List<SegmentData>();
+        segmentData.add(new SegmentData());
         polylineCoordinates = [];
         trackingRoute = true;
         updateLocation();
@@ -251,6 +254,7 @@ class MapsState extends State<Maps> {
 
   void dropTrackBreakPoint() {
     segments.add(new Trkseg());
+    segmentData.add(new SegmentData());
   }
 
   Widget doneConfirmation() {
@@ -338,9 +342,13 @@ class MapsState extends State<Maps> {
     showDialog(
       context: context,
       builder: (context) {
-        return Helper().segmentTextDialog(0, context);
+        return HelperText(0, context);
       },
     );
+  }
+
+  void storeSegmentData(Map<String, int> map) {
+    segmentData[segmentData.length - 1].addTickData(map: map);
   }
 
   Widget startStop() {

@@ -3,6 +3,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'gps_tracking.dart';
 
 class Helper {
   //Returns an AlertDialog with a custom message and an OK button
@@ -40,39 +41,54 @@ class Helper {
       ],
     );
   }
+}
+
+// ignore: must_be_immutable
+class HelperText extends StatefulWidget {
+  int segment;
+  BuildContext cont;
+
+  HelperText(int segment, BuildContext cont) {
+    this.segment = segment;
+    this.cont = cont;
+  }
+
+  @override
+  _HelperTextState createState() => _HelperTextState(segment, cont);
+}
+
+class _HelperTextState extends State<HelperText> {
+  int segment;
+  BuildContext cont;
+  List<TextFormField> fields;
+  List<TextEditingController> controllers = [TextEditingController()];
+
+  _HelperTextState(int segment, BuildContext cont) {
+    this.segment = segment;
+    this.cont = cont;
+    fields = [
+      TextFormField(
+        controller: controllers[0],
+        validator: (val) => valid(val),
+      )
+    ];
+  }
+
+  String valid(String val) {
+    if (val == null || val == '') {
+      return 'Enter Data';
+    }
+    return null;
+  }
 
   Widget segmentTextDialog(int segment, BuildContext context) {
-    TextEditingController c1 = TextEditingController();
-    TextEditingController c2 = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
     return AlertDialog(
       title: Text('Segment $segment Metadata'),
       content: Form(
         key: formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            TextFormField(
-              controller: c1,
-              validator: (val) {
-                if (val == null || val == '') {
-                  return 'Enter Data';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              controller: c2,
-              validator: (val) {
-                if (val == null || val == '') {
-                  return 'Enter Data';
-                }
-                return null;
-              },
-            ),
-          ],
-        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: fields),
       ),
       actions: <Widget>[
         FlatButton(
@@ -86,5 +102,10 @@ class Helper {
         ),
       ],
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return segmentTextDialog(segment, cont);
   }
 }
