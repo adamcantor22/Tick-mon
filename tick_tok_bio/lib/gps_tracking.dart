@@ -420,14 +420,16 @@ class MapsState extends State<Maps> {
       visible: cancellationPopUpPresent,
       child: AlertDialog(
         title: Column(children: [
-          IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () {
-              setState(() {
-                cancellationPopUpPresent = false;
-                cancelDragVal = 0.0;
-              });
-            },
+          Container(
+            child: IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () {
+                setState(() {
+                  cancellationPopUpPresent = false;
+                  cancelDragVal = 0.0;
+                });
+              },
+            ),
           ),
           Text(
             'Exit Pop-Up',
@@ -588,18 +590,21 @@ class MapsState extends State<Maps> {
         Visibility(
           visible: trackingRoute == true ? true : false,
           child: Positioned(
-            top: 3.0,
-            left: 3.0,
-            child: IconButton(
-              icon: Icon(Icons.clear),
-              iconSize: 40.0,
-              color: Colors.red,
-              onPressed: () {
-                setState(() {
-                  confirmationButton = false;
-                  cancellationPopUpPresent = true;
-                });
-              },
+            top: 15.0,
+            left: 10.0,
+            child: Container(
+              color: Colors.blueGrey[100],
+              child: IconButton(
+                icon: Icon(Icons.close),
+                iconSize: 32.0,
+                color: Colors.red,
+                onPressed: () {
+                  setState(() {
+                    confirmationButton = false;
+                    cancellationPopUpPresent = true;
+                  });
+                },
+              ),
             ),
           ),
         ),
