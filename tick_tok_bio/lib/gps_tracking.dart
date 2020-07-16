@@ -104,6 +104,7 @@ class MapsState extends State<Maps> {
   }
 
   void setSoundPref(bool soundSet) {
+    print('SOSOSOSO SOUNDS GETTING SET TO $soundSet');
     setState(() {
       soundsPresent = soundSet;
     });
@@ -240,6 +241,8 @@ class MapsState extends State<Maps> {
           wpts = new List<Wpt>();
           segments = new List<Trkseg>();
           segments.add(new Trkseg());
+          segmentData = new List<SegmentData>();
+          segmentData.add(new SegmentData());
           polylineCoordinates = [];
           trackingRoute = true;
           updateLocation();
@@ -541,7 +544,6 @@ class MapsState extends State<Maps> {
                   value: cancellationPopUpPresent == false ? currentVal : 0.0,
                   onChanged: (double val) {
                     setState(() {
-                      print(currentVal);
                       currentVal = val;
                     });
 
@@ -615,23 +617,15 @@ class MapsState extends State<Maps> {
                 max: 10.0,
                 value: cancelDragVal,
                 onChanged: (newVal) {
-                  setState(() {
-                    if (markerViaTime == true) {
-                      timer.cancel();
-                    }
-                    trackingRoute = false;
-                    positionSubscription.cancel();
-                    polylineCoordinates.clear();
-                    cancellationPopUpPresent = false;
-                    cancelDragVal = 0.0;
-                    markerLis = [];
-                    lastDropPoint = null;
-                    afterFirstDrop = false;
-                    checkPointsCleared = 0;
-                    timerVisibility = false;
-                    positionMarker();
-                    autoCameraMoveVisibility = false;
-                  });
+                  if (newVal == 10.0) {
+                    setState(() {
+                      confirmationButton = true;
+                    });
+                  } else {
+                    setState(() {
+                      cancelDragVal = newVal;
+                    });
+                  }
                 },
                 onChangeEnd: (double endPoint) {
                   if (endPoint != 10.0) {
@@ -814,7 +808,6 @@ class MapsState extends State<Maps> {
                   setState(() {
                     confirmationButton = false;
                     cancellationPopUpPresent = true;
-//                    getLoc();
                   });
                 },
               ),
@@ -864,7 +857,10 @@ class MapsState extends State<Maps> {
                     }),
               ),
             )),
-        Visibility(visible: timerVisibility, child: Text(counter.toString())),
+        Visibility(
+          visible: timerVisibility,
+          child: Text(counter.toString()),
+        ),
         dragCancellationPopUp(),
         doneConfirmation(),
       ]),
