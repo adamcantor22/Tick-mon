@@ -43,12 +43,15 @@ class SettingsState extends State<Settings> {
       jsonFile = File(dir.path + '/' + fileName);
       fileExists = jsonFile.existsSync();
       if (fileExists) {
+        print('I HAVE THE SETTINGS FILE');
         setState(() {
           fileContentSettings = jsonDecode(jsonFile.readAsStringSync());
           configureSettings();
           configureMapState();
         });
-      } else {}
+      } else {
+        print('I DO NOT HAVE THE SETTINGS FILE');
+      }
     });
   }
 

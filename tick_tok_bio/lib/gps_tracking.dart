@@ -104,6 +104,7 @@ class MapsState extends State<Maps> {
   }
 
   void setSoundPref(bool soundSet) {
+    print('SOSOSOSO SOUNDS GETTING SET TO $soundSet');
     setState(() {
       soundsPresent = soundSet;
     });
@@ -240,6 +241,8 @@ class MapsState extends State<Maps> {
           wpts = new List<Wpt>();
           segments = new List<Trkseg>();
           segments.add(new Trkseg());
+          segmentData = new List<SegmentData>();
+          segmentData.add(new SegmentData());
           polylineCoordinates = [];
           trackingRoute = true;
           updateLocation();
@@ -538,7 +541,7 @@ class MapsState extends State<Maps> {
                   value: cancellationPopUpPresent == false ? currentVal : 0.0,
                   onChanged: (double val) {
                     setState(() {
-                      currentVal = 0;
+                      currentVal = val;
                     });
 
                     if (val == 10.0) {
@@ -611,23 +614,15 @@ class MapsState extends State<Maps> {
                 max: 10.0,
                 value: cancelDragVal,
                 onChanged: (newVal) {
-                  setState(() {
-                    if (markerViaTime == true) {
-                      timer.cancel();
-                    }
-                    trackingRoute = false;
-                    positionSubscription.cancel();
-                    polylineCoordinates.clear();
-                    cancellationPopUpPresent = false;
-                    cancelDragVal = 0.0;
-                    markerLis = [];
-                    lastDropPoint = null;
-                    afterFirstDrop = false;
-                    checkPointsCleared = 0;
-                    timerVisibility = false;
-                    positionMarker();
-                    autoCameraMoveVisibility = false;
-                  });
+                  if (newVal == 10.0) {
+                    setState(() {
+                      confirmationButton = true;
+                    });
+                  } else {
+                    setState(() {
+                      cancelDragVal = newVal;
+                    });
+                  }
                 },
                 onChangeEnd: (double endPoint) {
                   if (endPoint != 10.0) {
@@ -649,6 +644,9 @@ class MapsState extends State<Maps> {
               ),
               onPressed: () {
                 setState(() {
+                  if (markerViaTime == true) {
+                    timer.cancel();
+                  }
                   trackingRoute = false;
                   positionSubscription.cancel();
                   polylineCoordinates.clear();
@@ -657,6 +655,10 @@ class MapsState extends State<Maps> {
                   markerLis = [];
                   lastDropPoint = null;
                   afterFirstDrop = false;
+                  checkPointsCleared = 0;
+                  timerVisibility = false;
+                  positionMarker();
+                  autoCameraMoveVisibility = false;
                 });
               },
             ),
@@ -680,53 +682,51 @@ class MapsState extends State<Maps> {
             ? Text('Tracking in Progress')
             : Text('Tracking Not in Progress.'),
       ),
-      body: Stack(
-        children: <Widget>[
-          FlutterMap(
-            options: MapOptions(
-              center: LatLng(currentLat, currentLong),
-              zoom: zoomLevel,
+      body: Stack(children: <Widget>[
+        FlutterMap(
+          options: MapOptions(
+            center: LatLng(currentLat, currentLong),
+            zoom: zoomLevel,
+          ),
+          mapController: _mapController,
+          layers: [
+            TileLayerOptions(
+              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+              subdomains: ['a', 'b', 'c'],
             ),
-            mapController: _mapController,
-            layers: [
-              TileLayerOptions(
-                urlTemplate:
-                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                subdomains: ['a', 'b', 'c'],
-              ),
-              MarkerLayerOptions(
-                markers: markerLis != null
-                    ? markerLis
-                    : [
-                        Marker(
-                          width: 15.0,
-                          height: 15.0,
-                          point: currentLat != null
-                              ? LatLng(currentLat, currentLong)
-                              : LatLng(50.0, 50.0),
-                          builder: (build) => Container(
-                            child: Icon(
-                              Icons.my_location,
-                              color: Colors.blue,
-                              size: 30.0,
-                            ),
+            MarkerLayerOptions(
+              markers: markerLis != null
+                  ? markerLis
+                  : [
+                      Marker(
+                        width: 15.0,
+                        height: 15.0,
+                        point: currentLat != null
+                            ? LatLng(currentLat, currentLong)
+                            : LatLng(50.0, 50.0),
+                        builder: (build) => Container(
+                          child: Icon(
+                            Icons.my_location,
+                            color: Colors.blue,
+                            size: 30.0,
                           ),
                         ),
-                      ],
-              ),
-              PolylineLayerOptions(
-                polylines: [
-                  Polyline(
-                    strokeWidth: 5.0,
-                    color: Colors.lightBlue,
-                    borderColor: Colors.white,
-                    points: polylineCoordinates,
-                  )
-                ],
-              ),
-            ],
-          ),
-          Positioned(
+                      ),
+                    ],
+            ),
+            PolylineLayerOptions(
+              polylines: [
+                Polyline(
+                  strokeWidth: 5.0,
+                  color: Colors.lightBlue,
+                  borderColor: Colors.white,
+                  points: polylineCoordinates,
+                )
+              ],
+            ),
+          ],
+        ),
+        Positioned(
             bottom: 150.0,
             right: 10.0,
             child: IconButton(
@@ -741,80 +741,81 @@ class MapsState extends State<Maps> {
                   });
                 })),
         Positioned(
-            bottom: 100.0,
-            right: 10.0,
+          bottom: 100.0,
+          right: 10.0,
+          child: IconButton(
+            iconSize: 50.0,
+            icon: Icon(Icons.zoom_out),
+            onPressed: () {
+              setState(() {
+                zoomLevel -= 1;
+                _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
+              });
+            },
+          ),
+        ),
+        Positioned(
+          top: 15.0,
+          right: 10.0,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.all(
+                Radius.circular(10.0),
+              ),
+            ),
             child: IconButton(
-              iconSize: 50.0,
-              icon: Icon(Icons.zoom_out),
+              icon: Icon(Icons.location_on),
+              color: Colors.red,
               onPressed: () {
                 setState(() {
-                  zoomLevel -= 1;
-                  _mapController.move(
-                      LatLng(currentLat, currentLong), zoomLevel);
+                  getLoc();
                 });
               },
             ),
           ),
-          Positioned(
+        ),
+        Positioned(
+          bottom: 10.0,
+          left: 1.0,
+          right: 5.0,
+          child: startStop(),
+        ),
+        Visibility(
+          visible: trackingRoute == true ? true : false,
+          child: Positioned(
             top: 15.0,
-            right: 10.0,
+            left: 10.0,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Colors.blueGrey[100],
                 borderRadius: BorderRadius.all(
                   Radius.circular(10.0),
                 ),
+                border: Border.all(
+                  color: Colors.blueGrey[300],
+                  width: 1.3,
+                ),
               ),
               child: IconButton(
-                icon: Icon(Icons.location_on),
+                icon: Icon(Icons.close),
+                iconSize: 30.0,
                 color: Colors.red,
                 onPressed: () {
                   setState(() {
+                    confirmationButton = false;
+                    cancellationPopUpPresent = true;
                     getLoc();
+                    autoTrackingNonDrag();
                   });
                 },
               ),
             ),
           ),
-          Positioned(
-            bottom: 10.0,
-            left: 1.0,
-            right: 5.0,
-            child: startStop(),
-          ),
-          Visibility(
-            visible: trackingRoute == true ? true : false,
-            child: Positioned(
-              top: 15.0,
-              left: 10.0,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey[100],
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10.0),
-                  ),
-                  border: Border.all(
-                    color: Colors.blueGrey[300],
-                    width: 1.3,
-                  ),
-                ),
-                child: IconButton(
-                  icon: Icon(Icons.close),
-                  iconSize: 30.0,
-                  color: Colors.red,
-                  onPressed: () {
-                    setState(() {
-                      getLoc();
-                      autoTrackingNonDrag();
-                    });
-                  },
-                ),
-              ),
-            ),
-          ),
-          Visibility(
-            visible: trackingRoute == true ? true : false,
-            child: Positioned(
+        ),
+        Visibility(
+          visible: trackingRoute == true ? true : false,
+          child: Positioned(
               top: 100.0,
               right: 10.0,
               child: Container(
@@ -855,7 +856,10 @@ class MapsState extends State<Maps> {
                     }),
               ),
             )),
-        Visibility(visible: timerVisibility, child: Text(counter.toString())),
+        Visibility(
+          visible: timerVisibility,
+          child: Text(counter.toString()),
+        ),
         dragCancellationPopUp(),
         doneConfirmation(),
       ]),
