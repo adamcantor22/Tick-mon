@@ -65,7 +65,7 @@ class MapsState extends State<Maps> {
   bool autoCamerMove = false;
   bool autoCameraMoveVisibility = false;
   double timePmarker;
-  List<SegmentData> segmentData;
+  List<SegmentData> segmentData = [];
 
   void initState() {
     super.initState();
@@ -314,6 +314,9 @@ class MapsState extends State<Maps> {
                       color: Colors.red,
                     ),
                   )));
+          if (autoCamerMove == true) {
+            _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
+          }
         });
       }
     });
@@ -737,7 +740,7 @@ class MapsState extends State<Maps> {
                     zoomLevel += 1;
                     _mapController.move(
                         LatLng(currentLat, currentLong), zoomLevel);
-                    print(markerViaTime);
+                    print(trackingRoute);
                   });
                 })),
         Positioned(
@@ -836,7 +839,7 @@ class MapsState extends State<Maps> {
               )),
         ),
         Visibility(
-            visible: autoCameraMoveVisibility,
+            visible: true,
             child: Positioned(
               right: 10.0,
               top: 200.0,
