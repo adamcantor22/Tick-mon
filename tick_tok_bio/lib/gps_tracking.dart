@@ -805,8 +805,6 @@ class MapsState extends State<Maps> {
                   setState(() {
                     confirmationButton = false;
                     cancellationPopUpPresent = true;
-                    getLoc();
-                    autoTrackingNonDrag();
                   });
                 },
               ),
