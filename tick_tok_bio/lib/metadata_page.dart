@@ -1,15 +1,11 @@
-//import 'dart:html';
-//  import 'dart:html';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:tick_tok_bio/user_page.dart';
-import 'main.dart';
 import 'decorationInfo.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:convert';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'super_listener.dart';
 import 'helper.dart';
 import 'file_uploader.dart';
@@ -68,7 +64,6 @@ class MetadataSectionState extends State<MetadataSection> {
   String editingFilename;
   Weather curWeather;
   final _editKey = GlobalKey<FormState>();
-  //svar dropMenuItem = 'Habitat Type';
   bool changesMade;
   bool loadingData = false;
   bool celsius = false;
@@ -103,20 +98,6 @@ class MetadataSectionState extends State<MetadataSection> {
     'Moist (Heavy Rain Within 3 Days)',
     'Other',
   ];
-
-//  @override
-//  void dispose() {
-//    super.dispose();
-//    myController0.dispose();
-//    myController1.dispose();
-//    myController2.dispose();
-//    myController3.dispose();
-//    myController4.dispose();
-//    myController5.dispose();
-//    myController6.dispose();
-//    myController7.dispose();
-//    myController8.dispose();
-//  }
 
 //This inital state is set in order to give the dir value the proper path to the working directory through the program.
   //Also as fileName currently is drag1.json, this loads that as the file primed if you were to hit the add button.
@@ -219,18 +200,8 @@ class MetadataSectionState extends State<MetadataSection> {
     );
   }
 
-//I believe that this program is unnecessary as I kind of put its function in the getFile function
-//  void createFile(Map content, Directory dir, String fileName) {
-//    print('Creating File');
-//    File file = new File(dir.path + '/' + fileName);
-//    file.createSync();
-//    fileExists = true;
-//    file.writeAsStringSync(json.encode(content));
-//  }
-
   //This function is used to write the data which has been entered into the text fields and saves it in the JSON File.
   //this is done by updating the content in the var fileContent.
-
   void writeToFile(
     String filename,
     String key,
@@ -610,7 +581,6 @@ class MetadataSectionState extends State<MetadataSection> {
         padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
         color: Colors.grey[200],
         child: ListView(
-          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Padding(
               padding: EdgeInsets.only(bottom: 7.0),

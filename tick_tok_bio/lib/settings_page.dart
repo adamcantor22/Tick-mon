@@ -182,10 +182,13 @@ class SettingsState extends State<Settings> {
     return Scaffold(
       appBar: AppBar(
         title: Center(
-            child: Text(
-          'Settings',
-          style: TextStyle(fontSize: 30.0),
-        )),
+          child: Text(
+            'Settings',
+            style: TextStyle(
+              fontSize: 30.0,
+            ),
+          ),
+        ),
       ),
       body: Center(
         child: Column(children: [
