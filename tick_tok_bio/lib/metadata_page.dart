@@ -68,8 +68,6 @@ class MetadataSectionState extends State<MetadataSection> {
   bool loadingData = false;
   bool celsius = false;
 
-  bool get wantKeepAlive => true;
-
   List habitatList = <String>[
     'Field/Grass',
     'Forest Edge',
