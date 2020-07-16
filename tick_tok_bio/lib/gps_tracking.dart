@@ -575,7 +575,12 @@ class MapsState extends State<Maps> {
             top: 15.0,
             right: 10.0,
             child: Container(
-              color: Colors.blue,
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(10.0),
+                ),
+              ),
               child: IconButton(
                 icon: Icon(Icons.location_on),
                 color: Colors.red,
@@ -599,10 +604,19 @@ class MapsState extends State<Maps> {
               top: 15.0,
               left: 10.0,
               child: Container(
-                color: Colors.blueGrey[100],
+                decoration: BoxDecoration(
+                  color: Colors.blueGrey[100],
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  ),
+                  border: Border.all(
+                    color: Colors.blueGrey[300],
+                    width: 1.3,
+                  ),
+                ),
                 child: IconButton(
                   icon: Icon(Icons.close),
-                  iconSize: 40.0,
+                  iconSize: 30.0,
                   color: Colors.red,
                   onPressed: () {
                     setState(() {
@@ -620,7 +634,12 @@ class MapsState extends State<Maps> {
               top: 100.0,
               right: 10.0,
               child: Container(
-                color: Colors.blue,
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  ),
+                ),
                 child: IconButton(
                   icon: Icon(Icons.my_location),
                   onPressed: () {
