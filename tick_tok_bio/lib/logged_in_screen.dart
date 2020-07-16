@@ -62,6 +62,7 @@ class LoggedInScreenState extends State<LoggedInScreen> {
                     googleSignIn.signOut();
                     access = false;
                     Navigator.pushReplacementNamed(context, 'LoginScreen');
+                    SuperListener.cancelCurrentDrag();
                   });
                 },
                 child: Text(
@@ -93,31 +94,6 @@ class LoggedInScreenState extends State<LoggedInScreen> {
               ),
               SizedBox(
                 height: 100.0,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Fahrenheit',
-                    style: TextStyle(
-                      fontSize: 18.0,
-                    ),
-                  ),
-                  Switch(
-                    inactiveThumbColor: Colors.red,
-                    inactiveTrackColor: Colors.red[200],
-                    value: temperatureState,
-                    onChanged: (val) {
-                      SuperListener.tempCelsius(val);
-                    },
-                  ),
-                  Text(
-                    'Celsius',
-                    style: TextStyle(
-                      fontSize: 18.0,
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
