@@ -97,4 +97,8 @@ class SuperListener {
   static void cancelCurrentDrag() {
     mapPage.stepsToTerminateNDelete();
   }
+
+  static void setTimerVis(bool set) {
+    mapPage.setTimerVisibility(set);
+  }
 }

@@ -69,9 +69,9 @@ class MapsState extends State<Maps> {
 
   void initState() {
     super.initState();
-    getInitPos();
+    //getInitPos();
     //markerUpdate();
-    lastDropPoint = currentPosition;
+    //lastDropPoint = currentPosition;
     SuperListener.setPages(mPage: this);
     initPlayer();
     getLoc();
@@ -89,14 +89,7 @@ class MapsState extends State<Maps> {
       zoomLevel,
     );
     setState(() {
-      markerLis.add(Marker(
-          point: LatLng(pos.latitude, pos.longitude),
-          builder: (build) => Container(
-                child: Icon(
-                  Icons.location_on,
-                  color: Colors.red,
-                ),
-              )));
+      markerLis.add(userLocationMarkerFunc());
       currentPosition = pos;
       currentLat = pos.latitude;
       currentLong = pos.longitude;
@@ -125,6 +118,12 @@ class MapsState extends State<Maps> {
   void setTimeOfMarker(double time) {
     setState(() {
       timePmarker = time;
+    });
+  }
+
+  void setTimerVisibility(bool setting) {
+    setState(() {
+      timerVisibility = setting;
     });
   }
 
@@ -157,25 +156,25 @@ class MapsState extends State<Maps> {
         afterFirstDrop = false;
         checkPointsCleared = 0;
         timerVisibility = false;
-        positionMarker();
+        markerLis.clear();
         autoCameraMoveVisibility = false;
       });
     }
   }
 
-  void positionMarker() {
-    setState(() {
-      markerLis.clear();
-      markerLis.add(Marker(
-          point: LatLng(currentLat, currentLong),
-          builder: (build) => Container(
-                child: Icon(
-                  Icons.location_on,
-                  color: Colors.red,
-                ),
-              )));
-    });
-  }
+//  void positionMarker() {
+//    setState(() {
+//      markerLis.clear();
+//      markerLis.add(Marker(
+//          point: LatLng(currentLat, currentLong),
+//          builder: (build) => Container(
+//                child: Icon(
+//                  Icons.location_on,
+//                  color: Colors.red,
+//                ),
+//              )));
+//    });
+//  }
 
   //This is the filename for the gpx files, created to be the current datetime
   String currentTime() {
@@ -282,8 +281,8 @@ class MapsState extends State<Maps> {
         desiredAccuracy: LocationAccuracy.best);
 
     setState(() {
-      currentLat = position.latitude;
-      currentLong = position.longitude;
+//      currentLat = position.latitude;
+//      currentLong = position.longitude;
       currentPosition = position;
       _mapController.move(
           LatLng(currentPosition.latitude, currentPosition.longitude),
@@ -306,14 +305,7 @@ class MapsState extends State<Maps> {
           currentLat = cPos.latitude;
           currentLong = cPos.longitude;
           markerLis.clear();
-          markerLis.add(Marker(
-              point: LatLng(currentLat, currentLong),
-              builder: (build) => Container(
-                    child: Icon(
-                      Icons.location_on,
-                      color: Colors.red,
-                    ),
-                  )));
+          markerLis.add(userLocationMarkerFunc());
           if (autoCamerMove == true) {
             _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
           }
@@ -347,7 +339,14 @@ class MapsState extends State<Maps> {
         wpts.add(pt);
         polylineCoordinates
             .add(LatLng(currentPosition.latitude, currentPosition.longitude));
-        autoMarking == true ? markerUpdate() : print('No Auto Mark');
+
+        if (markerLis.length > 0) {
+          markerLis.removeLast();
+        }
+        markerLis.add(userLocationMarkerFunc());
+        if (autoMarking == true) {
+          markerUpdate();
+        }
       });
     });
   }
@@ -382,7 +381,7 @@ class MapsState extends State<Maps> {
                 markerLis.clear();
                 lastDropPoint = null;
                 checkPointsCleared = 0;
-                positionMarker();
+                //Possibly add something
                 autoCameraMoveVisibility = false;
               });
             },
@@ -401,8 +400,36 @@ class MapsState extends State<Maps> {
     );
   }
 
+  Marker userLocationMarkerFunc() {
+    return Marker(
+      height: 15.0,
+      width: 15.0,
+      point: LatLng(currentPosition.latitude, currentPosition.longitude),
+      builder: (build) => Container(
+        child: Icon(
+          Icons.my_location,
+          color: Colors.red,
+        ),
+      ),
+    );
+  }
+
+  Marker droppedMarkerFunc() {
+    return Marker(
+      height: 15.0,
+      width: 15.0,
+      point: LatLng(currentPosition.latitude, currentPosition.longitude),
+      builder: (build) => Container(
+        child: Icon(
+          Icons.location_on,
+          color: Colors.black,
+        ),
+      ),
+    );
+  }
+
   void markerUpdate() async {
-    checkPointsPerMarker = (distancePerMarker ~/ 5);
+    checkPointsPerMarker = (distancePerMarker ~/ 2);
     if (afterFirstDrop == false) {
       lastDropPoint = await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
@@ -431,21 +458,9 @@ class MapsState extends State<Maps> {
 
             dropTrackBreakPoint();
             setState(() {
-              print('PLace Marker');
-              markerLis.add(
-                Marker(
-                  height: 15.0,
-                  width: 15.0,
-                  point: LatLng(
-                      currentPosition.latitude, currentPosition.longitude),
-                  builder: (build) => Container(
-                    child: Icon(
-                      Icons.my_location,
-                      color: Colors.red,
-                    ),
-                  ),
-                ),
-              );
+//              markerLis.removeLast();
+//              markerLis.add(droppedMarkerFunc());
+//              markerLis.add(userLocationMarkerFunc());
               lastDropPoint = currentPosition;
             });
           }
@@ -460,20 +475,9 @@ class MapsState extends State<Maps> {
           dropTrackBreakPoint();
           setState(() {
             print('PLace Marker');
-            markerLis.add(
-              Marker(
-                height: 15.0,
-                width: 15.0,
-                point:
-                    LatLng(currentPosition.latitude, currentPosition.longitude),
-                builder: (build) => Container(
-                  child: Icon(
-                    Icons.my_location,
-                    color: Colors.red,
-                  ),
-                ),
-              ),
-            );
+//            markerLis.removeLast();
+//            markerLis.add(droppedMarkerFunc());
+//            markerLis.add(userLocationMarkerFunc());
             lastDropPoint = currentPosition;
           });
         }
@@ -485,19 +489,9 @@ class MapsState extends State<Maps> {
     dropTrackBreakPoint();
     setState(() {
       checkPointsCleared = 0;
-      markerLis.add(
-        Marker(
-          height: 15.0,
-          width: 15.0,
-          point: LatLng(currentPosition.latitude, currentPosition.longitude),
-          builder: (build) => Container(
-            child: Icon(
-              Icons.my_location,
-              color: Colors.green,
-            ),
-          ),
-        ),
-      );
+      markerLis.removeLast();
+      markerLis.add(droppedMarkerFunc());
+      markerLis.add(userLocationMarkerFunc());
     });
     showDialog(
       context: context,
@@ -520,7 +514,6 @@ class MapsState extends State<Maps> {
         onPressed: () {
           if (!trackingRoute) {
             startNewRoute();
-            markerLis.clear();
           } else {
             finishRoute();
             setState(() {});
@@ -660,7 +653,7 @@ class MapsState extends State<Maps> {
                   afterFirstDrop = false;
                   checkPointsCleared = 0;
                   timerVisibility = false;
-                  positionMarker();
+                  //positionMarker();
                   autoCameraMoveVisibility = false;
                 });
               },
@@ -757,27 +750,27 @@ class MapsState extends State<Maps> {
             },
           ),
         ),
-        Positioned(
-          top: 15.0,
-          right: 10.0,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.all(
-                Radius.circular(10.0),
-              ),
-            ),
-            child: IconButton(
-              icon: Icon(Icons.location_on),
-              color: Colors.red,
-              onPressed: () {
-                setState(() {
-                  getLoc();
-                });
-              },
-            ),
-          ),
-        ),
+//        Positioned(
+//          top: 15.0,
+//          right: 10.0,
+//          child: Container(
+//            decoration: BoxDecoration(
+//              color: Colors.blue,
+//              borderRadius: BorderRadius.all(
+//                Radius.circular(10.0),
+//              ),
+//            ),
+//            child: IconButton(
+//              icon: Icon(Icons.location_on),
+//              color: Colors.red,
+//              onPressed: () {
+//                setState(() {
+//                  getLoc();
+//                });
+//              },
+//            ),
+//          ),
+//        ),
         Positioned(
           bottom: 10.0,
           left: 1.0,
@@ -842,7 +835,7 @@ class MapsState extends State<Maps> {
             visible: true,
             child: Positioned(
               right: 10.0,
-              top: 200.0,
+              top: 15.0,
               child: Container(
                 color: Colors.blue,
                 child: IconButton(
@@ -858,8 +851,15 @@ class MapsState extends State<Maps> {
               ),
             )),
         Visibility(
-          visible: timerVisibility,
-          child: Text(counter.toString()),
+          visible: markerViaTime && trackingRoute == true ? true : false,
+          child: Positioned(
+            right: 10.0,
+            bottom: 30.0,
+            child: Text(
+              counter.toString(),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+            ),
+          ),
         ),
         dragCancellationPopUp(),
         doneConfirmation(),
