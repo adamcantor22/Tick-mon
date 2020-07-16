@@ -83,6 +83,8 @@ class MapsState extends State<Maps> {
     lastDropPoint = currentPosition;
     SuperListener.setPages(mPage: this);
     initPlayer();
+    getLoc();
+    autoTrackingNonDrag();
   }
 
   void getInitPos() async {
@@ -287,16 +289,16 @@ class MapsState extends State<Maps> {
           zoomLevel);
       if (trackingRoute == false) {
         markerLis.clear();
-        markerLis.add(Marker(
-            height: 15.0,
-            width: 15.0,
-            point: LatLng(currentPosition.latitude, currentPosition.longitude),
-            builder: (build) => Container(
-                  child: Icon(
-                    Icons.location_on,
-                    color: Colors.red,
-                  ),
-                )));
+//        markerLis.add(Marker(
+//            height: 15.0,
+//            width: 15.0,
+//            point: LatLng(currentPosition.latitude, currentPosition.longitude),
+//            builder: (build) => Container(
+//                  child: Icon(
+//                    Icons.location_on,
+//                    color: Colors.red,
+//                  ),
+//                )));
       }
 
 //      polylineCoordinates.add(LatLng(currentLat, currentLong));
@@ -311,18 +313,21 @@ class MapsState extends State<Maps> {
     );
     positionSubscription =
         locator.getPositionStream(opt).listen((Position cPos) {
-      setState(() {
-        currentLat = cPos.latitude;
-        currentLong = cPos.longitude;
-        markerLis[0] = Marker(
-            point: LatLng(currentLat, currentLong),
-            builder: (build) => Container(
-                  child: Icon(
-                    Icons.location_on,
-                    color: Colors.red,
-                  ),
-                ));
-      });
+      if (trackingRoute == false) {
+        setState(() {
+          currentLat = cPos.latitude;
+          currentLong = cPos.longitude;
+          markerLis.clear();
+          markerLis.add(Marker(
+              point: LatLng(currentLat, currentLong),
+              builder: (build) => Container(
+                    child: Icon(
+                      Icons.location_on,
+                      color: Colors.red,
+                    ),
+                  )));
+        });
+      }
     });
   }
 
@@ -742,6 +747,7 @@ class MapsState extends State<Maps> {
                   onPressed: () {
                     setState(() {
                       getLoc();
+                      autoTrackingNonDrag();
                     });
                   }),
             )),
