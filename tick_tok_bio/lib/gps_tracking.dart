@@ -503,7 +503,7 @@ class MapsState extends State<Maps> {
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return HelperText(0, context);
+        return HelperText(segmentData.length - 1, context);
       },
     );
   }

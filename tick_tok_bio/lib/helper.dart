@@ -112,7 +112,7 @@ class _HelperTextState extends State<HelperText> {
           child: tmpField,
         ),
         SizedBox(
-          width: 10.0,
+          width: 15.0,
         ),
         Flexible(
           flex: 4,
@@ -143,32 +143,65 @@ class _HelperTextState extends State<HelperText> {
 
     return AlertDialog(
       title: Text('Segment $segment Metadata'),
+      contentPadding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 2.0),
       content: Form(
         key: formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: fieldRows,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: fieldRows,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                IconButton(
+                  padding: EdgeInsets.all(0.0),
+                  icon: Icon(Icons.add),
+                  color: Colors.green,
+                  onPressed: () {
+                    setState(() {
+                      newField();
+                    });
+                  },
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+                FlatButton(
+                  onPressed: () {
+                    if (formKey.currentState.validate()) {
+                      print('pressed');
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: Text(
+                    'Submit',
+                    style: TextStyle(
+                      color: Colors.blueAccent,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.add),
-          onPressed: () {
-            setState(() {
-              newField();
-            });
-          },
-        ),
-        FlatButton(
-          onPressed: () {
-            if (formKey.currentState.validate()) {
-              print('pressed');
-              Navigator.of(context).pop();
-            }
-          },
-          child: Text('Submit'),
-        ),
-      ],
     );
   }
 
