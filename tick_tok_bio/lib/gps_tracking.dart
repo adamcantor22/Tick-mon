@@ -879,7 +879,11 @@ class MapsState extends State<Maps> {
               ),
             )),
         Visibility(
-          visible: markerViaTime && trackingRoute == true ? true : false,
+          visible: markerViaTime == true &&
+                  trackingRoute == true &&
+                  autoMarking == true
+              ? true
+              : false,
           child: Positioned(
             right: 10.0,
             bottom: 30.0,

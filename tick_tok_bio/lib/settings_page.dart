@@ -436,8 +436,7 @@ class SettingsState extends State<Settings> {
           FlatButton(
               onPressed: () {
                 setState(() {
-                  //notesUp = true;
-                  settingsChecker();
+                  notesUp = true;
                 });
               },
               child: Text('Notes for Users')),

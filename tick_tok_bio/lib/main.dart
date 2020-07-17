@@ -41,6 +41,7 @@ class HomePageState extends State<HomePage> {
   LoggedInScreen loggedInPage = LoggedInScreen();
   UserPage userPage = UserPage();
   Settings settings = Settings();
+  int priorIndex;
 
   int pageIndex = 0;
 
@@ -115,8 +116,16 @@ class HomePageState extends State<HomePage> {
     return BottomNavigationBar(
       onTap: (int index) {
         setState(() {
-          pageIndex = index;
-          SuperListener.checkSettings();
+          if (pageIndex == 1 && trackingRoute == true && index == 3) {
+            print('Drag must be finished prior');
+          } else {
+            pageIndex = index;
+          }
+          if (priorIndex == 3) {
+            SuperListener.checkSettings();
+          }
+
+          priorIndex = index;
         });
       },
       currentIndex: pageIndex,
