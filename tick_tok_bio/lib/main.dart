@@ -113,7 +113,12 @@ class HomePageState extends State<HomePage> {
 
   Widget _bottomNavBar() {
     return BottomNavigationBar(
-      onTap: (int index) => setState(() => pageIndex = index),
+      onTap: (int index) {
+        setState(() {
+          pageIndex = index;
+          SuperListener.checkSettings();
+        });
+      },
       currentIndex: pageIndex,
       backgroundColor: Colors.blue,
       type: BottomNavigationBarType.fixed,

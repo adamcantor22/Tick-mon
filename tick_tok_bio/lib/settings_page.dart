@@ -1,3 +1,4 @@
+//import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:tick_tok_bio/metadata_page.dart';
 import 'package:tick_tok_bio/super_listener.dart';
@@ -73,6 +74,60 @@ class SettingsState extends State<Settings> {
       selectedDistancePerMarker = fileContentSettings['Distance'];
       selectedTimePerMarker = fileContentSettings['Time'];
     });
+  }
+
+  showAlertDialog(BuildContext context) {
+    Widget applyChanges = FlatButton(
+        onPressed: () {
+          setState(() {
+            configureMapState();
+            writeToFile(soundOn, temperatureState, autoMarker, timeTracking,
+                selectedDistancePerMarker, selectedTimePerMarker);
+            Navigator.pop(context);
+          });
+        },
+        child: Text('Apply Changes'));
+
+    Widget cancel = FlatButton(
+        onPressed: () {
+          setState(() {
+            configureSettings();
+            configureMapState();
+            Navigator.pop(context);
+          });
+        },
+        child: Text('Cancel My Changes'));
+
+    AlertDialog alert = AlertDialog(
+      title: Text(
+          'You have not saved the changes you have made to the settings page'),
+      actions: [applyChanges, cancel],
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        });
+  }
+
+  void settingsChecker() {
+    print('Settings checker has been called');
+    if (fileContentSettings['Sound'] != soundOn) {
+      showAlertDialog(context);
+      print('OOOH');
+    } else if (fileContentSettings['TempStatus'] != temperatureState) {
+      showAlertDialog(context);
+    } else if (fileContentSettings['Auto-Marker'] != autoMarker) {
+      showAlertDialog(context);
+    } else if (fileContentSettings['TimeTracking'] != timeTracking) {
+      showAlertDialog(context);
+    } else if (fileContentSettings['Distance'] != selectedDistancePerMarker) {
+      showAlertDialog(context);
+    } else if (fileContentSettings['Time'] != selectedTimePerMarker) {
+      showAlertDialog(context);
+    }
+    //if(fileContentSettings['TempStatus'] != )
   }
 
   void createFile(Map<dynamic, dynamic> content) {
@@ -381,7 +436,8 @@ class SettingsState extends State<Settings> {
           FlatButton(
               onPressed: () {
                 setState(() {
-                  notesUp = true;
+                  //notesUp = true;
+                  settingsChecker();
                 });
               },
               child: Text('Notes for Users')),

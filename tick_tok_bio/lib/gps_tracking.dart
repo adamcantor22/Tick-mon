@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -64,8 +65,19 @@ class MapsState extends State<Maps> {
   bool timerVisibility = false;
   bool autoCamerMove = false;
   bool autoCameraMoveVisibility = false;
-  double timePmarker;
+  double timePmarker = 1.0;
   List<SegmentData> segmentData = [];
+  int c = 0;
+  List markerColors = [
+    Colors.black,
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.brown,
+    Colors.amber
+  ];
+  int markerColorsIndex = 0;
+  Random ranGen = Random();
 
   void initState() {
     super.initState();
@@ -118,12 +130,6 @@ class MapsState extends State<Maps> {
   void setTimeOfMarker(double time) {
     setState(() {
       timePmarker = time;
-    });
-  }
-
-  void setTimerVisibility(bool setting) {
-    setState(() {
-      timerVisibility = setting;
     });
   }
 
@@ -281,8 +287,8 @@ class MapsState extends State<Maps> {
         desiredAccuracy: LocationAccuracy.best);
 
     setState(() {
-//      currentLat = position.latitude;
-//      currentLong = position.longitude;
+      currentLat = position.latitude;
+      currentLong = position.longitude;
       currentPosition = position;
       _mapController.move(
           LatLng(currentPosition.latitude, currentPosition.longitude),
@@ -300,16 +306,19 @@ class MapsState extends State<Maps> {
     );
     positionSubscription =
         locator.getPositionStream(opt).listen((Position cPos) {
+      c += 1;
       if (trackingRoute == false) {
-        setState(() {
-          currentLat = cPos.latitude;
-          currentLong = cPos.longitude;
-          markerLis.clear();
-          markerLis.add(userLocationMarkerFunc());
-          if (autoCamerMove == true) {
-            _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
-          }
-        });
+        if (c > 4) {
+          setState(() {
+            currentLat = cPos.latitude;
+            currentLong = cPos.longitude;
+            markerLis.clear();
+            markerLis.add(userLocationMarkerFunc());
+            if (autoCamerMove == true) {
+              _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
+            }
+          });
+        }
       }
     });
   }
@@ -400,6 +409,13 @@ class MapsState extends State<Maps> {
     );
   }
 
+  dynamic getRandColor() {
+    int myNum = ranGen.nextInt(markerColors.length);
+    print(myNum);
+    Color myColor = markerColors[myNum];
+    return myColor;
+  }
+
   Marker userLocationMarkerFunc() {
     return Marker(
       height: 15.0,
@@ -414,7 +430,13 @@ class MapsState extends State<Maps> {
     );
   }
 
+  dynamic colorChooser(int num) {
+    if (num == 0) {}
+  }
+
   Marker droppedMarkerFunc() {
+    //int myColor = colorNum;
+
     return Marker(
       height: 15.0,
       width: 15.0,
@@ -422,7 +444,7 @@ class MapsState extends State<Maps> {
       builder: (build) => Container(
         child: Icon(
           Icons.location_on,
-          color: Colors.black,
+          color: getRandColor(),
         ),
       ),
     );
@@ -493,6 +515,12 @@ class MapsState extends State<Maps> {
       markerLis.add(droppedMarkerFunc());
       markerLis.add(userLocationMarkerFunc());
     });
+
+    markerColorsIndex += 1;
+    if (markerColorsIndex == 5) {
+      markerColorsIndex = 0;
+    }
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -733,7 +761,7 @@ class MapsState extends State<Maps> {
                     zoomLevel += 1;
                     _mapController.move(
                         LatLng(currentLat, currentLong), zoomLevel);
-                    print(trackingRoute);
+                    getRandColor();
                   });
                 })),
         Positioned(
