@@ -3,7 +3,7 @@
  */
 
 import 'package:flutter/material.dart';
-import 'gps_tracking.dart';
+import 'super_listener.dart';
 import 'decorationInfo.dart';
 
 class Helper {
@@ -63,6 +63,7 @@ class _HelperTextState extends State<HelperText> {
   BuildContext cont;
   List<Widget> fieldRows;
   List<TextEditingController> controllers;
+  List<TextEditingController> drops;
   List<DropdownMenuItem<String>> items;
   List<String> dropdownItems = [
     'Blacklegged',
@@ -78,6 +79,7 @@ class _HelperTextState extends State<HelperText> {
     super.initState();
     controllers = new List<TextEditingController>();
     fieldRows = new List<Widget>();
+    drops = new List<TextEditingController>();
     items = dropdownItems.map<DropdownMenuItem<String>>((String value) {
       return DropdownMenuItem<String>(
         value: value,
@@ -90,9 +92,11 @@ class _HelperTextState extends State<HelperText> {
   void newField() {
     setState(() {
       controllers.add(new TextEditingController());
+      drops.add(new TextEditingController());
     });
 
     TextFormField tmpField = TextFormField(
+      keyboardType: TextInputType.number,
       decoration: kTextFieldDecoration,
       controller: controllers[controllers.length - 1],
       validator: (val) => valid(val),
@@ -102,6 +106,7 @@ class _HelperTextState extends State<HelperText> {
       items: items,
       onChanged: (val) {
         print(val);
+        drops[drops.length - 1].text = val;
       },
     );
     Row tmpRow = Row(
@@ -136,6 +141,14 @@ class _HelperTextState extends State<HelperText> {
       return 'Enter Data';
     }
     return null;
+  }
+
+  void storeTextData() {
+    Map<String, int> map = new Map<String, int>();
+    for (int i = 0; i < drops.length; i++) {
+      map[drops[i].text] = int.parse(controllers[i].text);
+    }
+    SuperListener.addTickSegmentData(map);
   }
 
   Widget segmentTextDialog(int segment, BuildContext context) {
@@ -186,7 +199,7 @@ class _HelperTextState extends State<HelperText> {
                 FlatButton(
                   onPressed: () {
                     if (formKey.currentState.validate()) {
-                      print('pressed');
+                      storeTextData();
                       Navigator.of(context).pop();
                     }
                   },

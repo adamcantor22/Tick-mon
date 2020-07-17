@@ -16,4 +16,12 @@ class SegmentData {
       ticks[type] = n;
     }
   }
+
+  String toString() {
+    String ret = '';
+    ticks.forEach((key, value) {
+      ret += '"$key": $value,';
+    });
+    return ret;
+  }
 }

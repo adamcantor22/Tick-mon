@@ -67,6 +67,7 @@ class MetadataSectionState extends State<MetadataSection> {
   bool changesMade;
   bool loadingData = false;
   bool celsius = false;
+  String segmentedTickData;
 
   List habitatList = <String>[
     'Field/Grass',
@@ -222,6 +223,8 @@ class MetadataSectionState extends State<MetadataSection> {
     String value7,
     String key8,
     String value8,
+    String key9,
+    String value9,
   ) {
     print('Writing to File');
     Map<String, String> content = {
@@ -234,6 +237,7 @@ class MetadataSectionState extends State<MetadataSection> {
       key6: value6,
       key7: value7,
       key8: value8,
+      key9: value9,
       'visible': 'true',
     };
     print(value1);
@@ -504,6 +508,10 @@ class MetadataSectionState extends State<MetadataSection> {
     fileContent['Humidity'] = curWeather.humidity.toString();
     fileContent['Name'] = name;
     return b;
+  }
+
+  void sendSegmentedTickData(String data) {
+    segmentedTickData = data;
   }
 
   void tempCelsius(bool state) {
@@ -829,6 +837,8 @@ class MetadataSectionState extends State<MetadataSection> {
                         myController7.text,
                         'Notes',
                         myController8.text,
+                        'Ticks',
+                        segmentedTickData,
                       );
                       sendJsonToCloud();
                       drags();

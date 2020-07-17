@@ -266,6 +266,7 @@ class MapsState extends State<Maps> {
     await playSound('end.mp3');
 
     WeatherTracker.updateLocation(currentPosition);
+    String tickData = getJSONTickData();
     storeRouteInformation();
 
     setState(() {
@@ -274,6 +275,16 @@ class MapsState extends State<Maps> {
       polylineCoordinates.clear();
     });
     SuperListener.moveAndCreateDrag(latestFilename);
+    SuperListener.sendTickData(tickData);
+  }
+
+  String getJSONTickData() {
+    String ret = '[';
+    for (int i = 1; i <= segmentData.length; i++) {
+      ret += '"Segment$i": {"${segmentData[i - 1].toString()}"},';
+    }
+    ret += ']';
+    return ret;
   }
 
   void getLoc() async {
