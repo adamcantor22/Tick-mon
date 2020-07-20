@@ -90,19 +90,20 @@ class _HelperTextState extends State<HelperText> {
   }
 
   void newField() {
+    int setText = 0;
     setState(() {
       controllers.add(new TextEditingController());
-      drops.add(new TextEditingController());
+      drops.add(new TextEditingController(text: dropdownItems[setText]));
     });
 
     TextFormField tmpField = TextFormField(
       keyboardType: TextInputType.number,
       decoration: kTextFieldDecoration,
       controller: controllers[controllers.length - 1],
-      validator: (val) => valid(val),
+      validator: (val) => valid(controllers[controllers.length - 1].text),
     );
     DropdownButtonFormField tmpDrop = DropdownButtonFormField(
-      value: dropdownItems[0],
+      value: drops[drops.length - 1].text,
       items: items,
       onChanged: (val) {
         print(val);
@@ -173,11 +174,15 @@ class _HelperTextState extends State<HelperText> {
                 IconButton(
                   padding: EdgeInsets.all(0.0),
                   icon: Icon(Icons.add),
-                  color: Colors.green,
+                  color: drops.length < dropdownItems.length
+                      ? Colors.green
+                      : Colors.grey,
                   onPressed: () {
-                    setState(() {
-                      newField();
-                    });
+                    if (drops.length < dropdownItems.length) {
+                      setState(() {
+                        newField();
+                      });
+                    }
                   },
                 ),
               ],
@@ -198,7 +203,26 @@ class _HelperTextState extends State<HelperText> {
                 ),
                 FlatButton(
                   onPressed: () {
-                    if (formKey.currentState.validate()) {
+                    bool passes = true;
+                    for (int i = 0; i < drops.length - 1; i++) {
+                      for (int j = i + 1; j < drops.length; j++) {
+                        if (drops[i].text == drops[j].text) {
+                          passes = false;
+                          break;
+                        }
+                      }
+                      if (!passes) break;
+                    }
+
+                    if (!passes) {
+                      showDialog(
+                        context: cont,
+                        builder: (cont) => Helper().message(
+                          'A tick type has been listed more than once.',
+                          cont,
+                        ),
+                      );
+                    } else if (formKey.currentState.validate()) {
                       storeTextData();
                       Navigator.of(context).pop();
                     }

@@ -67,7 +67,7 @@ class MetadataSectionState extends State<MetadataSection> {
   bool changesMade;
   bool loadingData = false;
   bool celsius = false;
-  String segmentedTickData;
+  List<Map<String, int>> segmentedTickData;
 
   List habitatList = <String>[
     'Field/Grass',
@@ -224,10 +224,10 @@ class MetadataSectionState extends State<MetadataSection> {
     String key8,
     String value8,
     String key9,
-    String value9,
+    List<Map<String, int>> value9,
   ) {
     print('Writing to File');
-    Map<String, String> content = {
+    Map<String, dynamic> content = {
       key: value,
       key1: value1,
       key2: value2,
@@ -240,7 +240,6 @@ class MetadataSectionState extends State<MetadataSection> {
       key9: value9,
       'visible': 'true',
     };
-    print(value1);
     if (fileExists) {
       print('File Exists');
       Map<String, dynamic> jsonFileContents =
@@ -510,7 +509,7 @@ class MetadataSectionState extends State<MetadataSection> {
     return b;
   }
 
-  void sendSegmentedTickData(String data) {
+  void sendSegmentedTickData(List<Map<String, int>> data) {
     segmentedTickData = data;
   }
 

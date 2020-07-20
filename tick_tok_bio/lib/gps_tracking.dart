@@ -266,7 +266,7 @@ class MapsState extends State<Maps> {
     await playSound('end.mp3');
 
     WeatherTracker.updateLocation(currentPosition);
-    String tickData = getJSONTickData();
+    List<Map<String, int>> tickData = getJSONTickData();
     storeRouteInformation();
 
     setState(() {
@@ -278,13 +278,14 @@ class MapsState extends State<Maps> {
     SuperListener.sendTickData(tickData);
   }
 
-  String getJSONTickData() {
-    String ret = '[';
+  List<Map<String, int>> getJSONTickData() {
+    if (segmentData[segmentData.length - 1].isEmpty())
+      segmentData.removeAt(segmentData.length - 1);
+    List<Map<String, int>> obj = new List<Map<String, int>>();
     for (int i = 1; i <= segmentData.length; i++) {
-      ret += '"Segment$i": {"${segmentData[i - 1].toString()}"},';
+      obj.add(segmentData[i - 1].getData());
     }
-    ret += ']';
-    return ret;
+    return obj;
   }
 
   void getLoc() async {
@@ -365,7 +366,6 @@ class MapsState extends State<Maps> {
 
   void dropTrackBreakPoint() {
     segments.add(new Trkseg());
-    segmentData.add(new SegmentData());
   }
 
   Widget doneConfirmation() {
@@ -521,6 +521,7 @@ class MapsState extends State<Maps> {
 
   void storeSegmentData(Map<String, int> map) {
     segmentData[segmentData.length - 1].addTickData(map: map);
+    segmentData.add(new SegmentData());
   }
 
   Widget startStop() {

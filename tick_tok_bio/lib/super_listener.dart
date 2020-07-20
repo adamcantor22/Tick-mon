@@ -55,7 +55,7 @@ class SuperListener {
     dataPage.createNewDrag(filename);
   }
 
-  static void sendTickData(String data) {
+  static void sendTickData(List<Map<String, int>> data) {
     dataPage.sendSegmentedTickData(data);
   }
 

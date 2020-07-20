@@ -17,11 +17,11 @@ class SegmentData {
     }
   }
 
-  String toString() {
-    String ret = '';
-    ticks.forEach((key, value) {
-      ret += '"$key": $value,';
-    });
-    return ret;
+  Map<String, int> getData() {
+    return ticks;
+  }
+
+  bool isEmpty() {
+    return ticks.isEmpty;
   }
 }
