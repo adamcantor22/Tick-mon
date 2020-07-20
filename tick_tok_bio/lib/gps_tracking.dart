@@ -18,6 +18,7 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong/latlong.dart';
 import 'package:tick_tok_bio/settings_page.dart';
 import 'segment_data.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 bool trackingRoute = false;
 
@@ -68,14 +69,6 @@ class MapsState extends State<Maps> {
   double timePmarker = 1.0;
   List<SegmentData> segmentData = [];
   int c = 0;
-  List markerColors = [
-    Colors.black,
-    Colors.blue,
-    Colors.green,
-    Colors.orange,
-    Colors.brown,
-    Colors.amber
-  ];
   int markerColorsIndex = 0;
   Random ranGen = Random();
 
@@ -278,6 +271,7 @@ class MapsState extends State<Maps> {
       positionSubscription.cancel();
       polylineCoordinates.clear();
     });
+    SuperListener.settingTickNum();
     SuperListener.moveAndCreateDrag(latestFilename);
   }
 
@@ -293,9 +287,7 @@ class MapsState extends State<Maps> {
       _mapController.move(
           LatLng(currentPosition.latitude, currentPosition.longitude),
           zoomLevel);
-      if (trackingRoute == false) {
-        markerLis.clear();
-      }
+      markerLis.add(userLocationMarkerFunc());
     });
   }
 
@@ -409,22 +401,22 @@ class MapsState extends State<Maps> {
     );
   }
 
-  dynamic getRandColor() {
-    int myNum = ranGen.nextInt(markerColors.length);
-    print(myNum);
-    Color myColor = markerColors[myNum];
-    return myColor;
-  }
+//  dynamic getRandColor() {
+//    int myNum = ranGen.nextInt(markerColors.length);
+//    print(myNum);
+//    Color myColor = markerColors[myNum];
+//    return myColor;
+//  }
 
   Marker userLocationMarkerFunc() {
     return Marker(
       height: 15.0,
       width: 15.0,
-      point: LatLng(currentPosition.latitude, currentPosition.longitude),
+      point: LatLng(currentLat, currentLong),
       builder: (build) => Container(
         child: Icon(
-          Icons.my_location,
-          color: Colors.red,
+          Icons.adjust,
+          size: 20.0,
         ),
       ),
     );
@@ -444,7 +436,7 @@ class MapsState extends State<Maps> {
       builder: (build) => Container(
         child: Icon(
           Icons.location_on,
-          color: getRandColor(),
+          color: Colors.red,
         ),
       ),
     );
@@ -473,10 +465,7 @@ class MapsState extends State<Maps> {
           print('CheckPoint Cleared');
           if (checkPointsCleared == checkPointsPerMarker) {
             checkPointsCleared = 0;
-
-            if (soundsPresent == true) {
-              player.play('/sounds/bell.mp3');
-            }
+            player.play('/sounds/bell.mp3');
 
             dropTrackBreakPoint();
             setState(() {
@@ -718,26 +707,26 @@ class MapsState extends State<Maps> {
               urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
               subdomains: ['a', 'b', 'c'],
             ),
-            MarkerLayerOptions(
-              markers: markerLis != null
-                  ? markerLis
-                  : [
-                      Marker(
-                        width: 15.0,
-                        height: 15.0,
-                        point: currentLat != null
-                            ? LatLng(currentLat, currentLong)
-                            : LatLng(50.0, 50.0),
-                        builder: (build) => Container(
-                          child: Icon(
-                            Icons.my_location,
-                            color: Colors.blue,
-                            size: 30.0,
-                          ),
-                        ),
-                      ),
-                    ],
-            ),
+            MarkerLayerOptions(markers: markerLis
+//              markers: markerLis != null
+//                  ? markerLis
+//                  : [
+//                      Marker(
+//                        width: 15.0,
+//                        height: 15.0,
+//                        point: currentLat != null
+//                            ? LatLng(currentLat, currentLong)
+//                            : LatLng(50.0, 50.0),
+//                        builder: (build) => Container(
+//                          child: Icon(
+//                            Icons.my_location,
+//                            color: Colors.blue,
+//                            size: 30.0,
+//                          ),
+//                        ),
+//                      ),
+                // ],
+                ),
             PolylineLayerOptions(
               polylines: [
                 Polyline(
@@ -761,7 +750,7 @@ class MapsState extends State<Maps> {
                     zoomLevel += 1;
                     _mapController.move(
                         LatLng(currentLat, currentLong), zoomLevel);
-                    getRandColor();
+                    //getRandColor();
                   });
                 })),
         Positioned(
@@ -849,7 +838,7 @@ class MapsState extends State<Maps> {
                 ),
                 child: IconButton(
                     icon: Icon(
-                      Icons.my_location,
+                      Icons.location_on,
                       color: Colors.red,
                     ),
                     onPressed: () {

@@ -12,6 +12,7 @@ import 'file_uploader.dart';
 import 'weather_tracker.dart';
 import 'package:weather/weather_library.dart';
 import 'gps_tracking.dart';
+import 'package:tick_tok_bio/helper.dart';
 
 //These are the three boolean values used to determine which screen we are currently on
 bool viewingDrags = true;
@@ -27,6 +28,12 @@ var myController5 = TextEditingController();
 var myController6 = TextEditingController();
 var myController7 = TextEditingController();
 var myController8 = TextEditingController();
+var myController9 = TextEditingController();
+var myController10 = TextEditingController();
+var myController11 = TextEditingController();
+var myController12 = TextEditingController();
+var myController13 = TextEditingController();
+var myController14 = TextEditingController();
 
 List<TextEditingController> subs = [
   TextEditingController(),
@@ -60,13 +67,17 @@ class MetadataSectionState extends State<MetadataSection> {
   String fileName = 'drag1.json';
   bool fileExists = false;
   String currentFile;
-  List dragList;
+  List<Widget> dragList = [];
   String editingFilename;
   Weather curWeather;
   final _editKey = GlobalKey<FormState>();
   bool changesMade;
   bool loadingData = false;
   bool celsius = false;
+  var scap = Text(
+    'I. scapularis',
+    style: TextStyle(fontStyle: FontStyle.italic),
+  );
 
   List habitatList = <String>[
     'Field/Grass',
@@ -147,6 +158,8 @@ class MetadataSectionState extends State<MetadataSection> {
     });
   }
 
+  void settingNumsPerTick() {}
+
   void deleteFiles() async {
     for (FileSystemEntity f in fileList) {
       String p = f.path;
@@ -203,26 +216,37 @@ class MetadataSectionState extends State<MetadataSection> {
   //This function is used to write the data which has been entered into the text fields and saves it in the JSON File.
   //this is done by updating the content in the var fileContent.
   void writeToFile(
-    String filename,
-    String key,
-    String value,
-    String key1,
-    String value1,
-    String key2,
-    String value2,
-    String key3,
-    String value3,
-    String key4,
-    String value4,
-    String key5,
-    String value5,
-    String key6,
-    String value6,
-    String key7,
-    String value7,
-    String key8,
-    String value8,
-  ) {
+      String filename,
+      String key,
+      String value,
+      String key1,
+      String value1,
+      String key2,
+      String value2,
+      String key3,
+      String value3,
+      String key4,
+      String value4,
+      String key5,
+      String value5,
+      String key6,
+      String value6,
+      String key7,
+      String value7,
+      String key8,
+      String value8,
+      String key9,
+      String value9,
+      String key10,
+      String value10,
+      String key11,
+      String value11,
+      String key12,
+      String value12,
+      String key13,
+      String value13,
+      String key14,
+      String value14) {
     print('Writing to File');
     Map<String, String> content = {
       key: value,
@@ -234,6 +258,12 @@ class MetadataSectionState extends State<MetadataSection> {
       key6: value6,
       key7: value7,
       key8: value8,
+      key9: value9,
+      key10: value10,
+      key11: value11,
+      key12: value12,
+      key13: value13,
+      key14: value14,
       'visible': 'true',
     };
     print(value1);
@@ -459,11 +489,11 @@ class MetadataSectionState extends State<MetadataSection> {
         },
       ),
     );
-    if (hText != null) {
-      controller.text = hText;
-    } else {
-      controller.text = '';
-    }
+//    if (hText != null) {
+//      controller.text = hText;
+//    } else {
+//      controller.text = '';
+//    }
     return widget;
   }
 
@@ -605,10 +635,19 @@ class MetadataSectionState extends State<MetadataSection> {
                           fileContent['GroundMoisture'].toString()),
                       infoRow('Habitat Type',
                           fileContent['HabitatType'].toString()),
+                      infoRow('I. scapularis nymph',
+                          fileContent['Iscap'].toString()),
+                      infoRow('I. scapularis adult male',
+                          fileContent['IscapAM'].toString()),
                       infoRow(
-                          'Nymphs Found', fileContent['NumNymphs'].toString()),
-                      infoRow('Blackleggeds Found',
-                          fileContent['NumBlacklegged'].toString()),
+                          'I. scapularis adult female', fileContent['IscapAF']),
+                      infoRow(
+                          'A. americanum (Lone star)', fileContent['loneStar']),
+                      infoRow(
+                          'D. variabilis (American dog)', fileContent['Adog']),
+                      infoRow(
+                          'H. longicornis (Longhorned)', fileContent['Hlong']),
+                      infoRow('lxodes spp (other)', fileContent['other']),
                       infoRow('Notes', fileContent['Notes'].toString()),
                     ],
                   ),
@@ -762,18 +801,30 @@ class MetadataSectionState extends State<MetadataSection> {
                   markerInfo(5),
                   dataField(
                     myController6,
-                    'Number of Nymphs',
-                    fileContent['NumNymphs'],
+                    'I. scapularis nymph',
+                    fileContent['iScap'],
                     true,
                   ),
                   dataField(
                     myController7,
-                    'Number of Blackleggeds',
-                    fileContent['NumBlacklegged'],
+                    'I. scapularis adult male',
+                    fileContent['IscapAM'],
                     true,
                   ),
+                  dataField(myController8, 'I. scapularis adult female',
+                      fileContent['IscapAF'], true),
+                  dataField(myController9, 'A. americanum (Lone star)',
+                      fileContent['loneStar'], true),
+                  dataField(myController10, 'D. variabilis (American dog)',
+                      fileContent['Adog'], true),
+                  dataField(myController11, 'D. variablis (American dog)',
+                      fileContent['Dvari'], true),
+                  dataField(myController12, 'H. longicornis (Longhorned)',
+                      fileContent['Hlong'], true),
+                  dataField(myController13, 'lxodes spp (other)',
+                      fileContent['other'], true),
                   dataField(
-                    myController8,
+                    myController14,
                     'Notes',
                     fileContent['Notes'],
                     false,
@@ -823,12 +874,24 @@ class MetadataSectionState extends State<MetadataSection> {
                         myController4.text,
                         'HabitatType',
                         myController5.text,
-                        'NumNymphs',
+                        'Iscap',
                         myController6.text,
-                        'NumBlacklegged',
+                        'IscapAM',
                         myController7.text,
-                        'Notes',
+                        'IscapAF',
                         myController8.text,
+                        'loneStar',
+                        myController9.text,
+                        'Adog',
+                        myController10.text,
+                        'Dvari',
+                        myController11.text,
+                        'Hlong',
+                        myController12.text,
+                        'other',
+                        myController13.text,
+                        'Notes',
+                        myController14.text,
                       );
                       sendJsonToCloud();
                       drags();

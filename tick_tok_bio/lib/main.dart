@@ -95,6 +95,27 @@ class HomePageState extends State<HomePage> {
     });
   }
 
+  settingsMidDragPopUp(BuildContext context) {
+    Widget agreement = FlatButton(
+        onPressed: () {
+          setState(() {
+            Navigator.pop(context);
+          });
+        },
+        child: Text('Ok.'));
+
+    AlertDialog alert = AlertDialog(
+      title: Text('Settings are unable to be changed during a drag.'),
+      actions: [agreement],
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        });
+  }
+
   BottomNavigationBarItem navBarItem(IconData icon, String title) {
     return BottomNavigationBarItem(
       icon: Icon(
@@ -116,8 +137,9 @@ class HomePageState extends State<HomePage> {
     return BottomNavigationBar(
       onTap: (int index) {
         setState(() {
-          if (pageIndex == 1 && trackingRoute == true && index == 3) {
+          if (trackingRoute == true && index == 3) {
             print('Drag must be finished prior');
+            settingsMidDragPopUp(context);
           } else {
             pageIndex = index;
           }
@@ -192,16 +214,6 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-//    if (_loading) {
-//      checkEmpty();
-//      return Stack(
-//        children: <Widget>[
-//          mainBody(),
-//          loadingScreen(),
-//        ],
-//      );
-//    }
-//    print('NO LONGER SHOWING LOADING SCREEN');
     return mainBody();
   }
 }

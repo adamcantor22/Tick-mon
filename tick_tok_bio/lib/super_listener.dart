@@ -101,4 +101,8 @@ class SuperListener {
   static void checkSettings() {
     settings.settingsChecker();
   }
+
+  static void settingTickNum() {
+    dataPage.settingNumsPerTick();
+  }
 }
