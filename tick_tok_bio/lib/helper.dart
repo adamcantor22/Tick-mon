@@ -66,8 +66,10 @@ class _HelperTextState extends State<HelperText> {
   List<TextEditingController> drops;
   List<DropdownMenuItem<String>> items;
   List<String> dropdownItems = [
-    'Blacklegged',
-    'Nymph',
+    'I. scapularis nymph',
+    'I. scapularis adult male',
+    'I. scapularis adult female',
+    'A. americanum (Lone Star)',
   ];
 
   _HelperTextState(int segment, BuildContext cont) {
@@ -83,7 +85,10 @@ class _HelperTextState extends State<HelperText> {
     items = dropdownItems.map<DropdownMenuItem<String>>((String value) {
       return DropdownMenuItem<String>(
         value: value,
-        child: Text(value),
+        child: Text(
+          value,
+          style: TextStyle(fontSize: 8.0),
+        ),
       );
     }).toList();
     newField();

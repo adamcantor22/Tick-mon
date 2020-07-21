@@ -96,7 +96,15 @@ class SuperListener {
   static void cancelCurrentDrag() {
     mapPage.stepsToTerminateNDelete();
   }
+  
+  static void checkSettings() {
+    settings.settingsChecker();
+  }
 
+  static void settingTickNum() {
+    dataPage.settingNumsPerTick();
+  }
+  
   static void addTickSegmentData(Map<String, int> map) {
     mapPage.storeSegmentData(map);
   }

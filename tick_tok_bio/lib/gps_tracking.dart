@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -17,6 +18,7 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong/latlong.dart';
 import 'package:tick_tok_bio/settings_page.dart';
 import 'segment_data.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 bool trackingRoute = false;
 
@@ -64,14 +66,17 @@ class MapsState extends State<Maps> {
   bool timerVisibility = false;
   bool autoCamerMove = false;
   bool autoCameraMoveVisibility = false;
-  double timePmarker;
+  double timePmarker = 1.0;
   List<SegmentData> segmentData = [];
+  int c = 0;
+  int markerColorsIndex = 0;
+  Random ranGen = Random();
 
   void initState() {
     super.initState();
-    getInitPos();
+    //getInitPos();
     //markerUpdate();
-    lastDropPoint = currentPosition;
+    //lastDropPoint = currentPosition;
     SuperListener.setPages(mPage: this);
     initPlayer();
     getLoc();
@@ -89,14 +94,7 @@ class MapsState extends State<Maps> {
       zoomLevel,
     );
     setState(() {
-      markerLis.add(Marker(
-          point: LatLng(pos.latitude, pos.longitude),
-          builder: (build) => Container(
-                child: Icon(
-                  Icons.location_on,
-                  color: Colors.red,
-                ),
-              )));
+      markerLis.add(userLocationMarkerFunc());
       currentPosition = pos;
       currentLat = pos.latitude;
       currentLong = pos.longitude;
@@ -157,25 +155,25 @@ class MapsState extends State<Maps> {
         afterFirstDrop = false;
         checkPointsCleared = 0;
         timerVisibility = false;
-        positionMarker();
+        markerLis.clear();
         autoCameraMoveVisibility = false;
       });
     }
   }
 
-  void positionMarker() {
-    setState(() {
-      markerLis.clear();
-      markerLis.add(Marker(
-          point: LatLng(currentLat, currentLong),
-          builder: (build) => Container(
-                child: Icon(
-                  Icons.location_on,
-                  color: Colors.red,
-                ),
-              )));
-    });
-  }
+//  void positionMarker() {
+//    setState(() {
+//      markerLis.clear();
+//      markerLis.add(Marker(
+//          point: LatLng(currentLat, currentLong),
+//          builder: (build) => Container(
+//                child: Icon(
+//                  Icons.location_on,
+//                  color: Colors.red,
+//                ),
+//              )));
+//    });
+//  }
 
   //This is the filename for the gpx files, created to be the current datetime
   String currentTime() {
@@ -274,6 +272,7 @@ class MapsState extends State<Maps> {
       positionSubscription.cancel();
       polylineCoordinates.clear();
     });
+    SuperListener.settingTickNum();
     SuperListener.moveAndCreateDrag(latestFilename);
     SuperListener.sendTickData(tickData);
   }
@@ -300,9 +299,7 @@ class MapsState extends State<Maps> {
       _mapController.move(
           LatLng(currentPosition.latitude, currentPosition.longitude),
           zoomLevel);
-      if (trackingRoute == false) {
-        markerLis.clear();
-      }
+      markerLis.add(userLocationMarkerFunc());
     });
   }
 
@@ -313,23 +310,19 @@ class MapsState extends State<Maps> {
     );
     positionSubscription =
         locator.getPositionStream(opt).listen((Position cPos) {
+      c += 1;
       if (trackingRoute == false) {
-        setState(() {
-          currentLat = cPos.latitude;
-          currentLong = cPos.longitude;
-          markerLis.clear();
-          markerLis.add(Marker(
-              point: LatLng(currentLat, currentLong),
-              builder: (build) => Container(
-                    child: Icon(
-                      Icons.location_on,
-                      color: Colors.red,
-                    ),
-                  )));
-          if (autoCamerMove == true) {
-            _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
-          }
-        });
+        if (c > 4) {
+          setState(() {
+            currentLat = cPos.latitude;
+            currentLong = cPos.longitude;
+            markerLis.clear();
+            markerLis.add(userLocationMarkerFunc());
+            if (autoCamerMove == true) {
+              _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
+            }
+          });
+        }
       }
     });
   }
@@ -359,7 +352,14 @@ class MapsState extends State<Maps> {
         wpts.add(pt);
         polylineCoordinates
             .add(LatLng(currentPosition.latitude, currentPosition.longitude));
-        autoMarking == true ? markerUpdate() : print('No Auto Mark');
+
+        if (markerLis.length > 0) {
+          markerLis.removeLast();
+        }
+        markerLis.add(userLocationMarkerFunc());
+        if (autoMarking == true) {
+          markerUpdate();
+        }
       });
     });
   }
@@ -393,7 +393,7 @@ class MapsState extends State<Maps> {
                 markerLis.clear();
                 lastDropPoint = null;
                 checkPointsCleared = 0;
-                positionMarker();
+                //Possibly add something
                 autoCameraMoveVisibility = false;
               });
             },
@@ -412,8 +412,49 @@ class MapsState extends State<Maps> {
     );
   }
 
+//  dynamic getRandColor() {
+//    int myNum = ranGen.nextInt(markerColors.length);
+//    print(myNum);
+//    Color myColor = markerColors[myNum];
+//    return myColor;
+//  }
+
+  Marker userLocationMarkerFunc() {
+    return Marker(
+      height: 15.0,
+      width: 15.0,
+      point: LatLng(currentLat, currentLong),
+      builder: (build) => Container(
+        child: Icon(
+          Icons.adjust,
+          size: 20.0,
+        ),
+      ),
+    );
+  }
+
+  dynamic colorChooser(int num) {
+    if (num == 0) {}
+  }
+
+  Marker droppedMarkerFunc() {
+    //int myColor = colorNum;
+
+    return Marker(
+      height: 15.0,
+      width: 15.0,
+      point: LatLng(currentPosition.latitude, currentPosition.longitude),
+      builder: (build) => Container(
+        child: Icon(
+          Icons.location_on,
+          color: Colors.red,
+        ),
+      ),
+    );
+  }
+
   void markerUpdate() async {
-    checkPointsPerMarker = (distancePerMarker ~/ 5);
+    checkPointsPerMarker = (distancePerMarker ~/ 2);
     if (afterFirstDrop == false) {
       lastDropPoint = await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
@@ -435,28 +476,13 @@ class MapsState extends State<Maps> {
           print('CheckPoint Cleared');
           if (checkPointsCleared == checkPointsPerMarker) {
             checkPointsCleared = 0;
-
-            if (soundsPresent == true) {
-              player.play('/sounds/bell.mp3');
-            }
+            player.play('/sounds/bell.mp3');
 
             dropTrackBreakPoint();
             setState(() {
-              print('PLace Marker');
-              markerLis.add(
-                Marker(
-                  height: 15.0,
-                  width: 15.0,
-                  point: LatLng(
-                      currentPosition.latitude, currentPosition.longitude),
-                  builder: (build) => Container(
-                    child: Icon(
-                      Icons.my_location,
-                      color: Colors.red,
-                    ),
-                  ),
-                ),
-              );
+//              markerLis.removeLast();
+//              markerLis.add(droppedMarkerFunc());
+//              markerLis.add(userLocationMarkerFunc());
               lastDropPoint = currentPosition;
             });
           }
@@ -471,20 +497,9 @@ class MapsState extends State<Maps> {
           dropTrackBreakPoint();
           setState(() {
             print('PLace Marker');
-            markerLis.add(
-              Marker(
-                height: 15.0,
-                width: 15.0,
-                point:
-                    LatLng(currentPosition.latitude, currentPosition.longitude),
-                builder: (build) => Container(
-                  child: Icon(
-                    Icons.my_location,
-                    color: Colors.red,
-                  ),
-                ),
-              ),
-            );
+//            markerLis.removeLast();
+//            markerLis.add(droppedMarkerFunc());
+//            markerLis.add(userLocationMarkerFunc());
             lastDropPoint = currentPosition;
           });
         }
@@ -496,20 +511,16 @@ class MapsState extends State<Maps> {
     dropTrackBreakPoint();
     setState(() {
       checkPointsCleared = 0;
-      markerLis.add(
-        Marker(
-          height: 15.0,
-          width: 15.0,
-          point: LatLng(currentPosition.latitude, currentPosition.longitude),
-          builder: (build) => Container(
-            child: Icon(
-              Icons.my_location,
-              color: Colors.green,
-            ),
-          ),
-        ),
-      );
+      markerLis.removeLast();
+      markerLis.add(droppedMarkerFunc());
+      markerLis.add(userLocationMarkerFunc());
     });
+
+    markerColorsIndex += 1;
+    if (markerColorsIndex == 5) {
+      markerColorsIndex = 0;
+    }
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -532,7 +543,6 @@ class MapsState extends State<Maps> {
         onPressed: () {
           if (!trackingRoute) {
             startNewRoute();
-            markerLis.clear();
           } else {
             finishRoute();
             setState(() {});
@@ -672,7 +682,7 @@ class MapsState extends State<Maps> {
                   afterFirstDrop = false;
                   checkPointsCleared = 0;
                   timerVisibility = false;
-                  positionMarker();
+                  //positionMarker();
                   autoCameraMoveVisibility = false;
                 });
               },
@@ -709,26 +719,26 @@ class MapsState extends State<Maps> {
               urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
               subdomains: ['a', 'b', 'c'],
             ),
-            MarkerLayerOptions(
-              markers: markerLis != null
-                  ? markerLis
-                  : [
-                      Marker(
-                        width: 15.0,
-                        height: 15.0,
-                        point: currentLat != null
-                            ? LatLng(currentLat, currentLong)
-                            : LatLng(50.0, 50.0),
-                        builder: (build) => Container(
-                          child: Icon(
-                            Icons.my_location,
-                            color: Colors.blue,
-                            size: 30.0,
-                          ),
-                        ),
-                      ),
-                    ],
-            ),
+            MarkerLayerOptions(markers: markerLis
+//              markers: markerLis != null
+//                  ? markerLis
+//                  : [
+//                      Marker(
+//                        width: 15.0,
+//                        height: 15.0,
+//                        point: currentLat != null
+//                            ? LatLng(currentLat, currentLong)
+//                            : LatLng(50.0, 50.0),
+//                        builder: (build) => Container(
+//                          child: Icon(
+//                            Icons.my_location,
+//                            color: Colors.blue,
+//                            size: 30.0,
+//                          ),
+//                        ),
+//                      ),
+                // ],
+                ),
             PolylineLayerOptions(
               polylines: [
                 Polyline(
@@ -752,7 +762,7 @@ class MapsState extends State<Maps> {
                     zoomLevel += 1;
                     _mapController.move(
                         LatLng(currentLat, currentLong), zoomLevel);
-                    print(trackingRoute);
+                    //getRandColor();
                   });
                 })),
         Positioned(
@@ -769,27 +779,27 @@ class MapsState extends State<Maps> {
             },
           ),
         ),
-        Positioned(
-          top: 15.0,
-          right: 10.0,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.all(
-                Radius.circular(10.0),
-              ),
-            ),
-            child: IconButton(
-              icon: Icon(Icons.location_on),
-              color: Colors.red,
-              onPressed: () {
-                setState(() {
-                  getLoc();
-                });
-              },
-            ),
-          ),
-        ),
+//        Positioned(
+//          top: 15.0,
+//          right: 10.0,
+//          child: Container(
+//            decoration: BoxDecoration(
+//              color: Colors.blue,
+//              borderRadius: BorderRadius.all(
+//                Radius.circular(10.0),
+//              ),
+//            ),
+//            child: IconButton(
+//              icon: Icon(Icons.location_on),
+//              color: Colors.red,
+//              onPressed: () {
+//                setState(() {
+//                  getLoc();
+//                });
+//              },
+//            ),
+//          ),
+//        ),
         Positioned(
           bottom: 10.0,
           left: 1.0,
@@ -840,7 +850,7 @@ class MapsState extends State<Maps> {
                 ),
                 child: IconButton(
                     icon: Icon(
-                      Icons.my_location,
+                      Icons.location_on,
                       color: Colors.red,
                     ),
                     onPressed: () {
@@ -854,7 +864,7 @@ class MapsState extends State<Maps> {
             visible: true,
             child: Positioned(
               right: 10.0,
-              top: 200.0,
+              top: 15.0,
               child: Container(
                 color: Colors.blue,
                 child: IconButton(
@@ -870,8 +880,19 @@ class MapsState extends State<Maps> {
               ),
             )),
         Visibility(
-          visible: timerVisibility,
-          child: Text(counter.toString()),
+          visible: markerViaTime == true &&
+                  trackingRoute == true &&
+                  autoMarking == true
+              ? true
+              : false,
+          child: Positioned(
+            right: 10.0,
+            bottom: 30.0,
+            child: Text(
+              counter.toString(),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+            ),
+          ),
         ),
         dragCancellationPopUp(),
         doneConfirmation(),
