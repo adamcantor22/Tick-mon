@@ -78,6 +78,7 @@ class MetadataSectionState extends State<MetadataSection> {
     'I. scapularis',
     style: TextStyle(fontStyle: FontStyle.italic),
   );
+  List<Map<String, int>> segmentedTickData;
 
   List habitatList = <String>[
     'Field/Grass',
@@ -246,9 +247,12 @@ class MetadataSectionState extends State<MetadataSection> {
       String key13,
       String value13,
       String key14,
-      String value14) {
+      String value14,
+  
+    String key15,
+    List<Map<String, int>> value15,) {
     print('Writing to File');
-    Map<String, String> content = {
+    Map<String, dynamic> content = {
       key: value,
       key1: value1,
       key2: value2,
@@ -264,9 +268,9 @@ class MetadataSectionState extends State<MetadataSection> {
       key12: value12,
       key13: value13,
       key14: value14,
+      key15: value15,
       'visible': 'true',
     };
-    print(value1);
     if (fileExists) {
       print('File Exists');
       Map<String, dynamic> jsonFileContents =
@@ -534,6 +538,10 @@ class MetadataSectionState extends State<MetadataSection> {
     fileContent['Humidity'] = curWeather.humidity.toString();
     fileContent['Name'] = name;
     return b;
+  }
+
+  void sendSegmentedTickData(List<Map<String, int>> data) {
+    segmentedTickData = data;
   }
 
   void tempCelsius(bool state) {
@@ -892,6 +900,8 @@ class MetadataSectionState extends State<MetadataSection> {
                         myController13.text,
                         'Notes',
                         myController14.text,
+                        'Ticks',
+                        segmentedTickData,
                       );
                       sendJsonToCloud();
                       drags();
