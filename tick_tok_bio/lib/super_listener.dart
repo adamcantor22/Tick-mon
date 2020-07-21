@@ -55,6 +55,10 @@ class SuperListener {
     dataPage.createNewDrag(filename);
   }
 
+  static void sendTickData(List<Map<String, int>> data) {
+    dataPage.sendSegmentedTickData(data);
+  }
+
   static int emptyRef() {
     if (userPage == null) return 0;
     if (mapPage == null) return 1;
@@ -77,11 +81,6 @@ class SuperListener {
     mapPage.setDistanceMarker(distance);
   }
 
-//  static double getMarkingDistance() {
-//    double dis = settings.getDistancePerMarker();
-//    return dis;
-//  }
-
   static void settingSoundPref(bool set) {
     mapPage.setSoundPref(set);
   }
@@ -96,5 +95,17 @@ class SuperListener {
 
   static void cancelCurrentDrag() {
     mapPage.stepsToTerminateNDelete();
+  }
+  
+  static void checkSettings() {
+    settings.settingsChecker();
+  }
+
+  static void settingTickNum() {
+    dataPage.settingNumsPerTick();
+  }
+  
+  static void addTickSegmentData(Map<String, int> map) {
+    mapPage.storeSegmentData(map);
   }
 }

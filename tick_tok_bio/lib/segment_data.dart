@@ -16,4 +16,12 @@ class SegmentData {
       ticks[type] = n;
     }
   }
+
+  Map<String, int> getData() {
+    return ticks;
+  }
+
+  bool isEmpty() {
+    return ticks.isEmpty;
+  }
 }

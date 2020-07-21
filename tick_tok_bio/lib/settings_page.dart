@@ -1,3 +1,4 @@
+//import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:tick_tok_bio/metadata_page.dart';
 import 'package:tick_tok_bio/super_listener.dart';
@@ -29,10 +30,8 @@ class SettingsState extends State<Settings> {
   bool notesUp = false;
   String markerPlaceDes =
       'This should be pressed when the user wants to make a marker of their location and enter data for the subsection of the drag.';
-  String getLocDes =
-      "Pressing this icon updates the camera to pinpoint your position to be central on the map. This is useful if a drag is not in progress or you have auto-camera updates turned off during a drag.";
   String freeLookDes =
-      "This button toggles whether the camera during a drag will automatically move the camera throughout, or whether you are able to look around the map by dragging.";
+      "This button toggles whether the camera will automatically update itself upon any movement. Disable this if you would like to look freely around the map.";
 
   @override
   void initState() {
@@ -73,6 +72,60 @@ class SettingsState extends State<Settings> {
       selectedDistancePerMarker = fileContentSettings['Distance'];
       selectedTimePerMarker = fileContentSettings['Time'];
     });
+  }
+
+  showAlertDialog(BuildContext context) {
+    Widget applyChanges = FlatButton(
+        onPressed: () {
+          setState(() {
+            configureMapState();
+            writeToFile(soundOn, temperatureState, autoMarker, timeTracking,
+                selectedDistancePerMarker, selectedTimePerMarker);
+            Navigator.pop(context);
+          });
+        },
+        child: Text('Apply Changes'));
+
+    Widget cancel = FlatButton(
+        onPressed: () {
+          setState(() {
+            configureSettings();
+            configureMapState();
+            Navigator.pop(context);
+          });
+        },
+        child: Text('Cancel My Changes'));
+
+    AlertDialog alert = AlertDialog(
+      title: Text(
+          'You have not saved the changes you have made to the settings page'),
+      actions: [applyChanges, cancel],
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        });
+  }
+
+  void settingsChecker() {
+    print('Settings checker has been called');
+    if (fileContentSettings['Sound'] != soundOn) {
+      showAlertDialog(context);
+      print('OOOH');
+    } else if (fileContentSettings['TempStatus'] != temperatureState) {
+      showAlertDialog(context);
+    } else if (fileContentSettings['Auto-Marker'] != autoMarker) {
+      showAlertDialog(context);
+    } else if (fileContentSettings['TimeTracking'] != timeTracking) {
+      showAlertDialog(context);
+    } else if (fileContentSettings['Distance'] != selectedDistancePerMarker) {
+      showAlertDialog(context);
+    } else if (fileContentSettings['Time'] != selectedTimePerMarker) {
+      showAlertDialog(context);
+    }
+    //if(fileContentSettings['TempStatus'] != )
   }
 
   void createFile(Map<dynamic, dynamic> content) {
@@ -173,7 +226,6 @@ class SettingsState extends State<Settings> {
               ),
             ),
             iconDescription(Icons.my_location, markerPlaceDes),
-            iconDescription(Icons.location_on, getLocDes),
             iconDescription(Icons.remove_red_eye, freeLookDes),
           ],
         ),
@@ -199,7 +251,7 @@ class SettingsState extends State<Settings> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Sound Off',
+                'Start/Stop Sound Off',
                 style: TextStyle(fontSize: 18.0),
               ),
               Switch(
@@ -214,7 +266,7 @@ class SettingsState extends State<Settings> {
                 },
               ),
               Text(
-                'Sound On',
+                'Start/Stop Sound On',
                 style: TextStyle(fontSize: 18.0),
               )
             ],
@@ -246,7 +298,7 @@ class SettingsState extends State<Settings> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Auto-Marker Off',
+                'Sound Reminder On',
                 style: TextStyle(fontSize: 18.0),
               ),
               Switch(
@@ -260,7 +312,7 @@ class SettingsState extends State<Settings> {
                     });
                   }),
               Text(
-                'Auto-Marker On',
+                'Sound Reminder Off',
                 style: TextStyle(fontSize: 18.0),
               ),
             ],

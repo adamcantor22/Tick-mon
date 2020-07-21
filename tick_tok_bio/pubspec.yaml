@@ -26,6 +26,7 @@ dependencies:
   audioplayers: ^0.15.1
   flutter_map:
   latlong: ^0.6.1
+  font_awesome_flutter: ^8.8.1
 
   flutter:
     sdk: flutter
@@ -40,6 +41,7 @@ flutter:
 
   assets:
     - images/
+    - assets/sounds/bell.mp3
     - assets/sounds/
 
   fonts:

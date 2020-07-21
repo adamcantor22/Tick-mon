@@ -41,6 +41,7 @@ class HomePageState extends State<HomePage> {
   LoggedInScreen loggedInPage = LoggedInScreen();
   UserPage userPage = UserPage();
   Settings settings = Settings();
+  int priorIndex;
 
   int pageIndex = 0;
 
@@ -94,6 +95,27 @@ class HomePageState extends State<HomePage> {
     });
   }
 
+  settingsMidDragPopUp(BuildContext context) {
+    Widget agreement = FlatButton(
+        onPressed: () {
+          setState(() {
+            Navigator.pop(context);
+          });
+        },
+        child: Text('Ok.'));
+
+    AlertDialog alert = AlertDialog(
+      title: Text('Settings are unable to be changed during a drag.'),
+      actions: [agreement],
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        });
+  }
+
   BottomNavigationBarItem navBarItem(IconData icon, String title) {
     return BottomNavigationBarItem(
       icon: Icon(
@@ -113,7 +135,21 @@ class HomePageState extends State<HomePage> {
 
   Widget _bottomNavBar() {
     return BottomNavigationBar(
-      onTap: (int index) => setState(() => pageIndex = index),
+      onTap: (int index) {
+        setState(() {
+          if (trackingRoute == true && index == 3) {
+            print('Drag must be finished prior');
+            settingsMidDragPopUp(context);
+          } else {
+            pageIndex = index;
+          }
+          if (priorIndex == 3) {
+            SuperListener.checkSettings();
+          }
+
+          priorIndex = index;
+        });
+      },
       currentIndex: pageIndex,
       backgroundColor: Colors.blue,
       type: BottomNavigationBarType.fixed,
@@ -178,16 +214,6 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-//    if (_loading) {
-//      checkEmpty();
-//      return Stack(
-//        children: <Widget>[
-//          mainBody(),
-//          loadingScreen(),
-//        ],
-//      );
-//    }
-//    print('NO LONGER SHOWING LOADING SCREEN');
     return mainBody();
   }
 }
