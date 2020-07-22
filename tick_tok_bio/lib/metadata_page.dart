@@ -587,6 +587,17 @@ class MetadataSectionState extends State<MetadataSection> {
     fileContent['Name'] = name;
     fileContent['Iscap'] = iScapN.toString();
     iScapN = 0;
+    fileContent['IscapAM'] = iScapAM.toString();
+    iScapAM = 0;
+    fileContent['IscapAF'] = iScapAF.toString();
+    iScapAF = 0;
+    fileContent['A.amer'] = aAmer.toString();
+    aAmer = 0;
+    fileContent['D.vari'] = dVari.toString();
+    dVari = 0;
+    fileContent['H.long'] = hLong.toString();
+    hLong = 0;
+    fileContent['lxodes'] = lxod.toString();
     return b;
   }
 
@@ -609,6 +620,24 @@ class MetadataSectionState extends State<MetadataSection> {
     print(tickData);
     if (tickData.containsKey('I. scapN')) {
       iScapN += tickData['I. scapN'];
+    }
+    if (tickData.containsKey('I. scapAM')) {
+      iScapAM += tickData['I. scapAM'];
+    }
+    if (tickData.containsKey('I. scapAF')) {
+      iScapAF += tickData['I. scapAF'];
+    }
+    if (tickData.containsKey('A. amer')) {
+      aAmer += tickData['A. amer'];
+    }
+    if (tickData.containsKey('D. vari')) {
+      dVari += tickData['D. vari'];
+    }
+    if (tickData.containsKey('H. long')) {
+      hLong += tickData['H. long'];
+    }
+    if (tickData.containsKey('lxodes spp')) {
+      lxod += tickData['lxodes spp'];
     }
   }
 
@@ -715,12 +744,12 @@ class MetadataSectionState extends State<MetadataSection> {
                       infoRow(
                           'I. scapularis adult female', fileContent['IscapAF']),
                       infoRow(
-                          'A. americanum (Lone star)', fileContent['loneStar']),
+                          'A. americanum (Lone star)', fileContent['A.amer']),
+                      infoRow('D. variabilis (American dog)',
+                          fileContent['D.vari']),
                       infoRow(
-                          'D. variabilis (American dog)', fileContent['Adog']),
-                      infoRow(
-                          'H. longicornis (Longhorned)', fileContent['Hlong']),
-                      infoRow('lxodes spp (other)', fileContent['other']),
+                          'H. longicornis (Longhorned)', fileContent['H.long']),
+                      infoRow('lxodes spp (other)', fileContent['lxodes']),
                       infoRow('Notes', fileContent['Notes'].toString()),
                     ],
                   ),
@@ -887,22 +916,22 @@ class MetadataSectionState extends State<MetadataSection> {
                   dataField(
                     myController9,
                     'A. americanum (Lone star)',
-                    fileContent['loneStar'],
+                    fileContent['A.amer'],
                   ),
                   dataField(
                     myController10,
                     'D. variablis (American dog)',
-                    fileContent['Dvari'],
+                    fileContent['D.vari'],
                   ),
                   dataField(
                     myController11,
                     'H. longicornis (Longhorned)',
-                    fileContent['Hlong'],
+                    fileContent['H.long'],
                   ),
                   dataField(
                     myController12,
                     'lxodes spp (other)',
-                    fileContent['other'],
+                    fileContent['lxodes'],
                   ),
                   dataField(
                     myController13,
@@ -966,13 +995,13 @@ class MetadataSectionState extends State<MetadataSection> {
                           myController7.text,
                           'IscapAF',
                           myController8.text,
-                          'loneStar',
+                          'A.amer',
                           myController9.text,
-                          'Dvari',
+                          'D.vari',
                           myController10.text,
-                          'Hlong',
+                          'H.long',
                           myController11.text,
-                          'other',
+                          'lxodes',
                           myController12.text,
                           'Notes',
                           myController13.text,

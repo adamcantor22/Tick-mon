@@ -700,6 +700,13 @@ class MapsState extends State<Maps> {
                   timerVisibility = false;
                   //positionMarker();
                   autoCameraMoveVisibility = false;
+                  iScapN = 0;
+                  iScapAM = 0;
+                  iScapAF = 0;
+                  aAmer = 0;
+                  dVari = 0;
+                  hLong = 0;
+                  lxod = 0;
                 });
               },
             ),

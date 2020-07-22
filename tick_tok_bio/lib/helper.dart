@@ -68,13 +68,13 @@ class _HelperTextState extends State<HelperText> {
   List<DropdownButtonFormField<String>> dropForms;
   final formKey = GlobalKey<FormState>();
   List<String> dropdownItems = [
-    'I. scap. nymph',
-    'I. scap. adult male',
-    'I. scap. adult female',
-    'A. amer. (Lone Star)',
-    'D. vari. (American dog)',
-    'H. long. (Longhorned)',
-    'lxodes spp (other)',
+    'I. scapN',
+    'I. scapAM',
+    'I. scapAF',
+    'A. amer',
+    'D. vari',
+    'H. long',
+    'lxodes spp',
   ];
 
   _HelperTextState(int segment, BuildContext cont) {
@@ -93,7 +93,7 @@ class _HelperTextState extends State<HelperText> {
         value: value,
         child: Text(
           value,
-          style: TextStyle(fontSize: 12.0),
+          style: TextStyle(fontSize: 16.0),
         ),
       );
     }).toList();
