@@ -1008,61 +1008,6 @@ class MetadataSectionState extends State<MetadataSection> {
     );
   }
 
-//  Widget dropDownMenu(List<String> items, int dropIndex,
-//      TextEditingController controller, String jsonVal, String label) {
-//    dropVals[dropIndex] = fileContent[jsonVal];
-//    return Center(
-//      child: Padding(
-//        padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
-//        child: DropdownButtonFormField(
-//          // ignore: missing_return
-//          validator: (value) {
-//            if (value == null) {
-//              return "Please Select an Item";
-//            }
-//            return null;
-//          },
-//          decoration: InputDecoration(
-//            labelText: label,
-//            contentPadding:
-//                EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-//            border: OutlineInputBorder(
-//              borderRadius: BorderRadius.all(Radius.circular(rad)),
-//            ),
-//            enabledBorder: OutlineInputBorder(
-//              borderSide: BorderSide(color: Colors.blueAccent, width: 1.5),
-//              borderRadius: BorderRadius.all(Radius.circular(16.0)),
-//            ),
-//            focusedBorder: OutlineInputBorder(
-//              borderSide: BorderSide(color: Colors.blueAccent, width: 2.5),
-//              borderRadius: BorderRadius.all(Radius.circular(16.0)),
-//            ),
-//          ),
-//          //hint: Text('Select a Habitat Type'),
-//          items: items.map<DropdownMenuItem<String>>((String value) {
-//            return DropdownMenuItem<String>(
-//              value: value,
-//              child: Text(value),
-//            );
-//          }).toList(),
-//          value: dropVals[dropIndex],
-//          icon: Icon(Icons.arrow_downward),
-//          iconSize: 24,
-//          elevation: 16,
-//          style: TextStyle(color: Colors.deepPurple),
-//          onChanged: (value) {
-//            setState(() {
-//              controller.text = value;
-////              print(controller.text);
-//              dropVals[dropIndex] = value;
-//            });
-//          },
-//          // ignore: missing_return
-//        ),
-//      ),
-//    );
-//  }
-
   @override
   // ignore: must_call_super
   Widget build(BuildContext context) {
@@ -1150,9 +1095,3 @@ class _DropDownMenuState extends State<DropDownMenu> {
     );
   }
 }
-
-//Widget dropDownMenu(List<String> items, int dropIndex,
-//    TextEditingController controller, String jsonVal, String label) {
-//  dropVals[dropIndex] = fileContent[jsonVal];
-//  return
-//}

@@ -198,6 +198,7 @@ class _HelperTextState extends State<HelperText> {
                 FlatButton(
                   onPressed: () {
                     Navigator.of(context).pop();
+                    SuperListener.removeLasMarker();
                   },
                   child: Text(
                     'Cancel',

@@ -162,6 +162,10 @@ class MapsState extends State<Maps> {
     }
   }
 
+  void removeLatestMarker() {
+    markerLis.removeLast();
+  }
+
 //  void positionMarker() {
 //    setState(() {
 //      markerLis.clear();

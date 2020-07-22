@@ -108,4 +108,8 @@ class SuperListener {
   static void addTickSegmentData(Map<String, int> map) {
     mapPage.storeSegmentData(map);
   }
+
+  static void removeLasMarker() {
+    mapPage.removeLatestMarker();
+  }
 }
