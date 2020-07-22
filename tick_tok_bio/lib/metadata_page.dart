@@ -87,11 +87,9 @@ class MetadataSectionState extends State<MetadataSection> {
   bool changesMade;
   bool loadingData = false;
   bool celsius = false;
-  var scap = Text(
-    'I. scapularis',
-    style: TextStyle(fontStyle: FontStyle.italic),
-  );
   List<Map<String, int>> segmentedTickData;
+  Map<String, bool> syncMap = Map<String, bool>();
+  File syncFile;
 
   List habitatList = <String>[
     'Field/Grass',
@@ -135,6 +133,7 @@ class MetadataSectionState extends State<MetadataSection> {
       dir = d;
       createFilePaths();
       drags();
+      syncChecker();
 
       //deleteFiles(); //careful with this
     });
@@ -176,6 +175,26 @@ class MetadataSectionState extends State<MetadataSection> {
       return editDrag(editingFilename);
     }
     return Container(); //On Error, essentially
+  }
+
+  void syncChecker() async {
+    bool syncExists = false;
+    syncFile = File('$dir/sync.json');
+    for (FileSystemEntity f in fileList) {
+      String p = f.path;
+      if (p.substring(p.length - 9, p.length) == 'sync.json') {
+        syncExists = true;
+        syncMap = jsonDecode(syncFile.readAsStringSync());
+        break;
+      }
+    }
+    if (!syncExists) {
+      syncFile.createSync();
+    }
+  }
+
+  void changeSync(String f, bool b) {
+    syncMap[f] = b;
   }
 
   void drags() async {
@@ -277,9 +296,7 @@ class MetadataSectionState extends State<MetadataSection> {
     String key13,
     String value13,
     String key14,
-    String value14,
-    String key15,
-    List<Map<String, int>> value15,
+    List<Map<String, int>> value14,
   ) {
     print('Writing to File');
     Map<String, dynamic> content = {
@@ -298,7 +315,6 @@ class MetadataSectionState extends State<MetadataSection> {
       key12: value12,
       key13: value13,
       key14: value14,
-      key15: value15,
       'visible': 'true',
     };
     if (fileExists) {
@@ -352,8 +368,8 @@ class MetadataSectionState extends State<MetadataSection> {
             ? fileContent['Site'].toString()
             : 'GQ') +
         ' ';
-    s += '1' + ' ';
-    s += '${name.substring(0, 3)}' + ' ';
+    //s += '1' + ' '; //put this back with a functioning counter, not just 1
+    s += '${name.substring(0, 3).toUpperCase()}' + ' ';
     s += editingFilename.substring(0, 10);
     return s;
   }
@@ -363,14 +379,12 @@ class MetadataSectionState extends State<MetadataSection> {
     editingFilename = name;
     final b = await getFile(name);
     String display = getDragDisplayName();
-    bool fileUploaded = false;
-    StorageReference store;
-    try {
-      store = FirebaseStorage.instance.ref().child('$editingFilename.json');
-      fileUploaded = true;
-    } catch (e) {
-      print(e);
-    }
+    String key1 = '$gpxDir/$editingFilename.gpx';
+    String key2 = '$jsonDir/$editingFilename.json';
+    bool fileUploaded = syncMap.containsKey(key1) &&
+        syncMap.containsKey(key2) &&
+        syncMap[key1] == true &&
+        syncMap[key2] == true;
 
     return FlatButton(
       onPressed: () {
@@ -503,8 +517,12 @@ class MetadataSectionState extends State<MetadataSection> {
   }
 
 //This is used to populate the textBoxes and link them with their proper controllers in the entering data screen.
-  Widget dataField(TextEditingController controller, String field, String hText,
-      bool required) {
+  Widget dataField(
+    TextEditingController controller,
+    String field,
+    String hText, {
+    bool required = true,
+  }) {
     Widget widget = Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
       child: TextFormField(
@@ -512,8 +530,7 @@ class MetadataSectionState extends State<MetadataSection> {
             hintText: 'Enter $field', labelText: field),
         controller: controller,
         validator: (value) {
-          if (
-              //required &&
+          if (required &&
               (controller.text == null || controller.text.trim() == '')) {
             return 'Enter All Data';
           }
@@ -664,7 +681,7 @@ class MetadataSectionState extends State<MetadataSection> {
         ],
       ),
       body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+        padding: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
         color: Colors.grey[200],
         child: ListView(
           children: <Widget>[
@@ -711,7 +728,7 @@ class MetadataSectionState extends State<MetadataSection> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 10.0),
+              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 100.0),
               child: RaisedButton(
                 color: Colors.red[700],
                 onPressed: () {
@@ -819,7 +836,6 @@ class MetadataSectionState extends State<MetadataSection> {
                     myController0,
                     'Name',
                     fileContent['Name'],
-                    true,
                   ),
                   DropDownMenu(
                     label: 'Site',
@@ -832,56 +848,67 @@ class MetadataSectionState extends State<MetadataSection> {
                     myController2,
                     'Temperature',
                     fileContent['Temp'],
-                    true,
                   ),
                   dataField(
                     myController3,
                     'Humidity',
                     fileContent['Humidity'],
-                    true,
                   ),
                   DropDownMenu(
-                      label: 'Ground Moisture',
-                      items: moistureList,
-                      dropIndex: 2,
-                      controller: myController4,
-                      jsonVal: 'GroundMoisture'),
+                    label: 'Ground Moisture',
+                    items: moistureList,
+                    dropIndex: 2,
+                    controller: myController4,
+                    jsonVal: 'GroundMoisture',
+                  ),
                   DropDownMenu(
-                      label: 'Habitat Type',
-                      items: habitatList,
-                      dropIndex: 0,
-                      controller: myController5,
-                      jsonVal: 'HabitatType'),
-                  markerInfo(5),
+                    label: 'Habitat Type',
+                    items: habitatList,
+                    dropIndex: 0,
+                    controller: myController5,
+                    jsonVal: 'HabitatType',
+                  ),
+                  //markerInfo(5),
                   dataField(
                     myController6,
                     'I. scapularis nymph',
                     fileContent['Iscap'],
-                    true,
                   ),
                   dataField(
                     myController7,
                     'I. scapularis adult male',
                     fileContent['IscapAM'],
-                    true,
                   ),
-                  dataField(myController8, 'I. scapularis adult female',
-                      fileContent['IscapAF'], true),
-                  dataField(myController9, 'A. americanum (Lone star)',
-                      fileContent['loneStar'], true),
-                  dataField(myController10, 'D. variabilis (American dog)',
-                      fileContent['Adog'], true),
-                  dataField(myController11, 'D. variablis (American dog)',
-                      fileContent['Dvari'], true),
-                  dataField(myController12, 'H. longicornis (Longhorned)',
-                      fileContent['Hlong'], true),
-                  dataField(myController13, 'lxodes spp (other)',
-                      fileContent['other'], true),
                   dataField(
-                    myController14,
+                    myController8,
+                    'I. scapularis adult female',
+                    fileContent['IscapAF'],
+                  ),
+                  dataField(
+                    myController9,
+                    'A. americanum (Lone star)',
+                    fileContent['loneStar'],
+                  ),
+                  dataField(
+                    myController10,
+                    'D. variablis (American dog)',
+                    fileContent['Dvari'],
+                  ),
+                  dataField(
+                    myController11,
+                    'H. longicornis (Longhorned)',
+                    fileContent['Hlong'],
+                  ),
+                  dataField(
+                    myController12,
+                    'lxodes spp (other)',
+                    fileContent['other'],
+                  ),
+                  dataField(
+                    myController13,
                     'Notes',
                     fileContent['Notes'],
-                    false,
+                    required: false,
                   ),
                   SizedBox(
                     height: 30.0,
@@ -941,16 +968,14 @@ class MetadataSectionState extends State<MetadataSection> {
                           myController8.text,
                           'loneStar',
                           myController9.text,
-                          'Adog',
-                          myController10.text,
                           'Dvari',
-                          myController11.text,
+                          myController10.text,
                           'Hlong',
-                          myController12.text,
+                          myController11.text,
                           'other',
-                          myController13.text,
+                          myController12.text,
                           'Notes',
-                          myController14.text,
+                          myController13.text,
                           'Ticks',
                           segmentedTickData,
                         );
@@ -983,7 +1008,10 @@ class MetadataSectionState extends State<MetadataSection> {
     FileUploader uploader = new FileUploader();
     File f = File('${jsonDir.path}/$editingFilename.json');
     uploader.fileUpload(f, '$editingFilename.json').then((val) {
-      print(val);
+      if (val == 'error') {
+      } else {
+        print(val);
+      }
     });
   }
 
@@ -995,7 +1023,7 @@ class MetadataSectionState extends State<MetadataSection> {
           subs[i],
           'Segment $i',
           'Segment $i',
-          false,
+          required: false,
         ),
       );
     }

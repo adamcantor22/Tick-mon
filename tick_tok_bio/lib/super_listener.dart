@@ -113,4 +113,8 @@ class SuperListener {
   static void removeLasMarker() {
     mapPage.removeLatestMarker();
   }
+
+  static void setSync(String f, bool b) {
+    dataPage.changeSync(f, b);
+  }
 }

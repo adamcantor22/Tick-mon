@@ -65,14 +65,16 @@ class _HelperTextState extends State<HelperText> {
   List<TextEditingController> controllers;
   List<TextEditingController> drops;
   List<DropdownMenuItem<String>> items;
+  List<DropdownButtonFormField<String>> dropForms;
+  final formKey = GlobalKey<FormState>();
   List<String> dropdownItems = [
-    'I. scapN',
-    'I. scapAM',
-    'I. scapAF',
-    'A. amer',
-    'D. vari',
-    'H. long',
-    'lxod'
+    'I. scap. nymph',
+    'I. scap. adult male',
+    'I. scap. adult female',
+    'A. amer. (Lone Star)',
+    'D. vari. (American dog)',
+    'H. long. (Longhorned)',
+    'lxodes spp (other)',
   ];
 
   _HelperTextState(int segment, BuildContext cont) {
@@ -85,24 +87,23 @@ class _HelperTextState extends State<HelperText> {
     controllers = new List<TextEditingController>();
     fieldRows = new List<Widget>();
     drops = new List<TextEditingController>();
+    dropForms = new List<DropdownButtonFormField<String>>();
     items = dropdownItems.map<DropdownMenuItem<String>>((String value) {
       return DropdownMenuItem<String>(
         value: value,
         child: Text(
           value,
-          style: TextStyle(fontSize: 15.0),
+          style: TextStyle(fontSize: 12.0),
         ),
       );
     }).toList();
-    newField();
+    newField(0);
   }
 
-  void newField() {
+  void newField(int row) {
     int setText = 0;
-    setState(() {
-      controllers.add(new TextEditingController());
-      drops.add(new TextEditingController(text: dropdownItems[setText]));
-    });
+    controllers.add(new TextEditingController());
+    drops.add(new TextEditingController(text: dropdownItems[setText]));
 
     TextFormField tmpField = TextFormField(
       keyboardType: TextInputType.number,
@@ -110,23 +111,26 @@ class _HelperTextState extends State<HelperText> {
       controller: controllers[controllers.length - 1],
       validator: (val) => valid(controllers[controllers.length - 1].text),
     );
-    DropdownButtonFormField tmpDrop = DropdownButtonFormField(
-      value: drops[drops.length - 1].text,
+    DropdownButtonFormField tmpDrop = DropdownButtonFormField<String>(
+      value: drops[row].text,
       items: items,
       onChanged: (val) {
         print(val);
-        drops[drops.length - 1].text = val;
+        //setState(() {
+        drops[row].text = val;
+        //});
       },
     );
+    dropForms.add(tmpDrop);
     Row tmpRow = Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         Flexible(
-          flex: 5,
+          flex: 4,
           child: tmpField,
         ),
         SizedBox(
-          width: 15.0,
+          width: 10.0,
         ),
         Flexible(
           flex: 4,
@@ -161,11 +165,9 @@ class _HelperTextState extends State<HelperText> {
   }
 
   Widget segmentTextDialog(int segment, BuildContext context) {
-    final formKey = GlobalKey<FormState>();
-
     return AlertDialog(
       title: Text('Segment $segment Metadata'),
-      contentPadding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 2.0),
+      contentPadding: EdgeInsets.fromLTRB(14.0, 18.0, 14.0, 2.0),
       content: Form(
         key: formKey,
         child: Column(
@@ -187,9 +189,7 @@ class _HelperTextState extends State<HelperText> {
                       : Colors.grey,
                   onPressed: () {
                     if (drops.length < dropdownItems.length) {
-                      setState(() {
-                        newField();
-                      });
+                      newField(fieldRows.length);
                     }
                   },
                 ),
