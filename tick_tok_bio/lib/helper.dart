@@ -66,10 +66,13 @@ class _HelperTextState extends State<HelperText> {
   List<TextEditingController> drops;
   List<DropdownMenuItem<String>> items;
   List<String> dropdownItems = [
-    'I. scapularis nymph',
-    'I. scapularis adult male',
-    'I. scapularis adult female',
-    'A. americanum (Lone Star)',
+    'I. scapN',
+    'I. scapAM',
+    'I. scapAF',
+    'A. amer',
+    'D. vari',
+    'H. long',
+    'lxod'
   ];
 
   _HelperTextState(int segment, BuildContext cont) {
@@ -87,7 +90,7 @@ class _HelperTextState extends State<HelperText> {
         value: value,
         child: Text(
           value,
-          style: TextStyle(fontSize: 8.0),
+          style: TextStyle(fontSize: 15.0),
         ),
       );
     }).toList();
@@ -209,6 +212,11 @@ class _HelperTextState extends State<HelperText> {
                 ),
                 FlatButton(
                   onPressed: () {
+                    for (int i = 0; i < drops.length - 1; i++) {
+                      print(drops[i].text);
+                      print(i);
+                    }
+                    //print(drops[2]);
                     bool passes = true;
                     for (int i = 0; i < drops.length - 1; i++) {
                       for (int j = i + 1; j < drops.length; j++) {

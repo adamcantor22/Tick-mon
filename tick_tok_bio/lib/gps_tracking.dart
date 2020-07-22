@@ -270,21 +270,6 @@ class MapsState extends State<Maps> {
     }
   }
 
-//  void finishRouteNoSound() {
-//    WeatherTracker.updateLocation(currentPosition);
-//    List<Map<String, int>> tickData = getJSONTickData();
-//    storeRouteInformation();
-//
-//    setState(() {
-//      trackingRoute = false;
-//      positionSubscription.cancel();
-//      polylineCoordinates.clear();
-//    });
-//    //SuperListener.settingTickNum();
-//    SuperListener.moveAndCreateDrag(latestFilename);
-//    SuperListener.sendTickData(tickData);
-//  }
-
   //Cancel location tracking and sent the list of waypoints to be stored as gpx
   void finishRoute() async {
     if (soundsPresent == true) {
@@ -409,6 +394,7 @@ class MapsState extends State<Maps> {
             ),
             onPressed: () {
               setState(() {
+                SuperListener.upDateTickData();
                 moistureSelected = false;
                 habitatSelected = false;
                 siteSelected = false;
