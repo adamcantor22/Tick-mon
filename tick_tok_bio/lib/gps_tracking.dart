@@ -19,6 +19,7 @@ import 'package:latlong/latlong.dart';
 import 'package:tick_tok_bio/settings_page.dart';
 import 'segment_data.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:tick_tok_bio/metadata_page.dart';
 
 bool trackingRoute = false;
 
@@ -161,6 +162,10 @@ class MapsState extends State<Maps> {
     }
   }
 
+  void removeLatestMarker() {
+    markerLis.removeLast();
+  }
+
 //  void positionMarker() {
 //    setState(() {
 //      markerLis.clear();
@@ -248,21 +253,28 @@ class MapsState extends State<Maps> {
         });
       });
     } else {
-      sliderVisibility = true;
-      locator = new Geolocator();
-      wpts = new List<Wpt>();
-      segments = new List<Trkseg>();
-      segments.add(new Trkseg());
-      polylineCoordinates = [];
-      trackingRoute = true;
-      updateLocation();
+      setState(() {
+        print('Marking by time is' + markerViaTime.toString());
+        markerLis.clear();
+        sliderVisibility = true;
+        locator = new Geolocator();
+        wpts = new List<Wpt>();
+        segments = new List<Trkseg>();
+        segments.add(new Trkseg());
+        segmentData = new List<SegmentData>();
+        segmentData.add(new SegmentData());
+        polylineCoordinates = [];
+        trackingRoute = true;
+        updateLocation();
+      });
     }
   }
 
   //Cancel location tracking and sent the list of waypoints to be stored as gpx
   void finishRoute() async {
-    await playSound('end.mp3');
-
+    if (soundsPresent == true) {
+      await playSound('end.mp3');
+    }
     WeatherTracker.updateLocation(currentPosition);
     List<Map<String, int>> tickData = getJSONTickData();
     storeRouteInformation();
@@ -272,7 +284,7 @@ class MapsState extends State<Maps> {
       positionSubscription.cancel();
       polylineCoordinates.clear();
     });
-    SuperListener.settingTickNum();
+    //SuperListener.settingTickNum();
     SuperListener.moveAndCreateDrag(latestFilename);
     SuperListener.sendTickData(tickData);
   }
@@ -382,6 +394,10 @@ class MapsState extends State<Maps> {
             ),
             onPressed: () {
               setState(() {
+                SuperListener.upDateTickData();
+                moistureSelected = false;
+                habitatSelected = false;
+                siteSelected = false;
                 if (markerViaTime == true) {
                   timer.cancel();
                   timerVisibility = false;
@@ -525,7 +541,7 @@ class MapsState extends State<Maps> {
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return HelperText(segmentData.length - 1, context);
+        return HelperText(segmentData.length, context);
       },
     );
   }

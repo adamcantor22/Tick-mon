@@ -31,7 +31,7 @@ class LoggedInScreenState extends State<LoggedInScreen> {
       if (doc.data['name'] == 'muhlenberg') {
         for (String s in doc.data['users']) {
           if (s == email) {
-            SuperListener.tempCelsius(doc.data['celsius']);
+            //SuperListener.tempCelsius(doc.data['celsius']);
             found = true;
             break;
           }

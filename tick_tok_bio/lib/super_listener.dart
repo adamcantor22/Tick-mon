@@ -70,7 +70,7 @@ class SuperListener {
 
   static void tempCelsius(bool state) {
     dataPage.tempCelsius(state);
-    logPage.tempCelsius(state);
+    //logPage.tempCelsius(state);
   }
 
   static void autoMarking(bool state) {
@@ -96,16 +96,25 @@ class SuperListener {
   static void cancelCurrentDrag() {
     mapPage.stepsToTerminateNDelete();
   }
-  
+
   static void checkSettings() {
     settings.settingsChecker();
   }
 
-  static void settingTickNum() {
-    dataPage.settingNumsPerTick();
+  static void upDateTickData() {
+    dataPage.updateTickText();
   }
-  
+
   static void addTickSegmentData(Map<String, int> map) {
     mapPage.storeSegmentData(map);
+    dataPage.setTickData(map);
+  }
+
+  static void removeLasMarker() {
+    mapPage.removeLatestMarker();
+  }
+
+  static void setSync(String f, bool b) {
+    dataPage.changeSync(f, b);
   }
 }
