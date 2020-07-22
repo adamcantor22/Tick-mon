@@ -195,6 +195,7 @@ class MetadataSectionState extends State<MetadataSection> {
 
   void changeSync(String f, bool b) {
     syncMap[f] = b;
+    print("Setting $f to $b");
   }
 
   void drags() async {
@@ -374,13 +375,24 @@ class MetadataSectionState extends State<MetadataSection> {
     return s;
   }
 
+  Future<bool> attemptFileUploads() async {
+    bool ret = true;
+    File file1 = File('${gpxDir.path}/$editingFilename.gpx');
+    File file2 = File('${jsonDir.path}/$editingFilename.json');
+    FileUploader uploader = new FileUploader();
+    String s1 = await uploader.fileUpload(file1, '$editingFilename.gpx');
+    String s2 = await uploader.fileUpload(file2, '$editingFilename.json');
+    if (s1 == 'error' || s2 == 'error') ret = false;
+    return ret;
+  }
+
   //This function allows for the creation of cards to represent each drag's data.
   Future<Widget> dragMenu(String name) async {
     editingFilename = name;
     final b = await getFile(name);
     String display = getDragDisplayName();
-    String key1 = '$gpxDir/$editingFilename.gpx';
-    String key2 = '$jsonDir/$editingFilename.json';
+    String key1 = '${gpxDir.path}/$editingFilename.gpx';
+    String key2 = '${jsonDir.path}/$editingFilename.json';
     bool fileUploaded = syncMap.containsKey(key1) &&
         syncMap.containsKey(key2) &&
         syncMap[key1] == true &&
@@ -434,12 +446,39 @@ class MetadataSectionState extends State<MetadataSection> {
                           ),
                         ),
                         child: Center(
-                          child: Icon(
-                            Icons.file_upload,
-                            color: fileUploaded ? Colors.white : Colors.black,
-                            size: 24.0,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: <Widget>[
+                              Icon(
+                                Icons.file_upload,
+                                size: 24.0,
+                                color:
+                                    fileUploaded ? Colors.white : Colors.black,
+                              ),
+                              FlatButton(
+                                onPressed: () async {
+                                  if (!fileUploaded) {
+                                    bool b = await attemptFileUploads();
+                                    setState(() {
+                                      drags();
+                                    });
+                                  }
+                                },
+                              ),
+                            ],
                           ),
                         ),
+//                          IconButton),
+//                        (
+//                          icon: Icon(Icons.file_upload),
+//                          iconSize: 24.0,
+//                          color: fileUploaded ? Colors.white : Colors.black,
+//                          onPressed: () async {
+//                            if (!fileUploaded) {
+//                              await attemptFileUploads();
+//                            }
+//                          },
+//                        ),
                       ),
                     ),
                   ),
@@ -555,7 +594,7 @@ class MetadataSectionState extends State<MetadataSection> {
     setState(() {
       loadingData = true;
     });
-
+    print('REACHES HERE');
     curWeather = await WeatherTracker.getWeather();
     Widget newDrag = await dragMenu(newFilename);
 
@@ -578,12 +617,14 @@ class MetadataSectionState extends State<MetadataSection> {
   Future<bool> addDeterminedFields() async {
     final b = await getFile(editingFilename);
 
-    fileContent['Temp'] = (celsius
-            ? curWeather.temperature.celsius
-            : curWeather.temperature.fahrenheit)
-        .toStringAsPrecision(5)
-        .toString();
-    fileContent['Humidity'] = curWeather.humidity.toString();
+    if (curWeather != null) {
+      fileContent['Temp'] = (celsius
+              ? curWeather.temperature.celsius
+              : curWeather.temperature.fahrenheit)
+          .toStringAsPrecision(5)
+          .toString();
+      fileContent['Humidity'] = curWeather.humidity.toString();
+    }
     fileContent['Name'] = name;
     fileContent['Iscap'] = iScapN.toString();
     iScapN = 0;

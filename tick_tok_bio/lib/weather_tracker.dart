@@ -1,5 +1,6 @@
 import 'package:weather/weather_library.dart';
 import 'package:geolocator/geolocator.dart';
+import 'dart:io';
 
 class WeatherTracker {
   static final _weatherAPIKey = 'd3cc8303a3a355c572388fae28684518';
@@ -15,10 +16,17 @@ class WeatherTracker {
   }
 
   static Future<Weather> getWeather() async {
-    final weather = await tickStation.currentWeather(
-      _currentLocation.latitude,
-      _currentLocation.longitude,
-    );
-    return weather;
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        final weather = await tickStation.currentWeather(
+          _currentLocation.latitude,
+          _currentLocation.longitude,
+        );
+        return weather;
+      }
+    } on SocketException catch (_) {
+      return null;
+    }
   }
 }

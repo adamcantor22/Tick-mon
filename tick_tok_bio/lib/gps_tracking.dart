@@ -211,7 +211,7 @@ class MapsState extends State<Maps> {
     fileRef.then((file) {
       print(file.path);
       FileUploader uploader = new FileUploader();
-      final url = uploader.fileUpload(file, filename).then((val) {});
+      final url = uploader.fileUpload(file, filename);
     });
   }
 
