@@ -101,8 +101,13 @@ class SuperListener {
     settings.settingsChecker();
   }
 
+  static void upDateTickData() {
+    dataPage.updateTickText();
+  }
+
   static void addTickSegmentData(Map<String, int> map) {
     mapPage.storeSegmentData(map);
+    dataPage.setTickData(map);
   }
 
   static void removeLasMarker() {

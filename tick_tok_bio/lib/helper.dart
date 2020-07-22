@@ -212,6 +212,11 @@ class _HelperTextState extends State<HelperText> {
                 ),
                 FlatButton(
                   onPressed: () {
+                    for (int i = 0; i < drops.length - 1; i++) {
+                      print(drops[i].text);
+                      print(i);
+                    }
+                    //print(drops[2]);
                     bool passes = true;
                     for (int i = 0; i < drops.length - 1; i++) {
                       for (int j = i + 1; j < drops.length; j++) {

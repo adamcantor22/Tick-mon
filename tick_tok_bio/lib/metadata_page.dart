@@ -53,6 +53,15 @@ List dropVals = <dynamic>[
   '',
 ];
 
+var iScapN = 0;
+var iScapAM = 0;
+var iScapAF = 0;
+var aAmer = 0;
+var dVari = 0;
+var hLong = 0;
+var lxod = 0;
+var selectedSpec;
+
 Map fileContent;
 
 class MetadataSection extends StatefulWidget {
@@ -563,12 +572,6 @@ class MetadataSectionState extends State<MetadataSection> {
       viewingData = false;
       editingData = true;
       loadingData = false;
-//      myController2.text = celsius == true
-//          ? curWeather.temperature.celsius.toStringAsPrecision(5)
-//          : curWeather.temperature.fahrenheit.toStringAsPrecision(5);
-//      myController3.text = curWeather.humidity.toString();
-//      myController0.text = name;
-//      print('TEMP IS SET ***');
     });
   }
 
@@ -582,6 +585,8 @@ class MetadataSectionState extends State<MetadataSection> {
         .toString();
     fileContent['Humidity'] = curWeather.humidity.toString();
     fileContent['Name'] = name;
+    fileContent['Iscap'] = iScapN.toString();
+    iScapN = 0;
     return b;
   }
 
@@ -593,6 +598,18 @@ class MetadataSectionState extends State<MetadataSection> {
     setState(() {
       celsius = state;
     });
+  }
+
+  void updateTickText() {
+    myController6.text = iScapN.toString();
+    print(iScapN);
+  }
+
+  void setTickData(Map tickData) {
+    print(tickData);
+    if (tickData.containsKey('I. scapN')) {
+      iScapN += tickData['I. scapN'];
+    }
   }
 
   //This is the screen that appears if on clicks over to the metaData tag.
