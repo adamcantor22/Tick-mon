@@ -111,21 +111,22 @@ class SettingsState extends State<Settings> {
 
   void settingsChecker() {
     print('Settings checker has been called');
-    if (fileContentSettings['Sound'] != soundOn) {
-      showAlertDialog(context);
-      print('OOOH');
-    } else if (fileContentSettings['TempStatus'] != temperatureState) {
-      showAlertDialog(context);
-    } else if (fileContentSettings['Auto-Marker'] != autoMarker) {
-      showAlertDialog(context);
-    } else if (fileContentSettings['TimeTracking'] != timeTracking) {
-      showAlertDialog(context);
-    } else if (fileContentSettings['Distance'] != selectedDistancePerMarker) {
-      showAlertDialog(context);
-    } else if (fileContentSettings['Time'] != selectedTimePerMarker) {
-      showAlertDialog(context);
+    if (fileContentSettings != null) {
+      if (fileContentSettings['Sound'] != soundOn) {
+        showAlertDialog(context);
+        print('OOOH');
+      } else if (fileContentSettings['TempStatus'] != temperatureState) {
+        showAlertDialog(context);
+      } else if (fileContentSettings['Auto-Marker'] != autoMarker) {
+        showAlertDialog(context);
+      } else if (fileContentSettings['TimeTracking'] != timeTracking) {
+        showAlertDialog(context);
+      } else if (fileContentSettings['Distance'] != selectedDistancePerMarker) {
+        showAlertDialog(context);
+      } else if (fileContentSettings['Time'] != selectedTimePerMarker) {
+        showAlertDialog(context);
+      }
     }
-    //if(fileContentSettings['TempStatus'] != )
   }
 
   void createFile(Map<dynamic, dynamic> content) {
@@ -298,7 +299,7 @@ class SettingsState extends State<Settings> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Sound Reminder On',
+                'Sound Reminder Off',
                 style: TextStyle(fontSize: 18.0),
               ),
               Switch(
@@ -312,7 +313,7 @@ class SettingsState extends State<Settings> {
                     });
                   }),
               Text(
-                'Sound Reminder Off',
+                'Sound Reminder On',
                 style: TextStyle(fontSize: 18.0),
               ),
             ],
