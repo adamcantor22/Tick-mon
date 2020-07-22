@@ -101,15 +101,15 @@ class SuperListener {
     settings.settingsChecker();
   }
 
-//  static void settingTickNum() {
-//    dataPage.settingNumsPerTick();
-//  }
-
   static void addTickSegmentData(Map<String, int> map) {
     mapPage.storeSegmentData(map);
   }
 
   static void removeLasMarker() {
     mapPage.removeLatestMarker();
+  }
+
+  static void setSync(String f, bool b) {
+    dataPage.changeSync(f, b);
   }
 }
