@@ -300,6 +300,7 @@ class MapsState extends State<Maps> {
     }
     WeatherTracker.updateLocation(currentPosition);
     List<Map<String, int>> tickData = getJSONTickData();
+
     storeRouteInformation();
 
     setState(() {

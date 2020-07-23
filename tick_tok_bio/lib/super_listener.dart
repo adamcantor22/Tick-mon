@@ -3,6 +3,8 @@
     can be used to switch between pages or get information from a different page.
  */
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:tick_tok_bio/gps_tracking.dart';
 import 'package:tick_tok_bio/logged_in_screen.dart';
@@ -14,7 +16,7 @@ import 'settings_page.dart';
 class SuperListener {
   static HomePageState homePage;
   static MapsState mapPage;
-  static UserPageState userPage;
+  //static UserPageState userPage;
   static MetadataSectionState dataPage;
   static LoggedInScreenState logPage;
   static SettingsState settings;
@@ -23,14 +25,14 @@ class SuperListener {
   static void setPages({
     HomePageState hPage,
     MapsState mPage,
-    UserPageState uPage,
+    //UserPageState uPage,
     MetadataSectionState dPage,
     LoggedInScreenState lPage,
     SettingsState sPage,
   }) {
     if (hPage != null) homePage = hPage;
     if (mPage != null) mapPage = mPage;
-    if (uPage != null) userPage = uPage;
+    //if (uPage != null) userPage = uPage;
     if (dPage != null) dataPage = dPage;
     if (lPage != null) logPage = lPage;
     if (sPage != null) settings = sPage;
@@ -47,7 +49,8 @@ class SuperListener {
 
   //Returns the active user, null if null
   static String getUser() {
-    return userPage.getUser();
+    //return userPage.getUser();
+    return logPage.getUser();
   }
 
   static void moveAndCreateDrag(String filename) {
@@ -60,7 +63,7 @@ class SuperListener {
   }
 
   static int emptyRef() {
-    if (userPage == null) return 0;
+    if (logPage == null) return 0;
     if (mapPage == null) return 1;
     if (dataPage == null) return 2;
     if (settings == null) return 3;
