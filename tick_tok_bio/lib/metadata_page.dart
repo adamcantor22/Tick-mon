@@ -636,7 +636,7 @@ class MetadataSectionState extends State<MetadataSection> {
       editingFilename = newFilename;
     });
 
-    final b = await addDeterminedFields();
+    //final b = await addDeterminedFields();
 
     setState(() {
       print('CHANGING TO EDIT MODE');
@@ -655,8 +655,9 @@ class MetadataSectionState extends State<MetadataSection> {
               : curWeather.temperature.fahrenheit)
           .toStringAsPrecision(5)
           .toString();
+      fileContent['Humidity'] = curWeather.humidity.toString();
     }
-    fileContent['Humidity'] = curWeather.humidity.toString();
+
     if (name != null) {
       fileContent['Name'] = name;
     }
@@ -1084,7 +1085,8 @@ class MetadataSectionState extends State<MetadataSection> {
                           segmentedTickData,
                         );
                         if (loggedIn == true) {
-                          sendJsonToCloud();
+                          //sendJsonToCloud();
+                          attemptFileUploads();
                         }
                         drags();
 
