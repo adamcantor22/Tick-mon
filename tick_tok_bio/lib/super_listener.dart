@@ -117,4 +117,8 @@ class SuperListener {
   static void setSync(String f, bool b) {
     dataPage.changeSync(f, b);
   }
+
+  static void posSubDispose() {
+    mapPage.positionSubDispose();
+  }
 }

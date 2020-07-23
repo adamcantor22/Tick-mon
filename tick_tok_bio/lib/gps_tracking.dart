@@ -22,6 +22,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tick_tok_bio/metadata_page.dart';
 
 bool trackingRoute = false;
+bool signingOff = false;
 
 class Maps extends StatefulWidget {
   bool get wantKeepAlive => true;
@@ -141,26 +142,48 @@ class MapsState extends State<Maps> {
   }
 
   void stepsToTerminateNDelete() {
-    if (trackingRoute == true) {
-      setState(() {
-        if (markerViaTime == true) {
-          timer.cancel();
-        }
-        trackingRoute = false;
-        positionSubscription.cancel();
-        polylineCoordinates.clear();
-        cancellationPopUpPresent = false;
-        cancelDragVal = 0.0;
-        markerLis = [];
-        lastDropPoint = null;
-        afterFirstDrop = false;
-        checkPointsCleared = 0;
-        timerVisibility = false;
-        markerLis.clear();
-        autoCameraMoveVisibility = false;
-      });
+    print('The drag is being hanndled');
+    if (markerViaTime == true) {
+      timer.cancel();
     }
+    trackingRoute = false;
+    polylineCoordinates.clear();
+    cancellationPopUpPresent = false;
+    cancelDragVal = 0.0;
+    markerLis = [];
+    lastDropPoint = null;
+    afterFirstDrop = false;
+    checkPointsCleared = 0;
+    timerVisibility = false;
+    //positionMarker();
+    autoCameraMoveVisibility = false;
+    iScapN = 0;
+    iScapAM = 0;
+    iScapAF = 0;
+    aAmer = 0;
+    dVari = 0;
+    hLong = 0;
+    lxod = 0;
+    print('Done');
   }
+//    setState(() {
+//      if (markerViaTime == true) {
+//        timer.cancel();
+//      }
+//      trackingRoute = false;
+//      positionSubscription.cancel();
+//      polylineCoordinates.clear();
+//      cancellationPopUpPresent = false;
+//      cancelDragVal = 0.0;
+//      markerLis = [];
+//      lastDropPoint = null;
+//      afterFirstDrop = false;
+//      checkPointsCleared = 0;
+//      timerVisibility = false;
+//      markerLis.clear();
+//      autoCameraMoveVisibility = false;
+//    });
+//  }
 
   void removeLatestMarker() {
     markerLis.removeLast();
@@ -318,25 +341,31 @@ class MapsState extends State<Maps> {
   void autoTrackingNonDrag() {
     LocationOptions opt = LocationOptions(
       accuracy: LocationAccuracy.best,
-      distanceFilter: 0,
+      distanceFilter: trackingRoute == true ? 0 : 1,
     );
     positionSubscription =
         locator.getPositionStream(opt).listen((Position cPos) {
       c += 1;
-      if (trackingRoute == false) {
-        if (c > 4) {
-          setState(() {
-            currentLat = cPos.latitude;
-            currentLong = cPos.longitude;
-            markerLis.clear();
-            markerLis.add(userLocationMarkerFunc());
-            if (autoCamerMove == true) {
-              _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
-            }
-          });
+      if (signingOff == false) {
+        if (trackingRoute == false) {
+          if (c > 4) {
+            setState(() {
+              currentLat = cPos.latitude;
+              currentLong = cPos.longitude;
+              markerLis.clear();
+              markerLis.add(userLocationMarkerFunc());
+              if (autoCamerMove == true) {
+                _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
+              }
+            });
+          }
         }
       }
     });
+  }
+
+  void positionSubDispose() {
+    positionSubscription.cancel();
   }
 
   //Tracking location subscription, update every point as it comes up
@@ -782,47 +811,25 @@ class MapsState extends State<Maps> {
                 icon: Icon(Icons.zoom_in),
                 onPressed: () {
                   setState(() {
-                    zoomLevel += 1;
-                    _mapController.move(
-                        LatLng(currentLat, currentLong), zoomLevel);
-                    //getRandColor();
+//                    signingOff = !signingOff;
+                    print(signingOff);
                   });
                 })),
-        Positioned(
-          bottom: 100.0,
-          right: 10.0,
-          child: IconButton(
-            iconSize: 50.0,
-            icon: Icon(Icons.zoom_out),
-            onPressed: () {
-              setState(() {
-                zoomLevel -= 1;
-                _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
-              });
-            },
-          ),
-        ),
 //        Positioned(
-//          top: 15.0,
+//          bottom: 100.0,
 //          right: 10.0,
-//          child: Container(
-//            decoration: BoxDecoration(
-//              color: Colors.blue,
-//              borderRadius: BorderRadius.all(
-//                Radius.circular(10.0),
-//              ),
-//            ),
-//            child: IconButton(
-//              icon: Icon(Icons.location_on),
-//              color: Colors.red,
-//              onPressed: () {
-//                setState(() {
-//                  getLoc();
-//                });
-//              },
-//            ),
+//          child: IconButton(
+//            iconSize: 50.0,
+//            icon: Icon(Icons.zoom_out),
+//            onPressed: () {
+//              setState(() {
+//                zoomLevel -= 1;
+//                _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
+//              });
+//            },
 //          ),
 //        ),
+
         Positioned(
           bottom: 10.0,
           left: 1.0,
