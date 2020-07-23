@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tick_tok_bio/gps_tracking.dart';
+import 'package:tick_tok_bio/metadata_page.dart';
 import 'package:tick_tok_bio/user_page.dart';
 import 'main.dart';
 import 'user_page.dart';
@@ -20,6 +22,48 @@ class LoggedInScreenState extends State<LoggedInScreen> {
     SuperListener.setPages(lPage: this);
     print('LOGGED IN PAGE INITIALIZED');
     getPrefs(email);
+  }
+
+  cancelDragFirst(BuildContext context) {
+    Widget agreement = FlatButton(
+        onPressed: () {
+          setState(() {
+            Navigator.pop(context);
+          });
+        },
+        child: Text('Ok.'));
+
+    AlertDialog alert = AlertDialog(
+      title: Text('You cannot log out while there is a drag in progress.'),
+      actions: [agreement],
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        });
+  }
+
+  finishDragEdit(BuildContext context) {
+    Widget agreement = FlatButton(
+        onPressed: () {
+          setState(() {
+            Navigator.pop(context);
+          });
+        },
+        child: Text('Ok.'));
+
+    AlertDialog alert = AlertDialog(
+      title: Text('You cannot log out while a drag edit is opened'),
+      actions: [agreement],
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        });
   }
 
   Future<void> getPrefs(String email) async {
@@ -58,12 +102,20 @@ class LoggedInScreenState extends State<LoggedInScreen> {
               RaisedButton(
                 color: Colors.blue,
                 onPressed: () {
-                  setState(() {
-                    googleSignIn.signOut();
-                    access = false;
-                    Navigator.pushReplacementNamed(context, 'LoginScreen');
-                    SuperListener.cancelCurrentDrag();
-                  });
+                  signingOff = true;
+                  if (trackingRoute == false && editingData == false) {
+                    setState(() {
+                      //SuperListener.posSubDispose();
+                      SuperListener.cancelCurrentDrag();
+                      googleSignIn.signOut();
+                      access = false;
+                      Navigator.pushReplacementNamed(context, 'LoginScreen');
+                    });
+                  } else if (trackingRoute == true) {
+                    cancelDragFirst(context);
+                  } else if (editingData == true) {
+                    finishDragEdit(context);
+                  }
                 },
                 child: Text(
                   'Logout',
