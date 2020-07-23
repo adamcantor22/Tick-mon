@@ -21,9 +21,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: 'LoginScreen',
+      initialRoute: 'LoggedInFeatures',
       routes: {
-        'LoginScreen': (context) => UserPage(),
+        //'LoginScreen': (context) => UserPage(),
         'LoggedInFeatures': (context) => HomePage()
       },
     );
@@ -39,7 +39,7 @@ class HomePageState extends State<HomePage> {
   MetadataSection metadataSection = MetadataSection();
   Maps maps = Maps();
   LoggedInScreen loggedInPage = LoggedInScreen();
-  UserPage userPage = UserPage();
+  //UserPage userPage = UserPage();
   Settings settings = Settings();
   int priorIndex;
 

@@ -13,6 +13,7 @@ import 'weather_tracker.dart';
 import 'package:weather/weather_library.dart';
 import 'gps_tracking.dart';
 import 'package:tick_tok_bio/helper.dart';
+import 'package:tick_tok_bio/logged_in_screen.dart';
 
 //These are the three boolean values used to determine which screen we are currently on
 bool viewingDrags = true;
@@ -370,7 +371,11 @@ class MetadataSectionState extends State<MetadataSection> {
             : 'GQ') +
         ' ';
     //s += '1' + ' '; //put this back with a functioning counter, not just 1
-    s += '${name.substring(0, 3).toUpperCase()}' + ' ';
+
+    name != null
+        ? s += '${name.substring(0, 3).toUpperCase()}' + ' '
+        : s += 'USER ';
+
     s += editingFilename.substring(0, 10);
     return s;
   }
@@ -617,15 +622,15 @@ class MetadataSectionState extends State<MetadataSection> {
   Future<bool> addDeterminedFields() async {
     final b = await getFile(editingFilename);
 
-    if (curWeather != null) {
-      fileContent['Temp'] = (celsius
-              ? curWeather.temperature.celsius
-              : curWeather.temperature.fahrenheit)
-          .toStringAsPrecision(5)
-          .toString();
-      fileContent['Humidity'] = curWeather.humidity.toString();
+    fileContent['Temp'] = (celsius
+            ? curWeather.temperature.celsius
+            : curWeather.temperature.fahrenheit)
+        .toStringAsPrecision(5)
+        .toString();
+    fileContent['Humidity'] = curWeather.humidity.toString();
+    if (name != null) {
+      fileContent['Name'] = name;
     }
-    fileContent['Name'] = name;
     fileContent['Iscap'] = iScapN.toString();
     iScapN = 0;
     fileContent['IscapAM'] = iScapAM.toString();
