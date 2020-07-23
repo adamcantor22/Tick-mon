@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tick_tok_bio/gps_tracking.dart';
+import 'package:tick_tok_bio/metadata_page.dart';
 import 'package:tick_tok_bio/user_page.dart';
 import 'main.dart';
 import 'user_page.dart';
@@ -34,6 +35,27 @@ class LoggedInScreenState extends State<LoggedInScreen> {
 
     AlertDialog alert = AlertDialog(
       title: Text('You cannot log out while there is a drag in progress.'),
+      actions: [agreement],
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        });
+  }
+
+  finishDragEdit(BuildContext context) {
+    Widget agreement = FlatButton(
+        onPressed: () {
+          setState(() {
+            Navigator.pop(context);
+          });
+        },
+        child: Text('Ok.'));
+
+    AlertDialog alert = AlertDialog(
+      title: Text('You cannot log out while a drag edit is opened'),
       actions: [agreement],
     );
 
@@ -81,7 +103,7 @@ class LoggedInScreenState extends State<LoggedInScreen> {
                 color: Colors.blue,
                 onPressed: () {
                   signingOff = true;
-                  if (trackingRoute == false) {
+                  if (trackingRoute == false && editingData == false) {
                     setState(() {
                       //SuperListener.posSubDispose();
                       SuperListener.cancelCurrentDrag();
@@ -89,8 +111,10 @@ class LoggedInScreenState extends State<LoggedInScreen> {
                       access = false;
                       Navigator.pushReplacementNamed(context, 'LoginScreen');
                     });
-                  } else {
+                  } else if (trackingRoute == true) {
                     cancelDragFirst(context);
+                  } else if (editingData == true) {
+                    finishDragEdit(context);
                   }
                 },
                 child: Text(
