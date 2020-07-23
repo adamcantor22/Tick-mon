@@ -1083,7 +1083,9 @@ class MetadataSectionState extends State<MetadataSection> {
                           'Ticks',
                           segmentedTickData,
                         );
-                        sendJsonToCloud();
+                        if (loggedIn == true) {
+                          sendJsonToCloud();
+                        }
                         drags();
 
                         setState(() {

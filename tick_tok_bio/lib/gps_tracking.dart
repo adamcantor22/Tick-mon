@@ -5,6 +5,7 @@ import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gpx/gpx.dart';
+import 'package:tick_tok_bio/logged_in_screen.dart';
 import 'package:tick_tok_bio/super_listener.dart';
 import 'package:path_provider/path_provider.dart';
 import 'file_uploader.dart';
@@ -231,11 +232,14 @@ class MapsState extends State<Maps> {
     print(gpxStr);
     String filename = currentTime();
     final fileRef = writeContent(filename, gpxStr);
-    fileRef.then((file) {
-      print(file.path);
-      FileUploader uploader = new FileUploader();
-      final url = uploader.fileUpload(file, filename);
-    });
+
+    if (loggedIn == true) {
+      fileRef.then((file) {
+        print(file.path);
+        FileUploader uploader = new FileUploader();
+        final url = uploader.fileUpload(file, filename);
+      });
+    }
   }
 
   //Write the content to the local disk
