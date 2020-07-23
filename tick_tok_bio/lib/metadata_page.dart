@@ -462,11 +462,15 @@ class MetadataSectionState extends State<MetadataSection> {
                               ),
                               FlatButton(
                                 onPressed: () async {
-                                  if (!fileUploaded) {
-                                    bool b = await attemptFileUploads();
-                                    setState(() {
-                                      drags();
-                                    });
+                                  if (loggedIn == true) {
+                                    if (!fileUploaded) {
+                                      bool b = await attemptFileUploads();
+                                      setState(() {
+                                        drags();
+                                      });
+                                    }
+                                  } else {
+                                    logInToUpload(context);
                                   }
                                 },
                               ),
@@ -494,6 +498,30 @@ class MetadataSectionState extends State<MetadataSection> {
         ),
       ),
     );
+  }
+
+  logInToUpload(BuildContext context) {
+    Widget agreement = FlatButton(
+        onPressed: () {
+          setState(() {
+            Navigator.pop(context);
+          });
+        },
+        child: Text('Ok.'));
+
+    AlertDialog alert = AlertDialog(
+      title: Text(
+        'You must be logged in to upload to the database. \n Login with google and try again.',
+        textAlign: TextAlign.center,
+      ),
+      actions: [agreement],
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        });
   }
 
 //This function is used to populate the screen where all the data for a drag is being viewed.
@@ -621,12 +649,13 @@ class MetadataSectionState extends State<MetadataSection> {
 
   Future<bool> addDeterminedFields() async {
     final b = await getFile(editingFilename);
-
-    fileContent['Temp'] = (celsius
-            ? curWeather.temperature.celsius
-            : curWeather.temperature.fahrenheit)
-        .toStringAsPrecision(5)
-        .toString();
+    if (curWeather != null) {
+      fileContent['Temp'] = (celsius
+              ? curWeather.temperature.celsius
+              : curWeather.temperature.fahrenheit)
+          .toStringAsPrecision(5)
+          .toString();
+    }
     fileContent['Humidity'] = curWeather.humidity.toString();
     if (name != null) {
       fileContent['Name'] = name;
