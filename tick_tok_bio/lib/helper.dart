@@ -65,7 +65,6 @@ class _HelperTextState extends State<HelperText> {
   List<TextEditingController> controllers;
   List<TextEditingController> drops;
   List<DropdownMenuItem<String>> items;
-  List<DropdownButtonFormField<String>> dropForms;
   final formKey = GlobalKey<FormState>();
   List<String> dropdownItems = [
     'I. scapN',
@@ -87,7 +86,6 @@ class _HelperTextState extends State<HelperText> {
     controllers = new List<TextEditingController>();
     fieldRows = new List<Widget>();
     drops = new List<TextEditingController>();
-    dropForms = new List<DropdownButtonFormField<String>>();
     items = dropdownItems.map<DropdownMenuItem<String>>((String value) {
       return DropdownMenuItem<String>(
         value: value,
@@ -121,7 +119,6 @@ class _HelperTextState extends State<HelperText> {
         //});
       },
     );
-    dropForms.add(tmpDrop);
     Row tmpRow = Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
@@ -146,6 +143,14 @@ class _HelperTextState extends State<HelperText> {
           child: tmpRow,
         ),
       );
+    });
+  }
+
+  void removeField() {
+    setState(() {
+      fieldRows.removeLast();
+      controllers.removeLast();
+      drops.removeLast();
     });
   }
 
@@ -179,8 +184,18 @@ class _HelperTextState extends State<HelperText> {
               children: fieldRows,
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
+                IconButton(
+                  padding: EdgeInsets.all(0.0),
+                  icon: Icon(Icons.remove),
+                  color: drops.length > 1 ? Colors.red : Colors.grey,
+                  onPressed: () {
+                    if (drops.length > 1) {
+                      removeField();
+                    }
+                  },
+                ),
                 IconButton(
                   padding: EdgeInsets.all(0.0),
                   icon: Icon(Icons.add),

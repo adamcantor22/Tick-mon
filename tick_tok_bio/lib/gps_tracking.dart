@@ -5,6 +5,7 @@ import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gpx/gpx.dart';
+import 'package:tick_tok_bio/logged_in_screen.dart';
 import 'package:tick_tok_bio/super_listener.dart';
 import 'package:path_provider/path_provider.dart';
 import 'file_uploader.dart';
@@ -54,7 +55,7 @@ class MapsState extends State<Maps> {
   double distanceBetweenPoints;
   Position lastDropPoint;
   bool afterFirstDrop = false;
-  List<Marker> markerLis = [];
+  List<Marker> markerList = [];
   final player = AudioCache();
   double distancePerMarker = 20.0;
   int checkPointsPerMarker;
@@ -96,7 +97,7 @@ class MapsState extends State<Maps> {
       zoomLevel,
     );
     setState(() {
-      markerLis.add(userLocationMarkerFunc());
+      markerList.add(userLocationMarkerFunc());
       currentPosition = pos;
       currentLat = pos.latitude;
       currentLong = pos.longitude;
@@ -150,7 +151,7 @@ class MapsState extends State<Maps> {
     polylineCoordinates.clear();
     cancellationPopUpPresent = false;
     cancelDragVal = 0.0;
-    markerLis = [];
+    markerList = [];
     lastDropPoint = null;
     afterFirstDrop = false;
     checkPointsCleared = 0;
@@ -186,7 +187,7 @@ class MapsState extends State<Maps> {
 //  }
 
   void removeLatestMarker() {
-    markerLis.removeLast();
+    markerList.removeLast();
   }
 
 //  void positionMarker() {
@@ -231,11 +232,14 @@ class MapsState extends State<Maps> {
     print(gpxStr);
     String filename = currentTime();
     final fileRef = writeContent(filename, gpxStr);
-    fileRef.then((file) {
-      print(file.path);
-      FileUploader uploader = new FileUploader();
-      final url = uploader.fileUpload(file, filename);
-    });
+
+//    if (loggedIn == true) {
+//      fileRef.then((file) {
+//        print(file.path);
+//        FileUploader uploader = new FileUploader();
+//        final url = uploader.fileUpload(file, filename);
+//      });
+//    }
   }
 
   //Write the content to the local disk
@@ -261,7 +265,7 @@ class MapsState extends State<Maps> {
       sub = audioCache.fixedPlayer.onPlayerCompletion.listen((event) {
         setState(() {
           print('Marking by time is' + markerViaTime.toString());
-          markerLis.clear();
+          markerList.clear();
           sliderVisibility = true;
           locator = new Geolocator();
           wpts = new List<Wpt>();
@@ -278,7 +282,7 @@ class MapsState extends State<Maps> {
     } else {
       setState(() {
         print('Marking by time is' + markerViaTime.toString());
-        markerLis.clear();
+        markerList.clear();
         sliderVisibility = true;
         locator = new Geolocator();
         wpts = new List<Wpt>();
@@ -300,6 +304,7 @@ class MapsState extends State<Maps> {
     }
     WeatherTracker.updateLocation(currentPosition);
     List<Map<String, int>> tickData = getJSONTickData();
+
     storeRouteInformation();
 
     setState(() {
@@ -334,7 +339,7 @@ class MapsState extends State<Maps> {
       _mapController.move(
           LatLng(currentPosition.latitude, currentPosition.longitude),
           zoomLevel);
-      markerLis.add(userLocationMarkerFunc());
+      markerList.add(userLocationMarkerFunc());
     });
   }
 
@@ -352,8 +357,8 @@ class MapsState extends State<Maps> {
             setState(() {
               currentLat = cPos.latitude;
               currentLong = cPos.longitude;
-              markerLis.clear();
-              markerLis.add(userLocationMarkerFunc());
+              markerList.clear();
+              markerList.add(userLocationMarkerFunc());
               if (autoCamerMove == true) {
                 _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
               }
@@ -394,10 +399,10 @@ class MapsState extends State<Maps> {
         polylineCoordinates
             .add(LatLng(currentPosition.latitude, currentPosition.longitude));
 
-        if (markerLis.length > 0) {
-          markerLis.removeLast();
+        if (markerList.length > 0) {
+          markerList.removeLast();
         }
-        markerLis.add(userLocationMarkerFunc());
+        markerList.add(userLocationMarkerFunc());
         if (autoMarking == true) {
           markerUpdate();
         }
@@ -435,7 +440,7 @@ class MapsState extends State<Maps> {
                 popUpPresent = false;
                 lastDropPoint = null;
                 afterFirstDrop = false;
-                markerLis.clear();
+                markerList.clear();
                 lastDropPoint = null;
                 checkPointsCleared = 0;
                 //Possibly add something
@@ -556,9 +561,11 @@ class MapsState extends State<Maps> {
     dropTrackBreakPoint();
     setState(() {
       checkPointsCleared = 0;
-      markerLis.removeLast();
-      markerLis.add(droppedMarkerFunc());
-      markerLis.add(userLocationMarkerFunc());
+      if (markerList.isNotEmpty) {
+        markerList.removeLast();
+      }
+      markerList.add(droppedMarkerFunc());
+      markerList.add(userLocationMarkerFunc());
     });
 
     markerColorsIndex += 1;
@@ -722,7 +729,7 @@ class MapsState extends State<Maps> {
                   polylineCoordinates.clear();
                   cancellationPopUpPresent = false;
                   cancelDragVal = 0.0;
-                  markerLis = [];
+                  markerList = [];
                   lastDropPoint = null;
                   afterFirstDrop = false;
                   checkPointsCleared = 0;
@@ -771,7 +778,7 @@ class MapsState extends State<Maps> {
               urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
               subdomains: ['a', 'b', 'c'],
             ),
-            MarkerLayerOptions(markers: markerLis
+            MarkerLayerOptions(markers: markerList
 //              markers: markerLis != null
 //                  ? markerLis
 //                  : [
