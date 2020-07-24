@@ -1100,11 +1100,13 @@ class MetadataSectionState extends State<MetadataSection> {
                         }
                       }
                     }
-                    setState(() {
-                      editingData = false;
-                      viewingData = false;
-                      viewingDrags = true;
-                    });
+                    if (siteSelected && habitatSelected && moistureSelected) {
+                      setState(() {
+                        editingData = false;
+                        viewingData = false;
+                        viewingDrags = true;
+                      });
+                    }
                   },
                   child: Text('Save Drag Data'),
                 ),
