@@ -154,7 +154,7 @@ class HomePageState extends State<HomePage> {
       backgroundColor: Colors.blue,
       type: BottomNavigationBarType.fixed,
       items: <BottomNavigationBarItem>[
-        navBarItem(Icons.person, 'Welcome Screen'),
+        navBarItem(Icons.person, 'User'),
         navBarItem(Icons.explore, 'Map'),
         navBarItem(Icons.storage, 'Drags'),
         navBarItem(Icons.settings, 'Settings'),
