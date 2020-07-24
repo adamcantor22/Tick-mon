@@ -233,13 +233,13 @@ class MapsState extends State<Maps> {
     String filename = currentTime();
     final fileRef = writeContent(filename, gpxStr);
 
-//    if (loggedIn == true) {
-//      fileRef.then((file) {
-//        print(file.path);
-//        FileUploader uploader = new FileUploader();
-//        final url = uploader.fileUpload(file, filename);
-//      });
-//    }
+    if (loggedIn == true) {
+      fileRef.then((file) {
+        print(file.path);
+        FileUploader uploader = new FileUploader();
+        final url = uploader.fileUpload(file, filename);
+      });
+    }
   }
 
   //Write the content to the local disk
