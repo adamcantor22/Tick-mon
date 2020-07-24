@@ -19,6 +19,8 @@ bool viewingDrags = true;
 bool viewingData = false;
 bool editingData = false;
 
+bool changesMade = false;
+
 bool siteSelected = false;
 bool moistureSelected = false;
 bool habitatSelected = false;
@@ -84,11 +86,10 @@ class MetadataSectionState extends State<MetadataSection> {
   String editingFilename;
   Weather curWeather;
   final _editKey = GlobalKey<FormState>();
-  bool changesMade;
   bool loadingData = false;
   bool celsius = false;
   List<Map<String, int>> segmentedTickData;
-  Map<String, bool> syncMap = Map<String, bool>();
+  Map<String, dynamic> syncMap = Map<String, bool>();
   File syncFile;
 
   List habitatList = <String>[
@@ -179,12 +180,14 @@ class MetadataSectionState extends State<MetadataSection> {
 
   void syncChecker() async {
     bool syncExists = false;
-    syncFile = File('$dir/sync.json');
+    syncFile = File('${dir.path}/sync.json');
     for (FileSystemEntity f in fileList) {
       String p = f.path;
       if (p.substring(p.length - 9, p.length) == 'sync.json') {
         syncExists = true;
-        syncMap = jsonDecode(syncFile.readAsStringSync());
+        String toDecode = syncFile.readAsStringSync();
+        print('To Decode: $toDecode the end');
+        syncMap = jsonDecode(toDecode);
         break;
       }
     }
@@ -196,6 +199,14 @@ class MetadataSectionState extends State<MetadataSection> {
   void changeSync(String f, bool b) {
     syncMap[f] = b;
     print("Setting $f to $b");
+    Map<String, dynamic> jsonFileContents;
+    try {
+      jsonFileContents = json.decode(syncFile.readAsStringSync());
+    } on Exception catch (e) {
+      jsonFileContents = new Map<String, dynamic>();
+    }
+    jsonFileContents.addAll(syncMap);
+    syncFile.writeAsStringSync(json.encode(jsonFileContents));
   }
 
   void drags() async {
@@ -340,16 +351,15 @@ class MetadataSectionState extends State<MetadataSection> {
   Future<bool> getFile(String thisFilename) async {
     fileName = '$thisFilename.json';
     Directory directory = await getApplicationDocumentsDirectory();
-    dir = Directory(directory.path + '/json');
     print(fileName);
-    jsonFile = File(dir.path + '/' + fileName);
+    jsonFile = File(jsonDir.path + '/' + fileName);
     fileExists = await jsonFile.exists();
     if (fileExists) {
       setState(() {
         fileContent = json.decode(jsonFile.readAsStringSync());
       });
     } else {
-      File file = File(dir.path + '/' + fileName);
+      File file = File(jsonDir.path + '/' + fileName);
       file.createSync();
       fileExists = true;
       Map contents = {};
@@ -375,7 +385,8 @@ class MetadataSectionState extends State<MetadataSection> {
     return s;
   }
 
-  Future<bool> attemptFileUploads() async {
+  Future<bool> attemptFileUploads(String name) async {
+    editingFilename = name;
     bool ret = true;
     File file1 = File('${gpxDir.path}/$editingFilename.gpx');
     File file2 = File('${jsonDir.path}/$editingFilename.json');
@@ -458,7 +469,7 @@ class MetadataSectionState extends State<MetadataSection> {
                               FlatButton(
                                 onPressed: () async {
                                   if (!fileUploaded) {
-                                    bool b = await attemptFileUploads();
+                                    bool b = await attemptFileUploads(name);
                                     setState(() {
                                       drags();
                                     });
@@ -751,12 +762,12 @@ class MetadataSectionState extends State<MetadataSection> {
         ],
       ),
       body: Container(
-        padding: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
+        padding: EdgeInsets.symmetric(horizontal: 10.0),
         color: Colors.grey[200],
         child: ListView(
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.only(bottom: 7.0),
+              padding: EdgeInsets.only(top: 20.0, bottom: 7.0),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.blueGrey[400],
@@ -778,18 +789,14 @@ class MetadataSectionState extends State<MetadataSection> {
                           fileContent['GroundMoisture'].toString()),
                       infoRow('Habitat Type',
                           fileContent['HabitatType'].toString()),
-                      infoRow('I. scapularis nymph',
-                          fileContent['Iscap'].toString()),
-                      infoRow('I. scapularis adult male',
+                      infoRow(
+                          'I. scap. nymph', fileContent['Iscap'].toString()),
+                      infoRow('I. scap. adult male',
                           fileContent['IscapAM'].toString()),
-                      infoRow(
-                          'I. scapularis adult female', fileContent['IscapAF']),
-                      infoRow(
-                          'A. americanum (Lone star)', fileContent['A.amer']),
-                      infoRow('D. variabilis (American dog)',
-                          fileContent['D.vari']),
-                      infoRow(
-                          'H. longicornis (Longhorned)', fileContent['H.long']),
+                      infoRow('I. scap. adult female', fileContent['IscapAF']),
+                      infoRow('A. amer. (Lone star)', fileContent['A.amer']),
+                      infoRow('D. vari. (American dog)', fileContent['D.vari']),
+                      infoRow('H. long. (Longhorned)', fileContent['H.long']),
                       infoRow('lxodes spp (other)', fileContent['lxodes']),
                       infoRow('Notes', fileContent['Notes'].toString()),
                     ],
@@ -1008,57 +1015,58 @@ class MetadataSectionState extends State<MetadataSection> {
                 child: RaisedButton(
                   textColor: Colors.white,
                   color: Colors.blue,
-                  onPressed: () {
-                    print(moistureSelected);
-                    print(habitatSelected);
-                    print(siteSelected);
-                    if (_editKey.currentState.validate()) {
-                      if (siteSelected == true &&
-                          moistureSelected == true &&
-                          habitatSelected == true) {
-                        writeToFile(
-                          thisFilename,
-                          'Name',
-                          myController0.text,
-                          'Site',
-                          myController1.text,
-                          'Temp',
-                          myController2.text,
-                          'Humidity',
-                          myController3.text,
-                          'GroundMoisture',
-                          myController4.text,
-                          'HabitatType',
-                          myController5.text,
-                          'Iscap',
-                          myController6.text,
-                          'IscapAM',
-                          myController7.text,
-                          'IscapAF',
-                          myController8.text,
-                          'A.amer',
-                          myController9.text,
-                          'D.vari',
-                          myController10.text,
-                          'H.long',
-                          myController11.text,
-                          'lxodes',
-                          myController12.text,
-                          'Notes',
-                          myController13.text,
-                          'Ticks',
-                          segmentedTickData,
-                        );
-                        sendJsonToCloud();
-                        drags();
-
-                        setState(() {
-                          editingData = false;
-                          viewingData = false;
-                          viewingDrags = true;
-                        });
+                  onPressed: () async {
+                    if (changesMade) {
+                      print(moistureSelected);
+                      print(habitatSelected);
+                      print(siteSelected);
+                      if (_editKey.currentState.validate()) {
+                        if (siteSelected == true &&
+                            moistureSelected == true &&
+                            habitatSelected == true) {
+                          writeToFile(
+                            thisFilename,
+                            'Name',
+                            myController0.text,
+                            'Site',
+                            myController1.text,
+                            'Temp',
+                            myController2.text,
+                            'Humidity',
+                            myController3.text,
+                            'GroundMoisture',
+                            myController4.text,
+                            'HabitatType',
+                            myController5.text,
+                            'Iscap',
+                            myController6.text,
+                            'IscapAM',
+                            myController7.text,
+                            'IscapAF',
+                            myController8.text,
+                            'A.amer',
+                            myController9.text,
+                            'D.vari',
+                            myController10.text,
+                            'H.long',
+                            myController11.text,
+                            'lxodes',
+                            myController12.text,
+                            'Notes',
+                            myController13.text,
+                            'Ticks',
+                            segmentedTickData,
+                          );
+                          await sendJsonToCloud();
+                          drags();
+                        }
                       }
                     }
+                    setState(() {
+                      editingData = false;
+                      viewingData = false;
+                      viewingDrags = true;
+                    });
                   },
                   child: Text('Save Drag Data'),
                 ),
@@ -1074,10 +1082,10 @@ class MetadataSectionState extends State<MetadataSection> {
     );
   }
 
-  void sendJsonToCloud() {
+  Future<void> sendJsonToCloud() async {
     FileUploader uploader = new FileUploader();
     File f = File('${jsonDir.path}/$editingFilename.json');
-    uploader.fileUpload(f, '$editingFilename.json').then((val) {
+    await uploader.fileUpload(f, '$editingFilename.json').then((val) {
       if (val == 'error') {
       } else {
         print(val);
@@ -1151,6 +1159,7 @@ class _DropDownMenuState extends State<DropDownMenu> {
   @override
   Widget build(BuildContext context) {
     dropVals[widget.dropIndex] = fileContent[widget.jsonVal];
+    widget.controller.text = dropVals[widget.dropIndex];
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
@@ -1192,6 +1201,7 @@ class _DropDownMenuState extends State<DropDownMenu> {
           style: TextStyle(color: Colors.deepPurple),
           onChanged: (value) {
             setState(() {
+              changesMade = true;
               widget.controller.text = value;
 //              print(controller.text);
               dropVals[widget.dropIndex] = value;

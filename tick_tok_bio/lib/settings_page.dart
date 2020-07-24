@@ -249,72 +249,96 @@ class SettingsState extends State<Settings> {
       body: Center(
         child: Column(children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text(
-                'Start/Stop Sound Off',
-                style: TextStyle(fontSize: 18.0),
+              Flexible(
+                flex: 3,
+                child: Text(
+                  'Start/Stop Sound Off',
+                  style: TextStyle(fontSize: 18.0),
+                ),
               ),
-              Switch(
-                value: soundOn,
-                inactiveTrackColor: Colors.red[200],
-                inactiveThumbColor: Colors.red,
-                onChanged: (val) {
-                  setState(() {
-                    soundOn = val;
-                    SuperListener.settingSoundPref(val);
-                  });
-                },
-              ),
-              Text(
-                'Start/Stop Sound On',
-                style: TextStyle(fontSize: 18.0),
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Fahrenheit',
-                style: TextStyle(fontSize: 18.0),
-              ),
-              Switch(
+              Flexible(
+                flex: 1,
+                child: Switch(
+                  value: soundOn,
+                  inactiveTrackColor: Colors.red[200],
                   inactiveThumbColor: Colors.red,
-                  inactiveTrackColor: Colors.red.shade200,
-                  value: temperatureState,
-                  onChanged: (value) {
-                    setState(() {
-                      temperatureState = value;
-                      SuperListener.tempCelsius(value);
-                    });
-                  }),
-              Text(
-                'Celsius',
-                style: TextStyle(fontSize: 18.0),
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Sound Reminder Off',
-                style: TextStyle(fontSize: 18.0),
-              ),
-              Switch(
-                  inactiveThumbColor: Colors.red,
-                  inactiveTrackColor: Colors.red.shade200,
-                  value: autoMarker,
                   onChanged: (val) {
                     setState(() {
-                      SuperListener.autoMarking(val);
-                      autoMarker = val;
+                      soundOn = val;
+                      SuperListener.settingSoundPref(val);
                     });
-                  }),
-              Text(
-                'Sound Reminder On',
-                style: TextStyle(fontSize: 18.0),
+                  },
+                ),
+              ),
+              Flexible(
+                flex: 3,
+                child: Text(
+                  'Start/Stop Sound On',
+                  style: TextStyle(fontSize: 18.0),
+                ),
+              )
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                flex: 3,
+                child: Text(
+                  'Fahrenheit',
+                  style: TextStyle(fontSize: 18.0),
+                ),
+              ),
+              Flexible(
+                flex: 1,
+                child: Switch(
+                    inactiveThumbColor: Colors.red,
+                    inactiveTrackColor: Colors.red.shade200,
+                    value: temperatureState,
+                    onChanged: (value) {
+                      setState(() {
+                        temperatureState = value;
+                        SuperListener.tempCelsius(value);
+                      });
+                    }),
+              ),
+              Flexible(
+                flex: 3,
+                child: Text(
+                  'Celsius',
+                  style: TextStyle(fontSize: 18.0),
+                ),
+              )
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  'Sound Reminder Off',
+                  style: TextStyle(fontSize: 18.0),
+                ),
+              ),
+              Flexible(
+                child: Switch(
+                    inactiveThumbColor: Colors.red,
+                    inactiveTrackColor: Colors.red.shade200,
+                    value: autoMarker,
+                    onChanged: (val) {
+                      setState(() {
+                        SuperListener.autoMarking(val);
+                        autoMarker = val;
+                      });
+                    }),
+              ),
+              Flexible(
+                child: Text(
+                  'Sound Reminder On',
+                  style: TextStyle(fontSize: 18.0),
+                ),
               ),
             ],
           ),
@@ -323,22 +347,28 @@ class SettingsState extends State<Settings> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Distance',
-                    style: TextStyle(fontSize: 18.0),
+                  Flexible(
+                    child: Text(
+                      'Distance',
+                      style: TextStyle(fontSize: 18.0),
+                    ),
                   ),
-                  Switch(
-                      inactiveThumbColor: Colors.red,
-                      inactiveTrackColor: Colors.red.shade200,
-                      value: timeTracking,
-                      onChanged: (bool val) {
-                        setState(() {
-                          timeTracking = val;
-                        });
-                      }),
-                  Text(
-                    'Time',
-                    style: TextStyle(fontSize: 18.0),
+                  Flexible(
+                    child: Switch(
+                        inactiveThumbColor: Colors.red,
+                        inactiveTrackColor: Colors.red.shade200,
+                        value: timeTracking,
+                        onChanged: (bool val) {
+                          setState(() {
+                            timeTracking = val;
+                          });
+                        }),
+                  ),
+                  Flexible(
+                    child: Text(
+                      'Time',
+                      style: TextStyle(fontSize: 18.0),
+                    ),
                   ),
                 ],
               )),
