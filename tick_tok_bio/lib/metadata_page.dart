@@ -478,7 +478,7 @@ class MetadataSectionState extends State<MetadataSection> {
                                 onPressed: () async {
                                   if (loggedIn == true) {
                                     if (!fileUploaded) {
-                                      bool b = await attemptFileUploads();
+                                      bool b = await attemptFileUploads(name);
                                       setState(() {
                                         drags();
                                       });
