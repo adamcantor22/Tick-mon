@@ -180,7 +180,7 @@ class MetadataSectionState extends State<MetadataSection> {
 
   void syncChecker() async {
     bool syncExists = false;
-    syncFile = File('$dir/sync.json');
+    syncFile = File('${dir.path}/sync.json');
     for (FileSystemEntity f in fileList) {
       String p = f.path;
       if (p.substring(p.length - 9, p.length) == 'sync.json') {
@@ -215,6 +215,7 @@ class MetadataSectionState extends State<MetadataSection> {
   void deleteFiles() async {
     for (FileSystemEntity f in fileList) {
       String p = f.path;
+      print(p);
       if (p.substring(p.length - 4, p.length) == '.gpx' ||
           p.substring(p.length - 5, p.length) == '.json') {
         print('DELETING: $p');
@@ -222,6 +223,8 @@ class MetadataSectionState extends State<MetadataSection> {
       }
     }
     try {
+      String f = '${dir.path}/sync.json';
+      File(f).deleteSync();
       String p = jsonDir.path + '/New Drag.json';
       File(p).deleteSync();
     } catch (e) {
@@ -636,7 +639,7 @@ class MetadataSectionState extends State<MetadataSection> {
       editingFilename = newFilename;
     });
 
-    //final b = await addDeterminedFields();
+    final b = await addDeterminedFields();
 
     setState(() {
       print('CHANGING TO EDIT MODE');
