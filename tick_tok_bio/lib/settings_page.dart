@@ -76,25 +76,27 @@ class SettingsState extends State<Settings> {
 
   showAlertDialog(BuildContext context) {
     Widget applyChanges = FlatButton(
-        onPressed: () {
-          setState(() {
-            configureMapState();
-            writeToFile(soundOn, temperatureState, autoMarker, timeTracking,
-                selectedDistancePerMarker, selectedTimePerMarker);
-            Navigator.pop(context);
-          });
-        },
-        child: Text('Apply Changes'));
+      onPressed: () {
+        setState(() {
+          configureMapState();
+          writeToFile(soundOn, temperatureState, autoMarker, timeTracking,
+              selectedDistancePerMarker, selectedTimePerMarker);
+          Navigator.pop(context);
+        });
+      },
+      child: Text('Apply Changes'),
+    );
 
     Widget cancel = FlatButton(
-        onPressed: () {
-          setState(() {
-            configureSettings();
-            configureMapState();
-            Navigator.pop(context);
-          });
-        },
-        child: Text('Cancel My Changes'));
+      onPressed: () {
+        setState(() {
+          configureSettings();
+          configureMapState();
+          Navigator.pop(context);
+        });
+      },
+      child: Text('Cancel My Changes'),
+    );
 
     AlertDialog alert = AlertDialog(
       title: Text(
@@ -103,10 +105,11 @@ class SettingsState extends State<Settings> {
     );
 
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return alert;
-        });
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
   void settingsChecker() {
@@ -166,21 +169,38 @@ class SettingsState extends State<Settings> {
   }
 
   Widget iconDescription(icon, String description) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.9,
-      padding: const EdgeInsets.all(16.0),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(32.0, 24.0, 0.0, 24.0),
       child: Row(
         children: [
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 10.0),
-            color: Colors.blue,
-            child: Icon(
-              icon,
-              color: Colors.red,
-              size: 40.0,
+          Flexible(
+            flex: 2,
+            child: Stack(
+              alignment: Alignment.center,
+              children: <Widget>[
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(5.0),
+                    ),
+                  ),
+                  height: 52.0,
+                  width: 52.0,
+                ),
+                Icon(
+                  icon,
+                  color: Colors.red,
+                  size: 40.0,
+                ),
+              ],
             ),
           ),
-          Flexible(
+          SizedBox(
+            width: 20.0,
+          ),
+          Expanded(
+            flex: 6,
             child: Text(description),
           )
         ],
@@ -199,9 +219,9 @@ class SettingsState extends State<Settings> {
   Widget notesPage() {
     return Scaffold(
       appBar: AppBar(
-          title: Row(
-        children: [
-          IconButton(
+        title: Row(
+          children: [
+            IconButton(
               icon: Icon(
                 Icons.arrow_back,
                 size: 30.0,
@@ -210,27 +230,43 @@ class SettingsState extends State<Settings> {
                 setState(() {
                   notesUp = false;
                 });
-              }),
-          SizedBox(
-            width: 80.0,
-          ),
-          Text('Notes for User'),
-        ],
-      )),
-      body: ListView(children: [
-        Column(
-          children: [
-            Center(
-              child: Text(
-                'Icons Functionality',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
-              ),
+              },
             ),
-            iconDescription(Icons.my_location, markerPlaceDes),
-            iconDescription(Icons.remove_red_eye, freeLookDes),
+            SizedBox(
+              width: 80.0,
+            ),
+            Text('Notes for User'),
           ],
         ),
-      ]),
+      ),
+      body: ListView(
+        children: [
+          Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: 24.0),
+                child: Center(
+                  child: Text(
+                    'Icons Functionality',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 25.0,
+                    ),
+                  ),
+                ),
+              ),
+              iconDescription(
+                Icons.location_on,
+                markerPlaceDes,
+              ),
+              iconDescription(
+                Icons.remove_red_eye,
+                freeLookDes,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
