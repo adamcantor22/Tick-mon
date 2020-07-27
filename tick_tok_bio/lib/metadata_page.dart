@@ -1,7 +1,5 @@
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:tick_tok_bio/user_page.dart';
 import 'decorationInfo.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -137,7 +135,7 @@ class MetadataSectionState extends State<MetadataSection> {
       drags();
       syncChecker();
 
-      //deleteFiles(); //careful with this
+      //deleteFiles(); //careful with this, uncomment to clear local files in accordance with the method
     });
 
     setState(() {
@@ -145,24 +143,6 @@ class MetadataSectionState extends State<MetadataSection> {
       viewingData = false;
       editingData = false;
     });
-  }
-
-  void clearControllers() {
-    myController0.clear();
-    myController1.clear();
-    myController2.clear();
-    myController3.clear();
-    myController4.clear();
-    myController5.clear();
-    myController6.clear();
-    myController7.clear();
-    myController8.clear();
-    myController9.clear();
-    myController10.clear();
-    myController11.clear();
-    myController12.clear();
-    myController13.clear();
-    myController14.clear();
   }
 
   //This function is the actual home of the scaffold and controls which screens will be seen on the app.
@@ -176,7 +156,7 @@ class MetadataSectionState extends State<MetadataSection> {
     } else if (editingData == true) {
       return editDrag(editingFilename);
     }
-    return Container(); //On Error, essentially
+    return Container(); //On Error
   }
 
   void syncChecker() async {
@@ -383,7 +363,7 @@ class MetadataSectionState extends State<MetadataSection> {
             ? fileContent['Site'].toString()
             : 'GQ') +
         ' ';
-    //s += '1' + ' '; //put this back with a functioning counter, not just 1
+    //s += '1' + ' '; //TODO: put this back with a functioning counter, not just 1
 
     name != null
         ? s += '${name.substring(0, 3).toUpperCase()}' + ' '
@@ -491,17 +471,6 @@ class MetadataSectionState extends State<MetadataSection> {
                             ],
                           ),
                         ),
-//                          IconButton),
-//                        (
-//                          icon: Icon(Icons.file_upload),
-//                          iconSize: 24.0,
-//                          color: fileUploaded ? Colors.white : Colors.black,
-//                          onPressed: () async {
-//                            if (!fileUploaded) {
-//                              await attemptFileUploads();
-//                            }
-//                          },
-//                        ),
                       ),
                     ),
                   ),
@@ -516,12 +485,13 @@ class MetadataSectionState extends State<MetadataSection> {
 
   logInToUpload(BuildContext context) {
     Widget agreement = FlatButton(
-        onPressed: () {
-          setState(() {
-            Navigator.pop(context);
-          });
-        },
-        child: Text('Ok.'));
+      onPressed: () {
+        setState(() {
+          Navigator.pop(context);
+        });
+      },
+      child: Text('Ok.'),
+    );
 
     AlertDialog alert = AlertDialog(
       title: Text(
@@ -532,10 +502,11 @@ class MetadataSectionState extends State<MetadataSection> {
     );
 
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return alert;
-        });
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
 //This function is used to populate the screen where all the data for a drag is being viewed.
@@ -817,8 +788,6 @@ class MetadataSectionState extends State<MetadataSection> {
                   padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 0.0),
                   child: Column(
                     children: [
-                      //of unsure what fileContent is referring to
-                      //fileContent =  json.decode(File(dir.path + "/" + fileName).readAsStringSync())['SPECIFIC_KEY'].toString()),
                       infoRow('Name', fileContent['Name'].toString()),
                       infoRow('Site', fileContent['Site'].toString()),
                       infoRow('Temperature', fileContent['Temp'].toString()),
@@ -983,7 +952,6 @@ class MetadataSectionState extends State<MetadataSection> {
                     controller: myController5,
                     jsonVal: 'HabitatType',
                   ),
-                  //markerInfo(5),
                   dataField(
                     myController6,
                     'I. scapularis nymph',
@@ -1133,46 +1101,7 @@ class MetadataSectionState extends State<MetadataSection> {
     });
   }
 
-  Widget markerInfo(int segmentCount) {
-    List<Widget> entries = new List<Widget>();
-    for (int i = 0; i < segmentCount; i++) {
-      entries.add(
-        dataField(
-          subs[i],
-          'Segment $i',
-          'Segment $i',
-          required: false,
-        ),
-      );
-    }
-    return Flex(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      direction: Axis.horizontal,
-      children: <Widget>[
-        Flexible(
-          flex: 1,
-          child: SizedBox(),
-        ),
-        Flexible(
-          flex: 1,
-          child: Container(
-            height: 50.0 * segmentCount,
-            width: 3.0,
-            color: Colors.blue[900],
-          ),
-        ),
-        Flexible(
-          flex: 6,
-          child: Column(
-            children: entries,
-          ),
-        ),
-      ],
-    );
-  }
-
   @override
-  // ignore: must_call_super
   Widget build(BuildContext context) {
     return pageBody();
   }
@@ -1216,24 +1145,37 @@ class _DropDownMenuState extends State<DropDownMenu> {
             contentPadding:
                 EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(rad)),
+              borderRadius: BorderRadius.all(
+                Radius.circular(rad),
+              ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.blueAccent, width: 1.5),
-              borderRadius: BorderRadius.all(Radius.circular(16.0)),
+              borderSide: BorderSide(
+                color: Colors.blueAccent,
+                width: 1.5,
+              ),
+              borderRadius: BorderRadius.all(
+                Radius.circular(16.0),
+              ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.blueAccent, width: 2.5),
-              borderRadius: BorderRadius.all(Radius.circular(16.0)),
+              borderSide: BorderSide(
+                color: Colors.blueAccent,
+                width: 2.5,
+              ),
+              borderRadius: BorderRadius.all(
+                Radius.circular(16.0),
+              ),
             ),
           ),
-          //hint: Text('Select a Habitat Type'),
-          items: widget.items.map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
+          items: widget.items.map<DropdownMenuItem<String>>(
+            (String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            },
+          ).toList(),
           value: dropVals[widget.dropIndex],
           icon: Icon(Icons.arrow_downward),
           iconSize: 24,
@@ -1243,8 +1185,9 @@ class _DropDownMenuState extends State<DropDownMenu> {
             setState(() {
               changesMade = true;
               widget.controller.text = value;
-//              print(controller.text);
               dropVals[widget.dropIndex] = value;
+              /*FIXME: These next lines seem precarious, if we change the labels
+                 somewhere else, this will break */
               if (widget.label == 'Site') {
                 siteSelected = true;
               } else if (widget.label == 'Habitat Type') {
@@ -1254,7 +1197,6 @@ class _DropDownMenuState extends State<DropDownMenu> {
               }
             });
           },
-          // ignore: missing_return
         ),
       ),
     );

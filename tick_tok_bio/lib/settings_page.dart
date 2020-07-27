@@ -1,4 +1,3 @@
-//import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:tick_tok_bio/metadata_page.dart';
 import 'package:tick_tok_bio/super_listener.dart';
@@ -29,29 +28,32 @@ class SettingsState extends State<Settings> {
   bool notesDisplayed = false;
   bool notesUp = false;
   String markerPlaceDes =
-      'This should be pressed when the user wants to make a marker of their location and enter data for the subsection of the drag.';
+      'This should be pressed when the user wants to make a marker of their '
+      'location and enter data for the subsection of the drag.';
   String freeLookDes =
-      "This button toggles whether the camera will automatically update itself upon any movement. Disable this if you would like to look freely around the map.";
+      'This button toggles whether the camera will automatically update itself '
+      'upon any movement. Disable this if you would like to look freely around the map.';
 
   @override
   void initState() {
     super.initState();
     SuperListener.setPages(sPage: this);
-    getApplicationDocumentsDirectory().then((Directory directory) {
-      dir = directory;
-      jsonFile = File(dir.path + '/' + fileName);
-      fileExists = jsonFile.existsSync();
-      if (fileExists) {
-        print('I HAVE THE SETTINGS FILE');
-        setState(() {
-          fileContentSettings = jsonDecode(jsonFile.readAsStringSync());
-          configureSettings();
-          configureMapState();
-        });
-      } else {
-        print('I DO NOT HAVE THE SETTINGS FILE');
-      }
-    });
+    getApplicationDocumentsDirectory().then(
+      (Directory directory) {
+        dir = directory;
+        jsonFile = File(dir.path + '/' + fileName);
+        fileExists = jsonFile.existsSync();
+        if (fileExists) {
+          setState(() {
+            fileContentSettings = jsonDecode(jsonFile.readAsStringSync());
+            configureSettings();
+            configureMapState();
+          });
+        } else {
+          print('I DO NOT HAVE THE SETTINGS FILE');
+        }
+      },
+    );
   }
 
   void configureMapState() {
@@ -100,7 +102,8 @@ class SettingsState extends State<Settings> {
 
     AlertDialog alert = AlertDialog(
       title: Text(
-          'You have not saved the changes you have made to the settings page'),
+        'You have not saved the changes you have made to the settings page',
+      ),
       actions: [applyChanges, cancel],
     );
 
@@ -113,11 +116,9 @@ class SettingsState extends State<Settings> {
   }
 
   void settingsChecker() {
-    print('Settings checker has been called');
     if (fileContentSettings != null) {
       if (fileContentSettings['Sound'] != soundOn) {
         showAlertDialog(context);
-        print('OOOH');
       } else if (fileContentSettings['TempStatus'] != temperatureState) {
         showAlertDialog(context);
       } else if (fileContentSettings['Auto-Marker'] != autoMarker) {
@@ -133,14 +134,12 @@ class SettingsState extends State<Settings> {
   }
 
   void createFile(Map<dynamic, dynamic> content) {
-//    print('creating File');
     File file = File(dir.path + '/' + fileName);
     fileExists = true;
     file.writeAsStringSync(jsonEncode(content));
   }
 
   void writeToFile(val, val1, val2, val3, val4, val5) {
-//    print('Writing to File');
     Map<String, dynamic> content = {
       'Sound': val,
       'TempStatus': val1,
@@ -149,14 +148,13 @@ class SettingsState extends State<Settings> {
       'Distance': val4,
       'Time': val5
     };
+
     if (fileExists) {
-//      print('FIle Exists');
       Map<String, dynamic> jsonFileContent1 =
           jsonDecode(jsonFile.readAsStringSync());
       jsonFileContent1.addAll(content);
       jsonFile.writeAsStringSync(jsonEncode(jsonFileContent1));
     } else {
-      //print('File does not exist');
       createFile(content);
     }
     setState(() {
@@ -318,7 +316,7 @@ class SettingsState extends State<Settings> {
                       'Start/Stop Sound On',
                       style: TextStyle(fontSize: 18.0),
                     ),
-                  )
+                  ),
                 ],
               ),
               Row(
@@ -335,15 +333,16 @@ class SettingsState extends State<Settings> {
                   Expanded(
                     flex: 1,
                     child: Switch(
-                        inactiveThumbColor: Colors.red,
-                        inactiveTrackColor: Colors.red.shade200,
-                        value: temperatureState,
-                        onChanged: (value) {
-                          setState(() {
-                            temperatureState = value;
-                            SuperListener.tempCelsius(value);
-                          });
-                        }),
+                      inactiveThumbColor: Colors.red,
+                      inactiveTrackColor: Colors.red.shade200,
+                      value: temperatureState,
+                      onChanged: (value) {
+                        setState(() {
+                          temperatureState = value;
+                          SuperListener.tempCelsius(value);
+                        });
+                      },
+                    ),
                   ),
                   Expanded(
                     flex: 3,
@@ -389,40 +388,41 @@ class SettingsState extends State<Settings> {
                 ],
               ),
               Visibility(
-                  visible: autoMarker == true ? true : false,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          'Distance',
-                          style: TextStyle(fontSize: 18.0),
-                          textAlign: TextAlign.right,
-                        ),
+                visible: autoMarker == true ? true : false,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        'Distance',
+                        style: TextStyle(fontSize: 18.0),
+                        textAlign: TextAlign.right,
                       ),
-                      Expanded(
-                        flex: 1,
-                        child: Switch(
-                          inactiveThumbColor: Colors.red,
-                          inactiveTrackColor: Colors.red.shade200,
-                          value: timeTracking,
-                          onChanged: (bool val) {
-                            setState(() {
-                              timeTracking = val;
-                            });
-                          },
-                        ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Switch(
+                        inactiveThumbColor: Colors.red,
+                        inactiveTrackColor: Colors.red.shade200,
+                        value: timeTracking,
+                        onChanged: (bool val) {
+                          setState(() {
+                            timeTracking = val;
+                          });
+                        },
                       ),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          'Time',
-                          style: TextStyle(fontSize: 18.0),
-                        ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        'Time',
+                        style: TextStyle(fontSize: 18.0),
                       ),
-                    ],
-                  )),
+                    ),
+                  ],
+                ),
+              ),
               Visibility(
                 visible:
                     timeTracking == false && autoMarker == true ? true : false,
@@ -431,28 +431,41 @@ class SettingsState extends State<Settings> {
                       EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
                   child: DropdownButtonFormField(
                     decoration: InputDecoration(
-                        labelText: 'Distance Per Marker Drop',
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 20.0),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      labelText: 'Distance Per Marker Drop',
+                      contentPadding: EdgeInsets.symmetric(
+                          vertical: 10.0, horizontal: 20.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(8.0),
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.blueAccent, width: 1.5),
-                          borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.blueAccent,
+                          width: 1.5,
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.blueAccent, width: 2.5),
-                          borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                        )),
-                    items: distancePerMarker
-                        .map<DropdownMenuItem<double>>((double value) {
-                      return DropdownMenuItem<double>(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16.0),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.blueAccent,
+                          width: 2.5,
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16.0),
+                        ),
+                      ),
+                    ),
+                    items: distancePerMarker.map<DropdownMenuItem<double>>(
+                      (double value) {
+                        return DropdownMenuItem<double>(
                           value: value,
-                          child: Text(value.toString() + ' meters'));
-                    }).toList(),
+                          child: Text(value.toString() + ' meters'),
+                        );
+                      },
+                    ).toList(),
                     value: selectedDistancePerMarker,
                     onChanged: (value) {
                       setState(() {
@@ -471,28 +484,41 @@ class SettingsState extends State<Settings> {
                       EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
                   child: DropdownButtonFormField(
                     decoration: InputDecoration(
-                        labelText: 'Time Per Marker Drop',
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 20.0),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      labelText: 'Time Per Marker Drop',
+                      contentPadding: EdgeInsets.symmetric(
+                          vertical: 10.0, horizontal: 20.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(8.0),
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.blueAccent, width: 1.5),
-                          borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.blueAccent,
+                          width: 1.5,
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.blueAccent, width: 2.5),
-                          borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                        )),
-                    items: timerPerMarker
-                        .map<DropdownMenuItem<double>>((double value) {
-                      return DropdownMenuItem<double>(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16.0),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.blueAccent,
+                          width: 2.5,
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16.0),
+                        ),
+                      ),
+                    ),
+                    items: timerPerMarker.map<DropdownMenuItem<double>>(
+                      (double value) {
+                        return DropdownMenuItem<double>(
                           value: value,
-                          child: Text(value.toString() + ' minutes'));
-                    }).toList(),
+                          child: Text(value.toString() + ' minutes'),
+                        );
+                      },
+                    ).toList(),
                     value: selectedTimePerMarker,
                     onChanged: (value) {
                       setState(() {
@@ -511,12 +537,13 @@ class SettingsState extends State<Settings> {
                   setState(() {
                     configureMapState();
                     writeToFile(
-                        soundOn,
-                        temperatureState,
-                        autoMarker,
-                        timeTracking,
-                        selectedDistancePerMarker,
-                        selectedTimePerMarker);
+                      soundOn,
+                      temperatureState,
+                      autoMarker,
+                      timeTracking,
+                      selectedDistancePerMarker,
+                      selectedTimePerMarker,
+                    );
                   });
                 },
                 icon: Icon(
