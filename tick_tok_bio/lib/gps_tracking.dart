@@ -267,7 +267,7 @@ class MapsState extends State<Maps> {
       await playSound('end.mp3');
     }
     WeatherTracker.updateLocation(currentPosition);
-    List<Map<String, int>> tickData = getJSONTickData();
+    Map<String, Map<String, int>> tickData = getJSONTickData();
 
     storeRouteInformation();
 
@@ -281,12 +281,12 @@ class MapsState extends State<Maps> {
     SuperListener.sendTickData(tickData);
   }
 
-  List<Map<String, int>> getJSONTickData() {
+  Map<String, Map<String, int>> getJSONTickData() {
     if (segmentData[segmentData.length - 1].isEmpty())
       segmentData.removeAt(segmentData.length - 1);
-    List<Map<String, int>> obj = new List<Map<String, int>>();
+    Map<String, Map<String, int>> obj = new Map<String, Map<String, int>>();
     for (int i = 1; i <= segmentData.length; i++) {
-      obj.add(segmentData[i - 1].getData());
+      obj[segmentData[i - 1].getName()] = segmentData[i - 1].getData();
     }
     return obj;
   }
@@ -529,8 +529,8 @@ class MapsState extends State<Maps> {
     );
   }
 
-  void storeSegmentData(Map<String, int> map) {
-    segmentData[segmentData.length - 1].addTickData(map: map);
+  void storeSegmentData(String title, Map<String, int> map) {
+    segmentData[segmentData.length - 1].addTickData(title: title, map: map);
     segmentData.add(new SegmentData());
   }
 
@@ -810,7 +810,12 @@ class MapsState extends State<Maps> {
               right: 10.0,
               top: 15.0,
               child: Container(
-                color: Colors.blue,
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  ),
+                ),
                 child: IconButton(
                   icon: Icon(
                     Icons.remove_red_eye,

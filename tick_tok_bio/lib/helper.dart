@@ -63,6 +63,7 @@ class _HelperTextState extends State<HelperText> {
   BuildContext cont;
   List<Widget> fieldRows;
   List<TextEditingController> controllers;
+  TextEditingController titleController;
   List<TextEditingController> drops;
   List<DropdownMenuItem<String>> items;
   final formKey = GlobalKey<FormState>();
@@ -84,6 +85,7 @@ class _HelperTextState extends State<HelperText> {
   void initState() {
     super.initState();
     controllers = new List<TextEditingController>();
+    titleController = new TextEditingController();
     fieldRows = new List<Widget>();
     drops = new List<TextEditingController>();
     items = dropdownItems.map<DropdownMenuItem<String>>((String value) {
@@ -166,12 +168,17 @@ class _HelperTextState extends State<HelperText> {
     for (int i = 0; i < drops.length; i++) {
       map[drops[i].text] = int.parse(controllers[i].text);
     }
-    SuperListener.addTickSegmentData(map);
+    print(titleController.text);
+    SuperListener.addTickSegmentData(titleController.text, map);
   }
 
   Widget segmentTextDialog(int segment, BuildContext context) {
+    titleController.text = 'Segment $segment Metadata';
     return AlertDialog(
-      title: Text('Segment $segment Metadata'),
+      title: TextFormField(
+        decoration: kTextFieldDecoration,
+        controller: titleController,
+      ),
       contentPadding: EdgeInsets.fromLTRB(14.0, 18.0, 14.0, 2.0),
       content: Form(
         key: formKey,
@@ -231,7 +238,6 @@ class _HelperTextState extends State<HelperText> {
                       print(drops[i].text);
                       print(i);
                     }
-                    //print(drops[2]);
                     bool passes = true;
                     for (int i = 0; i < drops.length - 1; i++) {
                       for (int j = i + 1; j < drops.length; j++) {

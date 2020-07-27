@@ -87,7 +87,7 @@ class MetadataSectionState extends State<MetadataSection> {
   final _editKey = GlobalKey<FormState>();
   bool loadingData = false;
   bool celsius = false;
-  List<Map<String, int>> segmentedTickData;
+  Map<String, Map<String, int>> segmentedTickData;
   Map<String, dynamic> syncMap = Map<String, bool>();
   File syncFile;
 
@@ -292,7 +292,7 @@ class MetadataSectionState extends State<MetadataSection> {
     String key13,
     String value13,
     String key14,
-    List<Map<String, int>> value14,
+    Map<String, Map<String, int>> value14,
   ) {
     print('Writing to File');
     Map<String, dynamic> content = {
@@ -662,7 +662,7 @@ class MetadataSectionState extends State<MetadataSection> {
     return b;
   }
 
-  void sendSegmentedTickData(List<Map<String, int>> data) {
+  void sendSegmentedTickData(Map<String, Map<String, int>> data) {
     segmentedTickData = data;
   }
 
