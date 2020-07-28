@@ -84,6 +84,7 @@ class MetadataSectionState extends State<MetadataSection> {
   File syncFile;
 
   List habitatList = <String>[
+    'Select Habitat',
     'Field/Grass',
     'Forest Edge',
     'Closed Canopy (Oak)',
@@ -93,6 +94,7 @@ class MetadataSectionState extends State<MetadataSection> {
   ];
 
   List siteList = <String>[
+    'Select Site',
     'AT',
     'BP',
     'GA',
@@ -107,6 +109,7 @@ class MetadataSectionState extends State<MetadataSection> {
   ];
 
   List moistureList = <String>[
+    'Select Moisture',
     'Very Dry (No Rain 2+ Weeks)',
     'Dry (No Rain 1 Week)',
     'Medium (Moderate Rain Within Week)',
@@ -1110,7 +1113,9 @@ class MetadataSectionState extends State<MetadataSection> {
       String jsonVal,
       TextEditingController otherController) {
     controller.text = fileContent[jsonVal];
-    if (!items.contains(controller.text)) {
+    if (controller.text == null || controller.text == '') {
+      controller.text = items[0];
+    } else if (!items.contains(controller.text)) {
       otherController.text = controller.text;
       controller.text = 'Other';
     }
@@ -1174,12 +1179,22 @@ class MetadataSectionState extends State<MetadataSection> {
                   fileContent[jsonVal] = value;
                   /*FIXME: These next lines seem precarious, if we change the labels
                      somewhere else, this will break */
-                  if (label == 'Site') {
-                    siteSelected = true;
-                  } else if (label == 'Habitat Type') {
-                    habitatSelected = true;
-                  } else if (label == 'Ground Moisture') {
-                    moistureSelected = true;
+                  if (value != items[0]) {
+                    if (label == 'Site') {
+                      siteSelected = true;
+                    } else if (label == 'Habitat Type') {
+                      habitatSelected = true;
+                    } else if (label == 'Ground Moisture') {
+                      moistureSelected = true;
+                    }
+                  } else {
+                    if (label == 'Site') {
+                      siteSelected = false;
+                    } else if (label == 'Habitat Type') {
+                      habitatSelected = false;
+                    } else if (label == 'Ground Moisture') {
+                      moistureSelected = false;
+                    }
                   }
                 });
               },
