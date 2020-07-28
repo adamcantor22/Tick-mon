@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'decorationInfo.dart';
@@ -40,19 +42,9 @@ var myController12 = TextEditingController();
 var myController13 = TextEditingController();
 var myController14 = TextEditingController();
 
-List<TextEditingController> subs = [
-  TextEditingController(),
-  TextEditingController(),
-  TextEditingController(),
-  TextEditingController(),
-  TextEditingController(),
-];
-
-List dropVals = <dynamic>[
-  '',
-  '',
-  '',
-];
+var oController1 = TextEditingController();
+var oController2 = TextEditingController();
+var oController3 = TextEditingController();
 
 var iScapN = 0;
 var iScapAM = 0;
@@ -753,9 +745,6 @@ class MetadataSectionState extends State<MetadataSection> {
                 changesMade = false;
                 editingData = true;
                 viewingData = false;
-                dropVals[0] = fileContent['HabitatType'];
-                dropVals[1] = fileContent['Site'];
-                dropVals[2] = fileContent['GroundMoisture'];
               });
             },
           ),
@@ -921,12 +910,13 @@ class MetadataSectionState extends State<MetadataSection> {
                     'Name',
                     fileContent['Name'],
                   ),
-                  DropDownMenu(
-                    label: 'Site',
-                    dropIndex: 1,
-                    controller: myController1,
-                    items: siteList,
-                    jsonVal: 'Site',
+                  dropDownMenu(
+                    'Site',
+                    siteList,
+                    1,
+                    myController1,
+                    'Site',
+                    oController1,
                   ),
                   dataField(
                     myController2,
@@ -938,19 +928,21 @@ class MetadataSectionState extends State<MetadataSection> {
                     'Humidity',
                     fileContent['Humidity'],
                   ),
-                  DropDownMenu(
-                    label: 'Ground Moisture',
-                    items: moistureList,
-                    dropIndex: 2,
-                    controller: myController4,
-                    jsonVal: 'GroundMoisture',
+                  dropDownMenu(
+                    'Ground Moisture',
+                    moistureList,
+                    2,
+                    myController4,
+                    'GroundMoisture',
+                    oController2,
                   ),
-                  DropDownMenu(
-                    label: 'Habitat Type',
-                    items: habitatList,
-                    dropIndex: 0,
-                    controller: myController5,
-                    jsonVal: 'HabitatType',
+                  dropDownMenu(
+                    'Habitat Type',
+                    habitatList,
+                    0,
+                    myController5,
+                    'HabitatType',
+                    oController3,
                   ),
                   dataField(
                     myController6,
@@ -1022,10 +1014,10 @@ class MetadataSectionState extends State<MetadataSection> {
                   textColor: Colors.white,
                   color: Colors.blue,
                   onPressed: () async {
+                    setState(() {
+                      loadingData = true;
+                    });
                     if (changesMade) {
-                      print(moistureSelected);
-                      print(habitatSelected);
-                      print(siteSelected);
                       if (_editKey.currentState.validate()) {
                         if (siteSelected == true &&
                             moistureSelected == true &&
@@ -1035,15 +1027,21 @@ class MetadataSectionState extends State<MetadataSection> {
                             'Name',
                             myController0.text,
                             'Site',
-                            myController1.text,
+                            myController1.text == 'Other'
+                                ? oController1.text
+                                : myController1.text,
                             'Temp',
                             myController2.text,
                             'Humidity',
                             myController3.text,
                             'GroundMoisture',
-                            myController4.text,
+                            myController4.text == 'Other'
+                                ? oController2.text
+                                : myController4.text,
                             'HabitatType',
-                            myController5.text,
+                            myController5.text == 'Other'
+                                ? oController3.text
+                                : myController5.text,
                             'Iscap',
                             myController6.text,
                             'IscapAM',
@@ -1075,6 +1073,9 @@ class MetadataSectionState extends State<MetadataSection> {
                         viewingDrags = true;
                       });
                     }
+                    setState(() {
+                      loadingData = false;
+                    });
                   },
                   child: Text('Save Drag Data'),
                 ),
@@ -1101,104 +1102,119 @@ class MetadataSectionState extends State<MetadataSection> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return pageBody();
-  }
-}
-
-class DropDownMenu extends StatefulWidget {
-  DropDownMenu({
-    @required this.label,
-    @required this.items,
-    @required this.dropIndex,
-    @required this.controller,
-    @required this.jsonVal,
-  });
-
-  final String label;
-  final List<String> items;
-  final int dropIndex;
-  final TextEditingController controller;
-  final String jsonVal;
-  _DropDownMenuState createState() => _DropDownMenuState();
-}
-
-class _DropDownMenuState extends State<DropDownMenu> {
-  @override
-  Widget build(BuildContext context) {
-    dropVals[widget.dropIndex] = fileContent[widget.jsonVal];
-    widget.controller.text = dropVals[widget.dropIndex];
-    return Center(
+  Widget dropDownMenu(
+      String label,
+      List<String> items,
+      int dropIndex,
+      TextEditingController controller,
+      String jsonVal,
+      TextEditingController otherController) {
+    controller.text = fileContent[jsonVal];
+    if (!items.contains(controller.text)) {
+      otherController.text = controller.text;
+      controller.text = 'Other';
+    }
+    Widget ret = Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
-        child: DropdownButtonFormField(
-          // ignore: missing_return
-          validator: (value) {
-            if (value == null) {
-              return "Please Select an Item";
-            }
-            return null;
-          },
-          decoration: InputDecoration(
-            labelText: widget.label,
-            contentPadding:
-                EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(rad),
+        child: Column(
+          children: <Widget>[
+            DropdownButtonFormField(
+              validator: (value) {
+                if (value == null) {
+                  return "Please Select an Item";
+                }
+                return null;
+              },
+              decoration: InputDecoration(
+                labelText: label,
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(rad),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.blueAccent,
+                    width: 1.5,
+                  ),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(16.0),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.blueAccent,
+                    width: 2.5,
+                  ),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(16.0),
+                  ),
+                ),
+              ),
+              items: items.map<DropdownMenuItem<String>>(
+                (String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                },
+              ).toList(),
+              value: controller.text,
+              icon: Icon(Icons.arrow_downward),
+              iconSize: 24,
+              elevation: 16,
+              style: TextStyle(color: Colors.deepPurple),
+              onChanged: (value) {
+                setState(() {
+                  changesMade = true;
+                  controller.text = value;
+                  fileContent[jsonVal] = value;
+                  /*FIXME: These next lines seem precarious, if we change the labels
+                     somewhere else, this will break */
+                  if (label == 'Site') {
+                    siteSelected = true;
+                  } else if (label == 'Habitat Type') {
+                    habitatSelected = true;
+                  } else if (label == 'Ground Moisture') {
+                    moistureSelected = true;
+                  }
+                });
+              },
+            ),
+            Visibility(
+              visible: controller.text == 'Other',
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+                child: TextFormField(
+                  decoration: kTextFieldDecoration,
+                  controller: otherController,
+                  validator: (value) {
+                    if (controller.text == 'Other' &&
+                        (controller.text == null ||
+                            controller.text.trim() == '')) {
+                      return 'Enter All Data';
+                    }
+                    return null;
+                  },
+                  onChanged: (s) {
+                    changesMade = true;
+                    fileContent[jsonVal] = s;
+                  },
+                ),
               ),
             ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors.blueAccent,
-                width: 1.5,
-              ),
-              borderRadius: BorderRadius.all(
-                Radius.circular(16.0),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors.blueAccent,
-                width: 2.5,
-              ),
-              borderRadius: BorderRadius.all(
-                Radius.circular(16.0),
-              ),
-            ),
-          ),
-          items: widget.items.map<DropdownMenuItem<String>>(
-            (String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            },
-          ).toList(),
-          value: dropVals[widget.dropIndex],
-          icon: Icon(Icons.arrow_downward),
-          iconSize: 24,
-          elevation: 16,
-          style: TextStyle(color: Colors.deepPurple),
-          onChanged: (value) {
-            setState(() {
-              changesMade = true;
-              widget.controller.text = value;
-              dropVals[widget.dropIndex] = value;
-              /*FIXME: These next lines seem precarious, if we change the labels
-                 somewhere else, this will break */
-              if (widget.label == 'Site') {
-                siteSelected = true;
-              } else if (widget.label == 'Habitat Type') {
-                habitatSelected = true;
-              } else if (widget.label == 'Ground Moisture') {
-                moistureSelected = true;
-              }
-            });
-          },
+          ],
         ),
       ),
     );
+    return ret;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return pageBody();
   }
 }
