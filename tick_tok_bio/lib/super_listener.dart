@@ -58,7 +58,7 @@ class SuperListener {
     dataPage.createNewDrag(filename);
   }
 
-  static void sendTickData(List<Map<String, int>> data) {
+  static void sendTickData(Map<String, Map<String, int>> data) {
     dataPage.sendSegmentedTickData(data);
   }
 
@@ -108,8 +108,8 @@ class SuperListener {
     dataPage.updateTickText();
   }
 
-  static void addTickSegmentData(Map<String, int> map) {
-    mapPage.storeSegmentData(map);
+  static void addTickSegmentData(String title, Map<String, int> map) {
+    mapPage.storeSegmentData(title, map);
     dataPage.setTickData(map);
   }
 

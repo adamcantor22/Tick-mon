@@ -17,9 +17,7 @@ import 'weather_tracker.dart';
 import 'player.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong/latlong.dart';
-import 'package:tick_tok_bio/settings_page.dart';
 import 'segment_data.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tick_tok_bio/metadata_page.dart';
 
 bool trackingRoute = false;
@@ -67,9 +65,9 @@ class MapsState extends State<Maps> {
   int counter;
   Timer timer;
   bool timerVisibility = false;
-  bool autoCamerMove = false;
+  bool autoCameraMove = false;
   bool autoCameraMoveVisibility = false;
-  double timePmarker = 1.0;
+  double timePerMarker = 1.0;
   List<SegmentData> segmentData = [];
   int c = 0;
   int markerColorsIndex = 0;
@@ -77,9 +75,6 @@ class MapsState extends State<Maps> {
 
   void initState() {
     super.initState();
-    //getInitPos();
-    //markerUpdate();
-    //lastDropPoint = currentPosition;
     SuperListener.setPages(mPage: this);
     initPlayer();
     getLoc();
@@ -105,7 +100,6 @@ class MapsState extends State<Maps> {
   }
 
   void setSoundPref(bool soundSet) {
-    print('SOSOSOSO SOUNDS GETTING SET TO $soundSet');
     setState(() {
       soundsPresent = soundSet;
     });
@@ -125,21 +119,24 @@ class MapsState extends State<Maps> {
 
   void setTimeOfMarker(double time) {
     setState(() {
-      timePmarker = time;
+      timePerMarker = time;
     });
   }
 
   void startTimer() {
     print('new Timer created');
-    counter = timePmarker.toInt() * 60;
+    counter = timePerMarker.toInt() * 60;
     print(counter);
-    timer = new Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        if (counter > 0) {
-          counter--;
-        }
-      });
-    });
+    timer = new Timer.periodic(
+      Duration(seconds: 1),
+      (timer) {
+        setState(() {
+          if (counter > 0) {
+            counter--;
+          }
+        });
+      },
+    );
   }
 
   void stepsToTerminateNDelete() {
@@ -156,7 +153,6 @@ class MapsState extends State<Maps> {
     afterFirstDrop = false;
     checkPointsCleared = 0;
     timerVisibility = false;
-    //positionMarker();
     autoCameraMoveVisibility = false;
     iScapN = 0;
     iScapAM = 0;
@@ -167,42 +163,10 @@ class MapsState extends State<Maps> {
     lxod = 0;
     print('Done');
   }
-//    setState(() {
-//      if (markerViaTime == true) {
-//        timer.cancel();
-//      }
-//      trackingRoute = false;
-//      positionSubscription.cancel();
-//      polylineCoordinates.clear();
-//      cancellationPopUpPresent = false;
-//      cancelDragVal = 0.0;
-//      markerLis = [];
-//      lastDropPoint = null;
-//      afterFirstDrop = false;
-//      checkPointsCleared = 0;
-//      timerVisibility = false;
-//      markerLis.clear();
-//      autoCameraMoveVisibility = false;
-//    });
-//  }
 
   void removeLatestMarker() {
     markerList.removeLast();
   }
-
-//  void positionMarker() {
-//    setState(() {
-//      markerLis.clear();
-//      markerLis.add(Marker(
-//          point: LatLng(currentLat, currentLong),
-//          builder: (build) => Container(
-//                child: Icon(
-//                  Icons.location_on,
-//                  color: Colors.red,
-//                ),
-//              )));
-//    });
-//  }
 
   //This is the filename for the gpx files, created to be the current datetime
   String currentTime() {
@@ -303,7 +267,7 @@ class MapsState extends State<Maps> {
       await playSound('end.mp3');
     }
     WeatherTracker.updateLocation(currentPosition);
-    List<Map<String, int>> tickData = getJSONTickData();
+    Map<String, Map<String, int>> tickData = getJSONTickData();
 
     storeRouteInformation();
 
@@ -317,12 +281,12 @@ class MapsState extends State<Maps> {
     SuperListener.sendTickData(tickData);
   }
 
-  List<Map<String, int>> getJSONTickData() {
+  Map<String, Map<String, int>> getJSONTickData() {
     if (segmentData[segmentData.length - 1].isEmpty())
       segmentData.removeAt(segmentData.length - 1);
-    List<Map<String, int>> obj = new List<Map<String, int>>();
+    Map<String, Map<String, int>> obj = new Map<String, Map<String, int>>();
     for (int i = 1; i <= segmentData.length; i++) {
-      obj.add(segmentData[i - 1].getData());
+      obj[segmentData[i - 1].getName()] = segmentData[i - 1].getData();
     }
     return obj;
   }
@@ -359,7 +323,7 @@ class MapsState extends State<Maps> {
               currentLong = cPos.longitude;
               markerList.clear();
               markerList.add(userLocationMarkerFunc());
-              if (autoCamerMove == true) {
+              if (autoCameraMove == true) {
                 _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
               }
             });
@@ -391,7 +355,7 @@ class MapsState extends State<Maps> {
           ele: cPos.altitude,
           time: DateTime.now(),
         );
-        if (autoCamerMove == true) {
+        if (autoCameraMove == true) {
           _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
         }
         segments[segments.length - 1].trkpts.add(pt);
@@ -424,7 +388,10 @@ class MapsState extends State<Maps> {
           FlatButton(
             child: Text(
               'Finish and Save Drag',
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             onPressed: () {
               setState(() {
@@ -443,7 +410,6 @@ class MapsState extends State<Maps> {
                 markerList.clear();
                 lastDropPoint = null;
                 checkPointsCleared = 0;
-                //Possibly add something
                 autoCameraMoveVisibility = false;
               });
             },
@@ -462,13 +428,6 @@ class MapsState extends State<Maps> {
     );
   }
 
-//  dynamic getRandColor() {
-//    int myNum = ranGen.nextInt(markerColors.length);
-//    print(myNum);
-//    Color myColor = markerColors[myNum];
-//    return myColor;
-//  }
-
   Marker userLocationMarkerFunc() {
     return Marker(
       height: 15.0,
@@ -483,13 +442,7 @@ class MapsState extends State<Maps> {
     );
   }
 
-  dynamic colorChooser(int num) {
-    if (num == 0) {}
-  }
-
   Marker droppedMarkerFunc() {
-    //int myColor = colorNum;
-
     return Marker(
       height: 15.0,
       width: 15.0,
@@ -530,9 +483,6 @@ class MapsState extends State<Maps> {
 
             dropTrackBreakPoint();
             setState(() {
-//              markerLis.removeLast();
-//              markerLis.add(droppedMarkerFunc());
-//              markerLis.add(userLocationMarkerFunc());
               lastDropPoint = currentPosition;
             });
           }
@@ -540,16 +490,13 @@ class MapsState extends State<Maps> {
       }
       if (markerViaTime == true) {
         if (counter == 0) {
-          counter = timePmarker.toInt() * 60;
+          counter = timePerMarker.toInt() * 60;
           if (soundsPresent == true) {
             player.play('/sounds/bell.mp3');
           }
           dropTrackBreakPoint();
           setState(() {
             print('PLace Marker');
-//            markerLis.removeLast();
-//            markerLis.add(droppedMarkerFunc());
-//            markerLis.add(userLocationMarkerFunc());
             lastDropPoint = currentPosition;
           });
         }
@@ -582,8 +529,8 @@ class MapsState extends State<Maps> {
     );
   }
 
-  void storeSegmentData(Map<String, int> map) {
-    segmentData[segmentData.length - 1].addTickData(map: map);
+  void storeSegmentData(String title, Map<String, int> map) {
+    segmentData[segmentData.length - 1].addTickData(title: title, map: map);
     segmentData.add(new SegmentData());
   }
 
@@ -766,116 +713,74 @@ class MapsState extends State<Maps> {
             ? Text('Tracking in Progress')
             : Text('Tracking Not in Progress.'),
       ),
-      body: Stack(children: <Widget>[
-        FlutterMap(
-          options: MapOptions(
-            center: LatLng(currentLat, currentLong),
-            zoom: zoomLevel,
-          ),
-          mapController: _mapController,
-          layers: [
-            TileLayerOptions(
-              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: ['a', 'b', 'c'],
+      body: Stack(
+        children: <Widget>[
+          FlutterMap(
+            options: MapOptions(
+              center: LatLng(currentLat, currentLong),
+              zoom: zoomLevel,
             ),
-            MarkerLayerOptions(markers: markerList
-//              markers: markerLis != null
-//                  ? markerLis
-//                  : [
-//                      Marker(
-//                        width: 15.0,
-//                        height: 15.0,
-//                        point: currentLat != null
-//                            ? LatLng(currentLat, currentLong)
-//                            : LatLng(50.0, 50.0),
-//                        builder: (build) => Container(
-//                          child: Icon(
-//                            Icons.my_location,
-//                            color: Colors.blue,
-//                            size: 30.0,
-//                          ),
-//                        ),
-//                      ),
-                // ],
-                ),
-            PolylineLayerOptions(
-              polylines: [
-                Polyline(
-                  strokeWidth: 5.0,
-                  color: Colors.lightBlue,
-                  borderColor: Colors.white,
-                  points: polylineCoordinates,
-                )
-              ],
-            ),
-          ],
-        ),
-        Positioned(
-            bottom: 150.0,
-            right: 10.0,
-            child: IconButton(
-                iconSize: 50.0,
-                icon: Icon(Icons.zoom_in),
-                onPressed: () {
-                  setState(() {
-//                    signingOff = !signingOff;
-                    print(signingOff);
-                  });
-                })),
-//        Positioned(
-//          bottom: 100.0,
-//          right: 10.0,
-//          child: IconButton(
-//            iconSize: 50.0,
-//            icon: Icon(Icons.zoom_out),
-//            onPressed: () {
-//              setState(() {
-//                zoomLevel -= 1;
-//                _mapController.move(LatLng(currentLat, currentLong), zoomLevel);
-//              });
-//            },
-//          ),
-//        ),
-
-        Positioned(
-          bottom: 10.0,
-          left: 1.0,
-          right: 5.0,
-          child: startStop(),
-        ),
-        Visibility(
-          visible: trackingRoute == true ? true : false,
-          child: Positioned(
-            top: 15.0,
-            left: 10.0,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.blueGrey[100],
-                borderRadius: BorderRadius.all(
-                  Radius.circular(10.0),
-                ),
-                border: Border.all(
-                  color: Colors.blueGrey[300],
-                  width: 1.3,
-                ),
+            mapController: _mapController,
+            layers: [
+              TileLayerOptions(
+                urlTemplate:
+                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                subdomains: ['a', 'b', 'c'],
               ),
-              child: IconButton(
-                icon: Icon(Icons.close),
-                iconSize: 30.0,
-                color: Colors.red,
-                onPressed: () {
-                  setState(() {
-                    confirmationButton = false;
-                    cancellationPopUpPresent = true;
-                  });
-                },
+              MarkerLayerOptions(
+                markers: markerList,
+              ),
+              PolylineLayerOptions(
+                polylines: [
+                  Polyline(
+                    strokeWidth: 5.0,
+                    color: Colors.lightBlue,
+                    borderColor: Colors.white,
+                    points: polylineCoordinates,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Positioned(
+            bottom: 10.0,
+            left: 1.0,
+            right: 5.0,
+            child: startStop(),
+          ),
+          Visibility(
+            visible: trackingRoute == true ? true : false,
+            child: Positioned(
+              top: 15.0,
+              left: 10.0,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.blueGrey[100],
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  ),
+                  border: Border.all(
+                    color: Colors.blueGrey[300],
+                    width: 1.3,
+                  ),
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.close),
+                  iconSize: 30.0,
+                  color: Colors.red,
+                  onPressed: () {
+                    setState(() {
+                      confirmationButton = false;
+                      cancellationPopUpPresent = true;
+                    });
+                  },
+                ),
               ),
             ),
           ),
-        ),
-        Visibility(
-          visible: trackingRoute == true ? true : false,
-          child: Positioned(
+          Visibility(
+            visible: trackingRoute == true ? true : false,
+            child: Positioned(
               top: 100.0,
               right: 10.0,
               child: Container(
@@ -886,54 +791,67 @@ class MapsState extends State<Maps> {
                   ),
                 ),
                 child: IconButton(
-                    icon: Icon(
-                      Icons.location_on,
-                      color: Colors.red,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        manualMarkerPlacement();
-                      });
-                    }),
-              )),
-        ),
-        Visibility(
+                  icon: Icon(
+                    Icons.location_on,
+                    color: Colors.red,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      manualMarkerPlacement();
+                    });
+                  },
+                ),
+              ),
+            ),
+          ),
+          Visibility(
             visible: true,
             child: Positioned(
               right: 10.0,
               top: 15.0,
               child: Container(
-                color: Colors.blue,
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  ),
+                ),
                 child: IconButton(
-                    icon: Icon(
-                      Icons.remove_red_eye,
-                      color: autoCamerMove == true ? Colors.red : Colors.black,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        autoCamerMove = !autoCamerMove;
-                      });
-                    }),
+                  icon: Icon(
+                    Icons.remove_red_eye,
+                    color: autoCameraMove == true ? Colors.red : Colors.black,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      autoCameraMove = !autoCameraMove;
+                    });
+                  },
+                ),
               ),
-            )),
-        Visibility(
-          visible: markerViaTime == true &&
-                  trackingRoute == true &&
-                  autoMarking == true
-              ? true
-              : false,
-          child: Positioned(
-            right: 10.0,
-            bottom: 30.0,
-            child: Text(
-              counter.toString(),
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
             ),
           ),
-        ),
-        dragCancellationPopUp(),
-        doneConfirmation(),
-      ]),
+          Visibility(
+            visible: markerViaTime == true &&
+                    trackingRoute == true &&
+                    autoMarking == true
+                ? true
+                : false,
+            child: Positioned(
+              right: 10.0,
+              bottom: 30.0,
+              child: Text(
+                counter.toString(),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20.0,
+                ),
+              ),
+            ),
+          ),
+          dragCancellationPopUp(),
+          doneConfirmation(),
+        ],
+      ),
     );
   }
 }

@@ -239,11 +239,13 @@ class LoggedInScreenState extends State<LoggedInScreen> {
                               SizedBox(
                                 width: 20.0,
                               ),
-                              Text(
-                                'Login with Google',
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 16.0,
+                              Expanded(
+                                child: Text(
+                                  'Login with Google',
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 16.0,
+                                  ),
                                 ),
                               ),
                             ],

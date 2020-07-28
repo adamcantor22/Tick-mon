@@ -1,7 +1,7 @@
-import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:tick_tok_bio/user_page.dart';
 import 'decorationInfo.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -42,19 +42,9 @@ var myController12 = TextEditingController();
 var myController13 = TextEditingController();
 var myController14 = TextEditingController();
 
-List<TextEditingController> subs = [
-  TextEditingController(),
-  TextEditingController(),
-  TextEditingController(),
-  TextEditingController(),
-  TextEditingController(),
-];
-
-List dropVals = <dynamic>[
-  '',
-  '',
-  '',
-];
+var oController1 = TextEditingController();
+var oController2 = TextEditingController();
+var oController3 = TextEditingController();
 
 var iScapN = 0;
 var iScapAM = 0;
@@ -89,11 +79,12 @@ class MetadataSectionState extends State<MetadataSection> {
   final _editKey = GlobalKey<FormState>();
   bool loadingData = false;
   bool celsius = false;
-  List<Map<String, int>> segmentedTickData;
+  Map<String, Map<String, int>> segmentedTickData;
   Map<String, dynamic> syncMap = Map<String, bool>();
   File syncFile;
 
   List habitatList = <String>[
+    'Select Habitat',
     'Field/Grass',
     'Forest Edge',
     'Closed Canopy (Oak)',
@@ -103,6 +94,7 @@ class MetadataSectionState extends State<MetadataSection> {
   ];
 
   List siteList = <String>[
+    'Select Site',
     'AT',
     'BP',
     'GA',
@@ -117,6 +109,7 @@ class MetadataSectionState extends State<MetadataSection> {
   ];
 
   List moistureList = <String>[
+    'Select Moisture',
     'Very Dry (No Rain 2+ Weeks)',
     'Dry (No Rain 1 Week)',
     'Medium (Moderate Rain Within Week)',
@@ -137,7 +130,7 @@ class MetadataSectionState extends State<MetadataSection> {
       drags();
       syncChecker();
 
-      //deleteFiles(); //careful with this
+      //deleteFiles(); //careful with this, uncomment to clear local files in accordance with the method
     });
 
     setState(() {
@@ -145,24 +138,6 @@ class MetadataSectionState extends State<MetadataSection> {
       viewingData = false;
       editingData = false;
     });
-  }
-
-  void clearControllers() {
-    myController0.clear();
-    myController1.clear();
-    myController2.clear();
-    myController3.clear();
-    myController4.clear();
-    myController5.clear();
-    myController6.clear();
-    myController7.clear();
-    myController8.clear();
-    myController9.clear();
-    myController10.clear();
-    myController11.clear();
-    myController12.clear();
-    myController13.clear();
-    myController14.clear();
   }
 
   //This function is the actual home of the scaffold and controls which screens will be seen on the app.
@@ -176,7 +151,7 @@ class MetadataSectionState extends State<MetadataSection> {
     } else if (editingData == true) {
       return editDrag(editingFilename);
     }
-    return Container(); //On Error, essentially
+    return Container(); //On Error
   }
 
   void syncChecker() async {
@@ -312,7 +287,7 @@ class MetadataSectionState extends State<MetadataSection> {
     String key13,
     String value13,
     String key14,
-    List<Map<String, int>> value14,
+    Map<String, Map<String, int>> value14,
   ) {
     print('Writing to File');
     Map<String, dynamic> content = {
@@ -383,7 +358,7 @@ class MetadataSectionState extends State<MetadataSection> {
             ? fileContent['Site'].toString()
             : 'GQ') +
         ' ';
-    //s += '1' + ' '; //put this back with a functioning counter, not just 1
+    //s += '1' + ' '; //TODO: put this back with a functioning counter, not just 1
 
     name != null
         ? s += '${name.substring(0, 3).toUpperCase()}' + ' '
@@ -491,17 +466,6 @@ class MetadataSectionState extends State<MetadataSection> {
                             ],
                           ),
                         ),
-//                          IconButton),
-//                        (
-//                          icon: Icon(Icons.file_upload),
-//                          iconSize: 24.0,
-//                          color: fileUploaded ? Colors.white : Colors.black,
-//                          onPressed: () async {
-//                            if (!fileUploaded) {
-//                              await attemptFileUploads();
-//                            }
-//                          },
-//                        ),
                       ),
                     ),
                   ),
@@ -516,12 +480,13 @@ class MetadataSectionState extends State<MetadataSection> {
 
   logInToUpload(BuildContext context) {
     Widget agreement = FlatButton(
-        onPressed: () {
-          setState(() {
-            Navigator.pop(context);
-          });
-        },
-        child: Text('Ok.'));
+      onPressed: () {
+        setState(() {
+          Navigator.pop(context);
+        });
+      },
+      child: Text('Ok.'),
+    );
 
     AlertDialog alert = AlertDialog(
       title: Text(
@@ -532,10 +497,11 @@ class MetadataSectionState extends State<MetadataSection> {
     );
 
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return alert;
-        });
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
 //This function is used to populate the screen where all the data for a drag is being viewed.
@@ -691,7 +657,7 @@ class MetadataSectionState extends State<MetadataSection> {
     return b;
   }
 
-  void sendSegmentedTickData(List<Map<String, int>> data) {
+  void sendSegmentedTickData(Map<String, Map<String, int>> data) {
     segmentedTickData = data;
   }
 
@@ -782,9 +748,6 @@ class MetadataSectionState extends State<MetadataSection> {
                 changesMade = false;
                 editingData = true;
                 viewingData = false;
-                dropVals[0] = fileContent['HabitatType'];
-                dropVals[1] = fileContent['Site'];
-                dropVals[2] = fileContent['GroundMoisture'];
               });
             },
           ),
@@ -817,8 +780,6 @@ class MetadataSectionState extends State<MetadataSection> {
                   padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 0.0),
                   child: Column(
                     children: [
-                      //of unsure what fileContent is referring to
-                      //fileContent =  json.decode(File(dir.path + "/" + fileName).readAsStringSync())['SPECIFIC_KEY'].toString()),
                       infoRow('Name', fileContent['Name'].toString()),
                       infoRow('Site', fileContent['Site'].toString()),
                       infoRow('Temperature', fileContent['Temp'].toString()),
@@ -952,12 +913,13 @@ class MetadataSectionState extends State<MetadataSection> {
                     'Name',
                     fileContent['Name'],
                   ),
-                  DropDownMenu(
-                    label: 'Site',
-                    dropIndex: 1,
-                    controller: myController1,
-                    items: siteList,
-                    jsonVal: 'Site',
+                  dropDownMenu(
+                    'Site',
+                    siteList,
+                    1,
+                    myController1,
+                    'Site',
+                    oController1,
                   ),
                   dataField(
                     myController2,
@@ -969,21 +931,22 @@ class MetadataSectionState extends State<MetadataSection> {
                     'Humidity',
                     fileContent['Humidity'],
                   ),
-                  DropDownMenu(
-                    label: 'Ground Moisture',
-                    items: moistureList,
-                    dropIndex: 2,
-                    controller: myController4,
-                    jsonVal: 'GroundMoisture',
+                  dropDownMenu(
+                    'Ground Moisture',
+                    moistureList,
+                    2,
+                    myController4,
+                    'GroundMoisture',
+                    oController2,
                   ),
-                  DropDownMenu(
-                    label: 'Habitat Type',
-                    items: habitatList,
-                    dropIndex: 0,
-                    controller: myController5,
-                    jsonVal: 'HabitatType',
+                  dropDownMenu(
+                    'Habitat Type',
+                    habitatList,
+                    0,
+                    myController5,
+                    'HabitatType',
+                    oController3,
                   ),
-                  //markerInfo(5),
                   dataField(
                     myController6,
                     'I. scapularis nymph',
@@ -1054,10 +1017,10 @@ class MetadataSectionState extends State<MetadataSection> {
                   textColor: Colors.white,
                   color: Colors.blue,
                   onPressed: () async {
+                    setState(() {
+                      loadingData = true;
+                    });
                     if (changesMade) {
-                      print(moistureSelected);
-                      print(habitatSelected);
-                      print(siteSelected);
                       if (_editKey.currentState.validate()) {
                         if (siteSelected == true &&
                             moistureSelected == true &&
@@ -1067,15 +1030,21 @@ class MetadataSectionState extends State<MetadataSection> {
                             'Name',
                             myController0.text,
                             'Site',
-                            myController1.text,
+                            myController1.text == 'Other'
+                                ? oController1.text
+                                : myController1.text,
                             'Temp',
                             myController2.text,
                             'Humidity',
                             myController3.text,
                             'GroundMoisture',
-                            myController4.text,
+                            myController4.text == 'Other'
+                                ? oController2.text
+                                : myController4.text,
                             'HabitatType',
-                            myController5.text,
+                            myController5.text == 'Other'
+                                ? oController3.text
+                                : myController5.text,
                             'Iscap',
                             myController6.text,
                             'IscapAM',
@@ -1107,6 +1076,9 @@ class MetadataSectionState extends State<MetadataSection> {
                         viewingDrags = true;
                       });
                     }
+                    setState(() {
+                      loadingData = false;
+                    });
                   },
                   child: Text('Save Drag Data'),
                 ),
@@ -1133,130 +1105,131 @@ class MetadataSectionState extends State<MetadataSection> {
     });
   }
 
-  Widget markerInfo(int segmentCount) {
-    List<Widget> entries = new List<Widget>();
-    for (int i = 0; i < segmentCount; i++) {
-      entries.add(
-        dataField(
-          subs[i],
-          'Segment $i',
-          'Segment $i',
-          required: false,
-        ),
-      );
+  Widget dropDownMenu(
+      String label,
+      List<String> items,
+      int dropIndex,
+      TextEditingController controller,
+      String jsonVal,
+      TextEditingController otherController) {
+    controller.text = fileContent[jsonVal];
+    if (controller.text == null || controller.text == '') {
+      controller.text = items[0];
+    } else if (!items.contains(controller.text)) {
+      otherController.text = controller.text;
+      controller.text = 'Other';
     }
-    return Flex(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      direction: Axis.horizontal,
-      children: <Widget>[
-        Flexible(
-          flex: 1,
-          child: SizedBox(),
-        ),
-        Flexible(
-          flex: 1,
-          child: Container(
-            height: 50.0 * segmentCount,
-            width: 3.0,
-            color: Colors.blue[900],
-          ),
-        ),
-        Flexible(
-          flex: 6,
-          child: Column(
-            children: entries,
-          ),
-        ),
-      ],
-    );
-  }
-
-  @override
-  // ignore: must_call_super
-  Widget build(BuildContext context) {
-    return pageBody();
-  }
-}
-
-class DropDownMenu extends StatefulWidget {
-  DropDownMenu({
-    @required this.label,
-    @required this.items,
-    @required this.dropIndex,
-    @required this.controller,
-    @required this.jsonVal,
-  });
-
-  final String label;
-  final List<String> items;
-  final int dropIndex;
-  final TextEditingController controller;
-  final String jsonVal;
-  _DropDownMenuState createState() => _DropDownMenuState();
-}
-
-class _DropDownMenuState extends State<DropDownMenu> {
-  @override
-  Widget build(BuildContext context) {
-    dropVals[widget.dropIndex] = fileContent[widget.jsonVal];
-    widget.controller.text = dropVals[widget.dropIndex];
-    return Center(
+    Widget ret = Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
-        child: DropdownButtonFormField(
-          // ignore: missing_return
-          validator: (value) {
-            if (value == null) {
-              return "Please Select an Item";
-            }
-            return null;
-          },
-          decoration: InputDecoration(
-            labelText: widget.label,
-            contentPadding:
-                EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(rad)),
+        child: Column(
+          children: <Widget>[
+            DropdownButtonFormField(
+              validator: (value) {
+                if (value == null) {
+                  return "Please Select an Item";
+                }
+                return null;
+              },
+              decoration: InputDecoration(
+                labelText: label,
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(rad),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.blueAccent,
+                    width: 1.5,
+                  ),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(16.0),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.blueAccent,
+                    width: 2.5,
+                  ),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(16.0),
+                  ),
+                ),
+              ),
+              items: items.map<DropdownMenuItem<String>>(
+                (String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                },
+              ).toList(),
+              value: controller.text,
+              icon: Icon(Icons.arrow_downward),
+              iconSize: 24,
+              elevation: 16,
+              style: TextStyle(color: Colors.deepPurple),
+              onChanged: (value) {
+                setState(() {
+                  changesMade = true;
+                  controller.text = value;
+                  fileContent[jsonVal] = value;
+                  /*FIXME: These next lines seem precarious, if we change the labels
+                     somewhere else, this will break */
+                  if (value != items[0]) {
+                    if (label == 'Site') {
+                      siteSelected = true;
+                    } else if (label == 'Habitat Type') {
+                      habitatSelected = true;
+                    } else if (label == 'Ground Moisture') {
+                      moistureSelected = true;
+                    }
+                  } else {
+                    if (label == 'Site') {
+                      siteSelected = false;
+                    } else if (label == 'Habitat Type') {
+                      habitatSelected = false;
+                    } else if (label == 'Ground Moisture') {
+                      moistureSelected = false;
+                    }
+                  }
+                });
+              },
             ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.blueAccent, width: 1.5),
-              borderRadius: BorderRadius.all(Radius.circular(16.0)),
+            Visibility(
+              visible: controller.text == 'Other',
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+                child: TextFormField(
+                  decoration: kTextFieldDecoration,
+                  controller: otherController,
+                  validator: (value) {
+                    if (controller.text == 'Other' &&
+                        (controller.text == null ||
+                            controller.text.trim() == '')) {
+                      return 'Enter All Data';
+                    }
+                    return null;
+                  },
+                  onChanged: (s) {
+                    changesMade = true;
+                    fileContent[jsonVal] = s;
+                  },
+                ),
+              ),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.blueAccent, width: 2.5),
-              borderRadius: BorderRadius.all(Radius.circular(16.0)),
-            ),
-          ),
-          //hint: Text('Select a Habitat Type'),
-          items: widget.items.map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-          value: dropVals[widget.dropIndex],
-          icon: Icon(Icons.arrow_downward),
-          iconSize: 24,
-          elevation: 16,
-          style: TextStyle(color: Colors.deepPurple),
-          onChanged: (value) {
-            setState(() {
-              changesMade = true;
-              widget.controller.text = value;
-//              print(controller.text);
-              dropVals[widget.dropIndex] = value;
-              if (widget.label == 'Site') {
-                siteSelected = true;
-              } else if (widget.label == 'Habitat Type') {
-                habitatSelected = true;
-              } else if (widget.label == 'Ground Moisture') {
-                moistureSelected = true;
-              }
-            });
-          },
-          // ignore: missing_return
+          ],
         ),
       ),
     );
+    return ret;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return pageBody();
   }
 }

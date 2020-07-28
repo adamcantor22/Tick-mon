@@ -1,4 +1,3 @@
-//import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:tick_tok_bio/metadata_page.dart';
 import 'package:tick_tok_bio/super_listener.dart';
@@ -29,29 +28,32 @@ class SettingsState extends State<Settings> {
   bool notesDisplayed = false;
   bool notesUp = false;
   String markerPlaceDes =
-      'This should be pressed when the user wants to make a marker of their location and enter data for the subsection of the drag.';
+      'This should be pressed when the user wants to make a marker of their '
+      'location and enter data for the subsection of the drag.';
   String freeLookDes =
-      "This button toggles whether the camera will automatically update itself upon any movement. Disable this if you would like to look freely around the map.";
+      'This button toggles whether the camera will automatically update itself '
+      'upon any movement. Disable this if you would like to look freely around the map.';
 
   @override
   void initState() {
     super.initState();
     SuperListener.setPages(sPage: this);
-    getApplicationDocumentsDirectory().then((Directory directory) {
-      dir = directory;
-      jsonFile = File(dir.path + '/' + fileName);
-      fileExists = jsonFile.existsSync();
-      if (fileExists) {
-        print('I HAVE THE SETTINGS FILE');
-        setState(() {
-          fileContentSettings = jsonDecode(jsonFile.readAsStringSync());
-          configureSettings();
-          configureMapState();
-        });
-      } else {
-        print('I DO NOT HAVE THE SETTINGS FILE');
-      }
-    });
+    getApplicationDocumentsDirectory().then(
+      (Directory directory) {
+        dir = directory;
+        jsonFile = File(dir.path + '/' + fileName);
+        fileExists = jsonFile.existsSync();
+        if (fileExists) {
+          setState(() {
+            fileContentSettings = jsonDecode(jsonFile.readAsStringSync());
+            configureSettings();
+            configureMapState();
+          });
+        } else {
+          print('I DO NOT HAVE THE SETTINGS FILE');
+        }
+      },
+    );
   }
 
   void configureMapState() {
@@ -76,45 +78,47 @@ class SettingsState extends State<Settings> {
 
   showAlertDialog(BuildContext context) {
     Widget applyChanges = FlatButton(
-        onPressed: () {
-          setState(() {
-            configureMapState();
-            writeToFile(soundOn, temperatureState, autoMarker, timeTracking,
-                selectedDistancePerMarker, selectedTimePerMarker);
-            Navigator.pop(context);
-          });
-        },
-        child: Text('Apply Changes'));
+      onPressed: () {
+        setState(() {
+          configureMapState();
+          writeToFile(soundOn, temperatureState, autoMarker, timeTracking,
+              selectedDistancePerMarker, selectedTimePerMarker);
+          Navigator.pop(context);
+        });
+      },
+      child: Text('Apply Changes'),
+    );
 
     Widget cancel = FlatButton(
-        onPressed: () {
-          setState(() {
-            configureSettings();
-            configureMapState();
-            Navigator.pop(context);
-          });
-        },
-        child: Text('Cancel My Changes'));
+      onPressed: () {
+        setState(() {
+          configureSettings();
+          configureMapState();
+          Navigator.pop(context);
+        });
+      },
+      child: Text('Cancel My Changes'),
+    );
 
     AlertDialog alert = AlertDialog(
       title: Text(
-          'You have not saved the changes you have made to the settings page'),
+        'You have not saved the changes you have made to the settings page',
+      ),
       actions: [applyChanges, cancel],
     );
 
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return alert;
-        });
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
   void settingsChecker() {
-    print('Settings checker has been called');
     if (fileContentSettings != null) {
       if (fileContentSettings['Sound'] != soundOn) {
         showAlertDialog(context);
-        print('OOOH');
       } else if (fileContentSettings['TempStatus'] != temperatureState) {
         showAlertDialog(context);
       } else if (fileContentSettings['Auto-Marker'] != autoMarker) {
@@ -130,14 +134,12 @@ class SettingsState extends State<Settings> {
   }
 
   void createFile(Map<dynamic, dynamic> content) {
-//    print('creating File');
     File file = File(dir.path + '/' + fileName);
     fileExists = true;
     file.writeAsStringSync(jsonEncode(content));
   }
 
   void writeToFile(val, val1, val2, val3, val4, val5) {
-//    print('Writing to File');
     Map<String, dynamic> content = {
       'Sound': val,
       'TempStatus': val1,
@@ -146,14 +148,13 @@ class SettingsState extends State<Settings> {
       'Distance': val4,
       'Time': val5
     };
+
     if (fileExists) {
-//      print('FIle Exists');
       Map<String, dynamic> jsonFileContent1 =
           jsonDecode(jsonFile.readAsStringSync());
       jsonFileContent1.addAll(content);
       jsonFile.writeAsStringSync(jsonEncode(jsonFileContent1));
     } else {
-      //print('File does not exist');
       createFile(content);
     }
     setState(() {
@@ -166,21 +167,38 @@ class SettingsState extends State<Settings> {
   }
 
   Widget iconDescription(icon, String description) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.9,
-      padding: const EdgeInsets.all(16.0),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(32.0, 24.0, 0.0, 24.0),
       child: Row(
         children: [
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 10.0),
-            color: Colors.blue,
-            child: Icon(
-              icon,
-              color: Colors.red,
-              size: 40.0,
+          Flexible(
+            flex: 2,
+            child: Stack(
+              alignment: Alignment.center,
+              children: <Widget>[
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(5.0),
+                    ),
+                  ),
+                  height: 52.0,
+                  width: 52.0,
+                ),
+                Icon(
+                  icon,
+                  color: Colors.red,
+                  size: 40.0,
+                ),
+              ],
             ),
           ),
-          Flexible(
+          SizedBox(
+            width: 20.0,
+          ),
+          Expanded(
+            flex: 6,
             child: Text(description),
           )
         ],
@@ -199,9 +217,9 @@ class SettingsState extends State<Settings> {
   Widget notesPage() {
     return Scaffold(
       appBar: AppBar(
-          title: Row(
-        children: [
-          IconButton(
+        title: Row(
+          children: [
+            IconButton(
               icon: Icon(
                 Icons.arrow_back,
                 size: 30.0,
@@ -210,27 +228,43 @@ class SettingsState extends State<Settings> {
                 setState(() {
                   notesUp = false;
                 });
-              }),
-          SizedBox(
-            width: 80.0,
-          ),
-          Text('Notes for User'),
-        ],
-      )),
-      body: ListView(children: [
-        Column(
-          children: [
-            Center(
-              child: Text(
-                'Icons Functionality',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
-              ),
+              },
             ),
-            iconDescription(Icons.my_location, markerPlaceDes),
-            iconDescription(Icons.remove_red_eye, freeLookDes),
+            SizedBox(
+              width: 80.0,
+            ),
+            Text('Notes for User'),
           ],
         ),
-      ]),
+      ),
+      body: ListView(
+        children: [
+          Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: 24.0),
+                child: Center(
+                  child: Text(
+                    'Icons Functionality',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 25.0,
+                    ),
+                  ),
+                ),
+              ),
+              iconDescription(
+                Icons.location_on,
+                markerPlaceDes,
+              ),
+              iconDescription(
+                Icons.remove_red_eye,
+                freeLookDes,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -247,114 +281,128 @@ class SettingsState extends State<Settings> {
         ),
       ),
       body: Center(
-        child: Column(children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.0),
+          child: Column(
             children: [
-              Flexible(
-                flex: 3,
-                child: Text(
-                  'Start/Stop Sound Off',
-                  style: TextStyle(fontSize: 18.0),
-                ),
-              ),
-              Flexible(
-                flex: 1,
-                child: Switch(
-                  value: soundOn,
-                  inactiveTrackColor: Colors.red[200],
-                  inactiveThumbColor: Colors.red,
-                  onChanged: (val) {
-                    setState(() {
-                      soundOn = val;
-                      SuperListener.settingSoundPref(val);
-                    });
-                  },
-                ),
-              ),
-              Flexible(
-                flex: 3,
-                child: Text(
-                  'Start/Stop Sound On',
-                  style: TextStyle(fontSize: 18.0),
-                ),
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                flex: 3,
-                child: Text(
-                  'Fahrenheit',
-                  style: TextStyle(fontSize: 18.0),
-                ),
-              ),
-              Flexible(
-                flex: 1,
-                child: Switch(
-                    inactiveThumbColor: Colors.red,
-                    inactiveTrackColor: Colors.red.shade200,
-                    value: temperatureState,
-                    onChanged: (value) {
-                      setState(() {
-                        temperatureState = value;
-                        SuperListener.tempCelsius(value);
-                      });
-                    }),
-              ),
-              Flexible(
-                flex: 3,
-                child: Text(
-                  'Celsius',
-                  style: TextStyle(fontSize: 18.0),
-                ),
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                child: Text(
-                  'Sound Reminder Off',
-                  style: TextStyle(fontSize: 18.0),
-                ),
-              ),
-              Flexible(
-                child: Switch(
-                    inactiveThumbColor: Colors.red,
-                    inactiveTrackColor: Colors.red.shade200,
-                    value: autoMarker,
-                    onChanged: (val) {
-                      setState(() {
-                        SuperListener.autoMarking(val);
-                        autoMarker = val;
-                      });
-                    }),
-              ),
-              Flexible(
-                child: Text(
-                  'Sound Reminder On',
-                  style: TextStyle(fontSize: 18.0),
-                ),
-              ),
-            ],
-          ),
-          Visibility(
-              visible: autoMarker == true ? true : false,
-              child: Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Flexible(
+                  Expanded(
+                    flex: 3,
                     child: Text(
-                      'Distance',
+                      'Start/Stop Sound Off',
+                      style: TextStyle(fontSize: 18.0),
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Switch(
+                      value: soundOn,
+                      inactiveTrackColor: Colors.red[200],
+                      inactiveThumbColor: Colors.red,
+                      onChanged: (val) {
+                        setState(() {
+                          soundOn = val;
+                          SuperListener.settingSoundPref(val);
+                        });
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      'Start/Stop Sound On',
                       style: TextStyle(fontSize: 18.0),
                     ),
                   ),
-                  Flexible(
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      'Fahrenheit',
+                      style: TextStyle(fontSize: 18.0),
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
                     child: Switch(
+                      inactiveThumbColor: Colors.red,
+                      inactiveTrackColor: Colors.red.shade200,
+                      value: temperatureState,
+                      onChanged: (value) {
+                        setState(() {
+                          temperatureState = value;
+                          SuperListener.tempCelsius(value);
+                        });
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      'Celsius',
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                  )
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      'Sound Reminder Off',
+                      style: TextStyle(fontSize: 18.0),
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Switch(
+                      inactiveThumbColor: Colors.red,
+                      inactiveTrackColor: Colors.red.shade200,
+                      value: autoMarker,
+                      onChanged: (val) {
+                        setState(() {
+                          SuperListener.autoMarking(val);
+                          autoMarker = val;
+                        });
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      'Sound Reminder On',
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                  ),
+                ],
+              ),
+              Visibility(
+                visible: autoMarker == true ? true : false,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        'Distance',
+                        style: TextStyle(fontSize: 18.0),
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Switch(
                         inactiveThumbColor: Colors.red,
                         inactiveTrackColor: Colors.red.shade200,
                         value: timeTracking,
@@ -362,113 +410,173 @@ class SettingsState extends State<Settings> {
                           setState(() {
                             timeTracking = val;
                           });
-                        }),
-                  ),
-                  Flexible(
-                    child: Text(
-                      'Time',
-                      style: TextStyle(fontSize: 18.0),
+                        },
+                      ),
                     ),
-                  ),
-                ],
-              )),
-          Visibility(
-            visible: timeTracking == false && autoMarker == true ? true : false,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
-              child: DropdownButtonFormField(
-                decoration: InputDecoration(
-                    labelText: 'Distance Per Marker Drop',
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        'Time',
+                        style: TextStyle(fontSize: 18.0),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Colors.blueAccent, width: 1.5),
-                      borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Colors.blueAccent, width: 2.5),
-                      borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                    )),
-                items: distancePerMarker
-                    .map<DropdownMenuItem<double>>((double value) {
-                  return DropdownMenuItem<double>(
-                      value: value, child: Text(value.toString() + ' meters'));
-                }).toList(),
-                value: selectedDistancePerMarker,
-                onChanged: (value) {
-                  setState(() {
-                    selectedDistancePerMarker = value;
-                    SuperListener.setMarkingDistance(value);
-                  });
-                },
+                  ],
+                ),
               ),
-            ),
-          ),
-          Visibility(
-            visible: timeTracking == true && autoMarker == true ? true : false,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
-              child: DropdownButtonFormField(
-                decoration: InputDecoration(
-                    labelText: 'Time Per Marker Drop',
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              Visibility(
+                visible:
+                    timeTracking == false && autoMarker == true ? true : false,
+                child: Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+                  child: DropdownButtonFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Distance Per Marker Drop',
+                      contentPadding: EdgeInsets.symmetric(
+                          vertical: 10.0, horizontal: 20.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(8.0),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.blueAccent,
+                          width: 1.5,
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16.0),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.blueAccent,
+                          width: 2.5,
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16.0),
+                        ),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Colors.blueAccent, width: 1.5),
-                      borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: Colors.blueAccent, width: 2.5),
-                      borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                    )),
-                items: timerPerMarker
-                    .map<DropdownMenuItem<double>>((double value) {
-                  return DropdownMenuItem<double>(
-                      value: value, child: Text(value.toString() + ' minutes'));
-                }).toList(),
-                value: selectedTimePerMarker,
-                onChanged: (value) {
-                  setState(() {
-                    selectedTimePerMarker = value;
-                  });
-                },
+                    items: distancePerMarker.map<DropdownMenuItem<double>>(
+                      (double value) {
+                        return DropdownMenuItem<double>(
+                          value: value,
+                          child: Text(value.toString() + ' meters'),
+                        );
+                      },
+                    ).toList(),
+                    value: selectedDistancePerMarker,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedDistancePerMarker = value;
+                        SuperListener.setMarkingDistance(value);
+                      });
+                    },
+                  ),
+                ),
               ),
-            ),
-          ),
-          FlatButton.icon(
-              color: Colors.blue,
-              onPressed: () {
-                setState(() {
-                  configureMapState();
-                  writeToFile(
+              Visibility(
+                visible:
+                    timeTracking == true && autoMarker == true ? true : false,
+                child: Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+                  child: DropdownButtonFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Time Per Marker Drop',
+                      contentPadding: EdgeInsets.symmetric(
+                          vertical: 10.0, horizontal: 20.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(8.0),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.blueAccent,
+                          width: 1.5,
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16.0),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.blueAccent,
+                          width: 2.5,
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16.0),
+                        ),
+                      ),
+                    ),
+                    items: timerPerMarker.map<DropdownMenuItem<double>>(
+                      (double value) {
+                        return DropdownMenuItem<double>(
+                          value: value,
+                          child: Text(value.toString() + ' minutes'),
+                        );
+                      },
+                    ).toList(),
+                    value: selectedTimePerMarker,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedTimePerMarker = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
+              RaisedButton.icon(
+                color: Colors.blue,
+                onPressed: () {
+                  setState(() {
+                    configureMapState();
+                    writeToFile(
                       soundOn,
                       temperatureState,
                       autoMarker,
                       timeTracking,
                       selectedDistancePerMarker,
-                      selectedTimePerMarker);
-                });
-              },
-              icon: Icon(Icons.check),
-              label: Text('Apply Changes')),
-          FlatButton(
-              onPressed: () {
-                setState(() {
-                  notesUp = true;
-                });
-              },
-              child: Text('Notes for Users')),
-        ]),
+                      selectedTimePerMarker,
+                    );
+                  });
+                },
+                icon: Icon(
+                  Icons.check,
+                  color: Colors.white,
+                ),
+                label: Text(
+                  'Apply Changes',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
+              RaisedButton(
+                onPressed: () {
+                  setState(() {
+                    notesUp = true;
+                  });
+                },
+                color: Colors.white,
+                child: Text(
+                  'Notes for Users',
+                  style: TextStyle(
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
