@@ -280,122 +280,53 @@ class SettingsState extends State<Settings> {
           ),
         ),
       ),
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.0),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Start/Stop Sound Off',
-                      style: TextStyle(fontSize: 18.0),
-                      textAlign: TextAlign.right,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Switch(
-                      value: soundOn,
-                      inactiveTrackColor: Colors.red[200],
-                      inactiveThumbColor: Colors.red,
-                      onChanged: (val) {
-                        setState(() {
-                          soundOn = val;
-                          SuperListener.settingSoundPref(val);
-                        });
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Start/Stop Sound On',
-                      style: TextStyle(fontSize: 18.0),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Fahrenheit',
-                      style: TextStyle(fontSize: 18.0),
-                      textAlign: TextAlign.right,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Switch(
-                      inactiveThumbColor: Colors.red,
-                      inactiveTrackColor: Colors.red.shade200,
-                      value: temperatureState,
-                      onChanged: (value) {
-                        setState(() {
-                          temperatureState = value;
-                          SuperListener.tempCelsius(value);
-                        });
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Celsius',
-                      style: TextStyle(fontSize: 18.0),
-                    ),
-                  )
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Sound Reminder Off',
-                      style: TextStyle(fontSize: 18.0),
-                      textAlign: TextAlign.right,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Switch(
-                      inactiveThumbColor: Colors.red,
-                      inactiveTrackColor: Colors.red.shade200,
-                      value: autoMarker,
-                      onChanged: (val) {
-                        setState(() {
-                          SuperListener.autoMarking(val);
-                          autoMarker = val;
-                        });
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Sound Reminder On',
-                      style: TextStyle(fontSize: 18.0),
-                    ),
-                  ),
-                ],
-              ),
-              Visibility(
-                visible: autoMarker == true ? true : false,
-                child: Row(
+      body: ListView(children: [
+        Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Column(
+              children: [
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Expanded(
                       flex: 3,
                       child: Text(
-                        'Distance',
+                        'Start/Stop Sound Off',
+                        style: TextStyle(fontSize: 18.0),
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Switch(
+                        value: soundOn,
+                        inactiveTrackColor: Colors.red[200],
+                        inactiveThumbColor: Colors.red,
+                        onChanged: (val) {
+                          setState(() {
+                            soundOn = val;
+                            SuperListener.settingSoundPref(val);
+                          });
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        'Start/Stop Sound On',
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        'Fahrenheit',
                         style: TextStyle(fontSize: 18.0),
                         textAlign: TextAlign.right,
                       ),
@@ -405,10 +336,11 @@ class SettingsState extends State<Settings> {
                       child: Switch(
                         inactiveThumbColor: Colors.red,
                         inactiveTrackColor: Colors.red.shade200,
-                        value: timeTracking,
-                        onChanged: (bool val) {
+                        value: temperatureState,
+                        onChanged: (value) {
                           setState(() {
-                            timeTracking = val;
+                            temperatureState = value;
+                            SuperListener.tempCelsius(value);
                           });
                         },
                       ),
@@ -416,168 +348,239 @@ class SettingsState extends State<Settings> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        'Time',
+                        'Celsius',
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        'Sound Reminder Off',
+                        style: TextStyle(fontSize: 18.0),
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Switch(
+                        inactiveThumbColor: Colors.red,
+                        inactiveTrackColor: Colors.red.shade200,
+                        value: autoMarker,
+                        onChanged: (val) {
+                          setState(() {
+                            SuperListener.autoMarking(val);
+                            autoMarker = val;
+                          });
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        'Sound Reminder On',
                         style: TextStyle(fontSize: 18.0),
                       ),
                     ),
                   ],
                 ),
-              ),
-              Visibility(
-                visible:
-                    timeTracking == false && autoMarker == true ? true : false,
-                child: Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
-                  child: DropdownButtonFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Distance Per Marker Drop',
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 20.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(8.0),
+                Visibility(
+                  visible: autoMarker == true ? true : false,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          'Distance',
+                          style: TextStyle(fontSize: 18.0),
+                          textAlign: TextAlign.right,
                         ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.blueAccent,
-                          width: 1.5,
-                        ),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(16.0),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.blueAccent,
-                          width: 2.5,
-                        ),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(16.0),
+                      Expanded(
+                        flex: 1,
+                        child: Switch(
+                          inactiveThumbColor: Colors.red,
+                          inactiveTrackColor: Colors.red.shade200,
+                          value: timeTracking,
+                          onChanged: (bool val) {
+                            setState(() {
+                              timeTracking = val;
+                            });
+                          },
                         ),
                       ),
-                    ),
-                    items: distancePerMarker.map<DropdownMenuItem<double>>(
-                      (double value) {
-                        return DropdownMenuItem<double>(
-                          value: value,
-                          child: Text(value.toString() + ' meters'),
-                        );
-                      },
-                    ).toList(),
-                    value: selectedDistancePerMarker,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedDistancePerMarker = value;
-                        SuperListener.setMarkingDistance(value);
-                      });
-                    },
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          'Time',
+                          style: TextStyle(fontSize: 18.0),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              Visibility(
-                visible:
-                    timeTracking == true && autoMarker == true ? true : false,
-                child: Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
-                  child: DropdownButtonFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Time Per Marker Drop',
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 20.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(8.0),
+                Visibility(
+                  visible: timeTracking == false && autoMarker == true
+                      ? true
+                      : false,
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+                    child: DropdownButtonFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Distance Per Marker Drop',
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 20.0),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(8.0),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.blueAccent,
+                            width: 1.5,
+                          ),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(16.0),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.blueAccent,
+                            width: 2.5,
+                          ),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(16.0),
+                          ),
                         ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.blueAccent,
-                          width: 1.5,
-                        ),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(16.0),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.blueAccent,
-                          width: 2.5,
-                        ),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(16.0),
-                        ),
-                      ),
-                    ),
-                    items: timerPerMarker.map<DropdownMenuItem<double>>(
-                      (double value) {
-                        return DropdownMenuItem<double>(
-                          value: value,
-                          child: Text(value.toString() + ' minutes'),
-                        );
+                      items: distancePerMarker.map<DropdownMenuItem<double>>(
+                        (double value) {
+                          return DropdownMenuItem<double>(
+                            value: value,
+                            child: Text(value.toString() + ' meters'),
+                          );
+                        },
+                      ).toList(),
+                      value: selectedDistancePerMarker,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedDistancePerMarker = value;
+                          SuperListener.setMarkingDistance(value);
+                        });
                       },
-                    ).toList(),
-                    value: selectedTimePerMarker,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedTimePerMarker = value;
-                      });
-                    },
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                height: 20.0,
-              ),
-              RaisedButton.icon(
-                color: Colors.blue,
-                onPressed: () {
-                  setState(() {
-                    configureMapState();
-                    writeToFile(
-                      soundOn,
-                      temperatureState,
-                      autoMarker,
-                      timeTracking,
-                      selectedDistancePerMarker,
-                      selectedTimePerMarker,
-                    );
-                  });
-                },
-                icon: Icon(
-                  Icons.check,
-                  color: Colors.white,
+                Visibility(
+                  visible:
+                      timeTracking == true && autoMarker == true ? true : false,
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+                    child: DropdownButtonFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Time Per Marker Drop',
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 20.0),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(8.0),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.blueAccent,
+                            width: 1.5,
+                          ),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(16.0),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.blueAccent,
+                            width: 2.5,
+                          ),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(16.0),
+                          ),
+                        ),
+                      ),
+                      items: timerPerMarker.map<DropdownMenuItem<double>>(
+                        (double value) {
+                          return DropdownMenuItem<double>(
+                            value: value,
+                            child: Text(value.toString() + ' minutes'),
+                          );
+                        },
+                      ).toList(),
+                      value: selectedTimePerMarker,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedTimePerMarker = value;
+                        });
+                      },
+                    ),
+                  ),
                 ),
-                label: Text(
-                  'Apply Changes',
-                  style: TextStyle(
+                SizedBox(
+                  height: 20.0,
+                ),
+                RaisedButton.icon(
+                  color: Colors.blue,
+                  onPressed: () {
+                    setState(() {
+                      configureMapState();
+                      writeToFile(
+                        soundOn,
+                        temperatureState,
+                        autoMarker,
+                        timeTracking,
+                        selectedDistancePerMarker,
+                        selectedTimePerMarker,
+                      );
+                    });
+                  },
+                  icon: Icon(
+                    Icons.check,
                     color: Colors.white,
                   ),
-                ),
-              ),
-              SizedBox(
-                height: 20.0,
-              ),
-              RaisedButton(
-                onPressed: () {
-                  setState(() {
-                    notesUp = true;
-                  });
-                },
-                color: Colors.white,
-                child: Text(
-                  'Notes for Users',
-                  style: TextStyle(
-                    color: Colors.blue,
+                  label: Text(
+                    'Apply Changes',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              ),
-            ],
+                SizedBox(
+                  height: 20.0,
+                ),
+                RaisedButton(
+                  onPressed: () {
+                    setState(() {
+                      notesUp = true;
+                    });
+                  },
+                  color: Colors.white,
+                  child: Text(
+                    'Notes for Users',
+                    style: TextStyle(
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
+      ]),
     );
   }
 
