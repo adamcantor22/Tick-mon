@@ -75,6 +75,7 @@ class _HelperTextState extends State<HelperText> {
     'D. vari',
     'H. long',
     'lxodes spp',
+    'Other'
   ];
 
   _HelperTextState(int segment, BuildContext cont) {

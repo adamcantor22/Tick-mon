@@ -53,6 +53,7 @@ var aAmer = 0;
 var dVari = 0;
 var hLong = 0;
 var lxod = 0;
+var other = 0;
 var selectedSpec;
 
 Map fileContent;
@@ -288,7 +289,9 @@ class MetadataSectionState extends State<MetadataSection> {
     String key13,
     String value13,
     String key14,
-    Map<String, Map<String, int>> value14,
+    String value14,
+    String key15,
+    Map<String, Map<String, int>> value15,
   ) {
     print('Writing to File');
     Map<String, dynamic> content = {
@@ -307,6 +310,7 @@ class MetadataSectionState extends State<MetadataSection> {
       key12: value12,
       key13: value13,
       key14: value14,
+      key15: value15,
       'visible': 'true',
     };
     if (fileExists) {
@@ -573,9 +577,14 @@ class MetadataSectionState extends State<MetadataSection> {
   Widget dataField(
     TextEditingController controller,
     String field,
-    String hText, {
+    String jsonVal, {
     bool required = true,
   }) {
+    if (fileContent[jsonVal] == null || fileContent[jsonVal] == '') {
+      controller.text = '';
+    } else {
+      controller.text = fileContent[jsonVal];
+    }
     Widget widget = Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
       child: TextFormField(
@@ -590,15 +599,11 @@ class MetadataSectionState extends State<MetadataSection> {
           return null;
         },
         onChanged: (s) {
+          fileContent[jsonVal] = s;
           changesMade = true;
         },
       ),
     );
-    if (hText != null) {
-      controller.text = hText;
-    } else {
-      controller.text = '';
-    }
     return widget;
   }
 
@@ -656,6 +661,9 @@ class MetadataSectionState extends State<MetadataSection> {
     fileContent['H.long'] = hLong.toString();
     hLong = 0;
     fileContent['lxodes'] = lxod.toString();
+    lxod = 0;
+    fileContent['Other'] = other.toString();
+    other = 0;
     return b;
   }
 
@@ -696,6 +704,9 @@ class MetadataSectionState extends State<MetadataSection> {
     }
     if (tickData.containsKey('lxodes spp')) {
       lxod += tickData['lxodes spp'];
+    }
+    if (tickData.containsKey('Other')) {
+      other += tickData['Other'];
     }
   }
 
@@ -799,7 +810,8 @@ class MetadataSectionState extends State<MetadataSection> {
                       infoRow('A. amer. (Lone star)', fileContent['A.amer']),
                       infoRow('D. vari. (American dog)', fileContent['D.vari']),
                       infoRow('H. long. (Longhorned)', fileContent['H.long']),
-                      infoRow('lxodes spp (other)', fileContent['lxodes']),
+                      infoRow('lxodes spp', fileContent['lxodes']),
+                      infoRow('Other', fileContent['Other']),
                       infoRow('Notes', fileContent['Notes'].toString()),
                     ],
                   ),
@@ -914,7 +926,7 @@ class MetadataSectionState extends State<MetadataSection> {
                   dataField(
                     myController0,
                     'Name',
-                    fileContent['Name'],
+                    'Name',
                   ),
                   dropDownMenu(
                     'Site',
@@ -927,12 +939,12 @@ class MetadataSectionState extends State<MetadataSection> {
                   dataField(
                     myController2,
                     'Temperature',
-                    fileContent['Temp'],
+                    'Temp',
                   ),
                   dataField(
                     myController3,
                     'Humidity',
-                    fileContent['Humidity'],
+                    'Humidity',
                   ),
                   dropDownMenu(
                     'Ground Moisture',
@@ -953,42 +965,43 @@ class MetadataSectionState extends State<MetadataSection> {
                   dataField(
                     myController6,
                     'I. scapularis nymph',
-                    fileContent['Iscap'],
+                    'Iscap',
                   ),
                   dataField(
                     myController7,
                     'I. scapularis adult male',
-                    fileContent['IscapAM'],
+                    'IscapAM',
                   ),
                   dataField(
                     myController8,
                     'I. scapularis adult female',
-                    fileContent['IscapAF'],
+                    'IscapAF',
                   ),
                   dataField(
                     myController9,
                     'A. americanum (Lone star)',
-                    fileContent['A.amer'],
+                    'A.amer',
                   ),
                   dataField(
                     myController10,
                     'D. variablis (American dog)',
-                    fileContent['D.vari'],
+                    'D.vari',
                   ),
                   dataField(
                     myController11,
                     'H. longicornis (Longhorned)',
-                    fileContent['H.long'],
+                    'H.long',
                   ),
                   dataField(
                     myController12,
-                    'lxodes spp (other)',
-                    fileContent['lxodes'],
+                    'lxodes spp',
+                    'lxodes',
                   ),
+                  dataField(myController13, 'Other', fileContent['Other']),
                   dataField(
-                    myController13,
+                    myController14,
                     'Notes',
-                    fileContent['Notes'],
+                    'Notes',
                     required: false,
                   ),
                   SizedBox(
@@ -1064,8 +1077,10 @@ class MetadataSectionState extends State<MetadataSection> {
                             myController11.text,
                             'lxodes',
                             myController12.text,
-                            'Notes',
+                            'Other',
                             myController13.text,
+                            'Notes',
+                            myController14.text,
                             'Ticks',
                             segmentedTickData,
                           );
