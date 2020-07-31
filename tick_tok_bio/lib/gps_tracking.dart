@@ -79,6 +79,7 @@ class MapsState extends State<Maps> {
     initPlayer();
     getLoc();
     autoTrackingNonDrag();
+    markerList.add(userLocationMarkerFunc());
   }
 
   void getInitPos() async {
@@ -224,6 +225,7 @@ class MapsState extends State<Maps> {
   //Set up location tracking subscription and polyline creation
   void startNewRoute() async {
     markerUpdate();
+
     autoCameraMoveVisibility = true;
     getLoc();
     if (markerViaTime == true) {
@@ -237,6 +239,7 @@ class MapsState extends State<Maps> {
         setState(() {
           print('Marking by time is' + markerViaTime.toString());
           markerList.clear();
+          markerList.add(userLocationMarkerFunc());
           sliderVisibility = true;
           locator = new Geolocator();
           wpts = new List<Wpt>();
@@ -254,6 +257,7 @@ class MapsState extends State<Maps> {
       setState(() {
         print('Marking by time is' + markerViaTime.toString());
         markerList.clear();
+        markerList.add(userLocationMarkerFunc());
         sliderVisibility = true;
         locator = new Geolocator();
         wpts = new List<Wpt>();
@@ -412,6 +416,7 @@ class MapsState extends State<Maps> {
                 lastDropPoint = null;
                 afterFirstDrop = false;
                 markerList.clear();
+                markerList.add(userLocationMarkerFunc());
                 lastDropPoint = null;
                 checkPointsCleared = 0;
                 autoCameraMoveVisibility = false;
@@ -461,7 +466,8 @@ class MapsState extends State<Maps> {
   }
 
   void markerUpdate() async {
-    checkPointsPerMarker = (distancePerMarker ~/ 2);
+    int incrementSize = 2;
+    checkPointsPerMarker = (distancePerMarker ~/ incrementSize);
     if (afterFirstDrop == false) {
       lastDropPoint = await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
@@ -475,7 +481,7 @@ class MapsState extends State<Maps> {
         currentPosition.longitude,
       );
       if (markerViaTime == false) {
-        if (currentDistance >= 5.0) {
+        if (currentDistance >= incrementSize) {
           checkPointsCleared += 1;
           print(checkPointsCleared);
 
@@ -679,6 +685,7 @@ class MapsState extends State<Maps> {
                   cancellationPopUpPresent = false;
                   cancelDragVal = 0.0;
                   markerList = [];
+                  markerList.add(userLocationMarkerFunc());
                   lastDropPoint = null;
                   afterFirstDrop = false;
                   checkPointsCleared = 0;
