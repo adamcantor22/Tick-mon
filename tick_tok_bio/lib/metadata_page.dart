@@ -577,9 +577,14 @@ class MetadataSectionState extends State<MetadataSection> {
   Widget dataField(
     TextEditingController controller,
     String field,
-    String hText, {
+    String jsonVal, {
     bool required = true,
   }) {
+    if (fileContent[jsonVal] == null || fileContent[jsonVal] == '') {
+      controller.text = '';
+    } else {
+      controller.text = fileContent[jsonVal];
+    }
     Widget widget = Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
       child: TextFormField(
@@ -594,15 +599,11 @@ class MetadataSectionState extends State<MetadataSection> {
           return null;
         },
         onChanged: (s) {
+          fileContent[jsonVal] = s;
           changesMade = true;
         },
       ),
     );
-    if (hText != null) {
-      controller.text = hText;
-    } else {
-      controller.text = '';
-    }
     return widget;
   }
 
@@ -925,7 +926,7 @@ class MetadataSectionState extends State<MetadataSection> {
                   dataField(
                     myController0,
                     'Name',
-                    fileContent['Name'],
+                    'Name',
                   ),
                   dropDownMenu(
                     'Site',
@@ -938,12 +939,12 @@ class MetadataSectionState extends State<MetadataSection> {
                   dataField(
                     myController2,
                     'Temperature',
-                    fileContent['Temp'],
+                    'Temp',
                   ),
                   dataField(
                     myController3,
                     'Humidity',
-                    fileContent['Humidity'],
+                    'Humidity',
                   ),
                   dropDownMenu(
                     'Ground Moisture',
@@ -964,43 +965,43 @@ class MetadataSectionState extends State<MetadataSection> {
                   dataField(
                     myController6,
                     'I. scapularis nymph',
-                    fileContent['Iscap'],
+                    'Iscap',
                   ),
                   dataField(
                     myController7,
                     'I. scapularis adult male',
-                    fileContent['IscapAM'],
+                    'IscapAM',
                   ),
                   dataField(
                     myController8,
                     'I. scapularis adult female',
-                    fileContent['IscapAF'],
+                    'IscapAF',
                   ),
                   dataField(
                     myController9,
                     'A. americanum (Lone star)',
-                    fileContent['A.amer'],
+                    'A.amer',
                   ),
                   dataField(
                     myController10,
                     'D. variablis (American dog)',
-                    fileContent['D.vari'],
+                    'D.vari',
                   ),
                   dataField(
                     myController11,
                     'H. longicornis (Longhorned)',
-                    fileContent['H.long'],
+                    'H.long',
                   ),
                   dataField(
                     myController12,
                     'lxodes spp',
-                    fileContent['lxodes'],
+                    'lxodes',
                   ),
                   dataField(myController13, 'Other', fileContent['Other']),
                   dataField(
                     myController14,
                     'Notes',
-                    fileContent['Notes'],
+                    'Notes',
                     required: false,
                   ),
                   SizedBox(
