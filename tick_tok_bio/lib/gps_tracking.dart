@@ -396,9 +396,6 @@ class MapsState extends State<Maps> {
             onPressed: () {
               setState(() {
                 SuperListener.upDateTickData();
-                moistureSelected = false;
-                habitatSelected = false;
-                siteSelected = false;
                 if (markerViaTime == true) {
                   timer.cancel();
                   timerVisibility = false;
