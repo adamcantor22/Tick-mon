@@ -83,6 +83,27 @@ class LoggedInScreenState extends State<LoggedInScreen> {
         });
   }
 
+  noLoginMidDrag(BuildContext context) {
+    Widget agreement = FlatButton(
+        onPressed: () {
+          setState(() {
+            Navigator.pop(context);
+          });
+        },
+        child: Text('Ok.'));
+
+    AlertDialog alert = AlertDialog(
+      title: Text('You cannot log in while a drag is in progress.'),
+      actions: [agreement],
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        });
+  }
+
   Future<void> getPrefs(String email) async {
     List docs =
         (await Firestore.instance.collection('lab_groups').getDocuments())
@@ -224,10 +245,14 @@ class LoggedInScreenState extends State<LoggedInScreen> {
                           ),
                           color: Colors.white,
                           onPressed: () {
-                            setState(() {
-                              SuperListener.logInSwitch();
-                            });
-                            signInWithGoogle();
+                            if (trackingRoute == false) {
+                              setState(() {
+                                SuperListener.logInSwitch();
+                              });
+                              signInWithGoogle();
+                            } else {
+                              noLoginMidDrag(context);
+                            }
                           },
                           child: Row(
                             children: [
