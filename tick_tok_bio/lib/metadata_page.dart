@@ -997,7 +997,11 @@ class MetadataSectionState extends State<MetadataSection> {
                     'lxodes spp',
                     'lxodes',
                   ),
-                  dataField(myController13, 'Other', fileContent['Other']),
+                  dataField(
+                    myController13,
+                    'Other',
+                    'Other',
+                  ),
                   dataField(
                     myController14,
                     'Notes',
