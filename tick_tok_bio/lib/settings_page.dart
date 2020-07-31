@@ -51,6 +51,8 @@ class SettingsState extends State<Settings> {
           });
         } else {
           print('I DO NOT HAVE THE SETTINGS FILE');
+          writeToFile(soundOn, temperatureState, autoMarker, timeTracking,
+              selectedDistancePerMarker, selectedTimePerMarker);
         }
       },
     );
