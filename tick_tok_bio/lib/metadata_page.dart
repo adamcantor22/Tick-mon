@@ -53,6 +53,7 @@ var aAmer = 0;
 var dVari = 0;
 var hLong = 0;
 var lxod = 0;
+var other = 0;
 var selectedSpec;
 
 Map fileContent;
@@ -288,7 +289,9 @@ class MetadataSectionState extends State<MetadataSection> {
     String key13,
     String value13,
     String key14,
-    Map<String, Map<String, int>> value14,
+    String value14,
+    String key15,
+    Map<String, Map<String, int>> value15,
   ) {
     print('Writing to File');
     Map<String, dynamic> content = {
@@ -307,6 +310,7 @@ class MetadataSectionState extends State<MetadataSection> {
       key12: value12,
       key13: value13,
       key14: value14,
+      key15: value15,
       'visible': 'true',
     };
     if (fileExists) {
@@ -656,6 +660,9 @@ class MetadataSectionState extends State<MetadataSection> {
     fileContent['H.long'] = hLong.toString();
     hLong = 0;
     fileContent['lxodes'] = lxod.toString();
+    lxod = 0;
+    fileContent['Other'] = other.toString();
+    other = 0;
     return b;
   }
 
@@ -696,6 +703,9 @@ class MetadataSectionState extends State<MetadataSection> {
     }
     if (tickData.containsKey('lxodes spp')) {
       lxod += tickData['lxodes spp'];
+    }
+    if (tickData.containsKey('Other')) {
+      other += tickData['Other'];
     }
   }
 
@@ -799,7 +809,8 @@ class MetadataSectionState extends State<MetadataSection> {
                       infoRow('A. amer. (Lone star)', fileContent['A.amer']),
                       infoRow('D. vari. (American dog)', fileContent['D.vari']),
                       infoRow('H. long. (Longhorned)', fileContent['H.long']),
-                      infoRow('lxodes spp (other)', fileContent['lxodes']),
+                      infoRow('lxodes spp', fileContent['lxodes']),
+                      infoRow('Other', fileContent['Other']),
                       infoRow('Notes', fileContent['Notes'].toString()),
                     ],
                   ),
@@ -982,11 +993,12 @@ class MetadataSectionState extends State<MetadataSection> {
                   ),
                   dataField(
                     myController12,
-                    'lxodes spp (other)',
+                    'lxodes spp',
                     fileContent['lxodes'],
                   ),
+                  dataField(myController13, 'Other', fileContent['Other']),
                   dataField(
-                    myController13,
+                    myController14,
                     'Notes',
                     fileContent['Notes'],
                     required: false,
@@ -1064,8 +1076,10 @@ class MetadataSectionState extends State<MetadataSection> {
                             myController11.text,
                             'lxodes',
                             myController12.text,
-                            'Notes',
+                            'Other',
                             myController13.text,
+                            'Notes',
+                            myController14.text,
                             'Ticks',
                             segmentedTickData,
                           );
