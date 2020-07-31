@@ -82,6 +82,7 @@ class MetadataSectionState extends State<MetadataSection> {
   Map<String, Map<String, int>> segmentedTickData;
   Map<String, dynamic> syncMap = Map<String, bool>();
   File syncFile;
+  bool firstEdit = false;
 
   List habitatList = <String>[
     'Select Habitat',
@@ -620,6 +621,7 @@ class MetadataSectionState extends State<MetadataSection> {
 
     setState(() {
       print('CHANGING TO EDIT MODE');
+      firstEdit = true;
       viewingDrags = false;
       viewingData = false;
       editingData = true;
@@ -742,6 +744,7 @@ class MetadataSectionState extends State<MetadataSection> {
             icon: Icon(Icons.edit),
             onPressed: () {
               setState(() {
+                firstEdit = false;
                 moistureSelected = true;
                 habitatSelected = true;
                 siteSelected = true;
@@ -1022,6 +1025,8 @@ class MetadataSectionState extends State<MetadataSection> {
                     });
                     if (changesMade) {
                       if (_editKey.currentState.validate()) {
+                        print(
+                            '$siteSelected $moistureSelected $habitatSelected');
                         if (siteSelected == true &&
                             moistureSelected == true &&
                             habitatSelected == true) {
@@ -1113,7 +1118,7 @@ class MetadataSectionState extends State<MetadataSection> {
       String jsonVal,
       TextEditingController otherController) {
     controller.text = fileContent[jsonVal];
-    if (controller.text == null || controller.text == '') {
+    if (controller.text == null || controller.text == '' || firstEdit) {
       controller.text = items[0];
     } else if (!items.contains(controller.text)) {
       otherController.text = controller.text;
@@ -1126,7 +1131,7 @@ class MetadataSectionState extends State<MetadataSection> {
           children: <Widget>[
             DropdownButtonFormField(
               validator: (value) {
-                if (value == null) {
+                if (value == items[0]) {
                   return "Please Select an Item";
                 }
                 return null;
@@ -1174,6 +1179,7 @@ class MetadataSectionState extends State<MetadataSection> {
               style: TextStyle(color: Colors.deepPurple),
               onChanged: (value) {
                 setState(() {
+                  firstEdit = false;
                   changesMade = true;
                   controller.text = value;
                   fileContent[jsonVal] = value;

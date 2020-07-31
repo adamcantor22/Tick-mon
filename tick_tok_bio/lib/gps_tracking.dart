@@ -133,6 +133,13 @@ class MapsState extends State<Maps> {
         setState(() {
           if (counter > 0) {
             counter--;
+          } else if (counter == 0) {
+            counter = timePerMarker.toInt() * 60;
+            player.play('/sounds/bell.mp3');
+            dropTrackBreakPoint();
+            setState(() {
+              lastDropPoint = currentPosition;
+            });
           }
         });
       },
@@ -396,9 +403,6 @@ class MapsState extends State<Maps> {
             onPressed: () {
               setState(() {
                 SuperListener.upDateTickData();
-                moistureSelected = false;
-                habitatSelected = false;
-                siteSelected = false;
                 if (markerViaTime == true) {
                   timer.cancel();
                   timerVisibility = false;
@@ -488,19 +492,17 @@ class MapsState extends State<Maps> {
           }
         }
       }
-      if (markerViaTime == true) {
-        if (counter == 0) {
-          counter = timePerMarker.toInt() * 60;
-          if (soundsPresent == true) {
-            player.play('/sounds/bell.mp3');
-          }
-          dropTrackBreakPoint();
-          setState(() {
-            print('PLace Marker');
-            lastDropPoint = currentPosition;
-          });
-        }
-      }
+//      if (markerViaTime == true) {
+//        if (counter == 0) {
+//          counter = timePerMarker.toInt() * 60;
+//          player.play('/sounds/bell.mp3');
+//          dropTrackBreakPoint();
+//          setState(() {
+//            print('PLace Marker');
+//            lastDropPoint = currentPosition;
+//          });
+//        }
+//      }
     }
   }
 
@@ -823,6 +825,8 @@ class MapsState extends State<Maps> {
                   ),
                   onPressed: () {
                     setState(() {
+                      _mapController.move(
+                          LatLng(currentLat, currentLong), zoomLevel);
                       autoCameraMove = !autoCameraMove;
                     });
                   },
