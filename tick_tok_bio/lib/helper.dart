@@ -175,7 +175,7 @@ class _HelperTextState extends State<HelperText> {
   }
 
   Widget segmentTextDialog(int segment, BuildContext context) {
-    titleController.text = 'Segment $segment Metadata';
+    titleController.text = 'Seg $segment';
     return AlertDialog(
       title: TextFormField(
         decoration: kTextFieldDecoration,
