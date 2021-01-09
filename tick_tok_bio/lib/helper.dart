@@ -2,6 +2,7 @@
     A couple different pages need the functions listed in this file.
  */
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'super_listener.dart';
 import 'decorationInfo.dart';

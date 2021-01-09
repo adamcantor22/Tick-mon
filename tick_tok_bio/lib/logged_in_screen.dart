@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tick_tok_bio/gps_tracking.dart';
@@ -12,7 +14,9 @@ import 'user_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 bool loggedIn = false;
+bool makingNewGroup = false;
 bool access = false;
+bool admin = false;
 final GoogleSignIn googleSignIn = GoogleSignIn();
 String name;
 String email;
@@ -31,7 +35,14 @@ class LoggedInScreenState extends State<LoggedInScreen> {
   final userController = TextEditingController();
   final pwdController = TextEditingController();
 
+  final codeController = TextEditingController();
+
+  final nameLabGroupController = TextEditingController();
+
   bool creatingAccount = false;
+
+  String labGroup = '';
+  String adminCode = '';
 
   @override
   void initState() {
@@ -39,6 +50,14 @@ class LoggedInScreenState extends State<LoggedInScreen> {
     SuperListener.setPages(lPage: this);
     print('LOGGED IN PAGE INITIALIZED');
     getPrefs(email);
+  }
+
+  bool getAdmin() {
+    return admin;
+  }
+
+  String getLabGroup() {
+    return labGroup;
   }
 
   cancelDragFirst(BuildContext context) {
@@ -105,22 +124,31 @@ class LoggedInScreenState extends State<LoggedInScreen> {
   }
 
   Future<void> getPrefs(String email) async {
-    List docs =
-        (await Firestore.instance.collection('lab_groups').getDocuments())
-            .documents;
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    CollectionReference docs = firestore.collection("users");
     bool found = false;
-    for (DocumentSnapshot doc in docs) {
-      if (doc.data['name'] == 'muhlenberg') {
-        for (String s in doc.data['users']) {
-          if (s == email) {
-            //SuperListener.tempCelsius(doc.data['celsius']);
-            found = true;
-            break;
-          }
+    QuerySnapshot qs = await docs.get();
+    qs.docs.forEach((doc) async {
+      if (doc['email'] == email) {
+        if (doc['lab_group'] != null && doc['lab_group'] != '') {
+          setState(() {
+            labGroup = doc['lab_group'];
+          });
+        }
+        if (doc['admin'] != null) {
+          admin = doc['admin'];
+          CollectionReference groups = firestore.collection('lab_groups');
+          QuerySnapshot qsGroups = await groups.get();
+          qsGroups.docs.forEach((group) {
+            if (group['name'] == labGroup) {
+              setState(() {
+                adminCode = group['code'];
+              });
+            }
+          });
         }
       }
-      if (found) break;
-    }
+    });
   }
 
   void tempCelsius(bool state) {
@@ -151,9 +179,10 @@ class LoggedInScreenState extends State<LoggedInScreen> {
         idToken: googleSignInAuthentication.idToken,
         accessToken: googleSignInAuthentication.accessToken);
 //    print('THIS IS AN SOSOSOOSS');
-    final AuthResult authResult = await _auth.signInWithCredential(credential);
+    final UserCredential authResult =
+        await _auth.signInWithCredential(credential);
 //    print('THIS IS AN SOSOSOOSS');
-    final FirebaseUser user = authResult.user;
+    final User user = authResult.user;
 //    print('THIS IS AN SOSOSOOSS');
 //
     if (user.displayName != null) {
@@ -175,7 +204,7 @@ class LoggedInScreenState extends State<LoggedInScreen> {
     assert(!user.isAnonymous);
     assert(await user.getIdToken() != null);
 
-    final FirebaseUser currentUser = await _auth.currentUser();
+    final User currentUser = _auth.currentUser;
     assert(user.uid == currentUser.uid);
 
     if (user != null) {
@@ -333,17 +362,145 @@ class LoggedInScreenState extends State<LoggedInScreen> {
 //  }
 
   void createUser(String email, dynamic password) async {
-    final FirebaseUser user1 = (await _auth.createUserWithEmailAndPassword(
-            email: email, password: password))
+    final User user1 = (await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    ))
         .user;
   }
 
+  void joinGroup(String code) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    CollectionReference docs = firestore.collection('lab_groups');
+    QuerySnapshot qs = await docs.get();
+    qs.docs.forEach((group) async {
+      if (group['code'] != null && group['code'] == code) {
+        labGroup = group['name'];
+
+        CollectionReference users = firestore.collection("users");
+        QuerySnapshot qsUsers = await users.get();
+        qsUsers.docs.forEach((doc) {
+          if (doc.data()['email'] == email) {
+            users
+                .doc(doc.id)
+                .set({'email': email, 'lab_group': labGroup, 'admin': false});
+            setState(() {
+              loggedIn = true;
+              admin = false;
+            });
+          }
+        });
+
+        return;
+      }
+    });
+  }
+
+  void uploadNewGroup(String name) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    CollectionReference groups = firestore.collection("lab_groups");
+    final r = Random();
+    String code = '';
+    for (int i = 0; i < 4; i++) {
+      code += r.nextInt(10).toString();
+    }
+    groups.add({'name': name, 'code': code});
+    labGroup = name;
+    adminCode = code;
+
+    CollectionReference users = firestore.collection("users");
+    QuerySnapshot qsUsers = await users.get();
+    qsUsers.docs.forEach((doc) {
+      if (doc.data()['email'] == email) {
+        users
+            .doc(doc.id)
+            .set({'email': email, 'lab_group': labGroup, 'admin': true});
+        setState(() {
+          loggedIn = true;
+        });
+      }
+    });
+
+    setState(() {
+      makingNewGroup = false;
+      admin = true;
+    });
+  }
+
+  Widget newGroup() {
+    return Scaffold(
+      body: Container(
+        color: Colors.grey[200],
+        height: double.maxFinite,
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(80.0, 80.0, 80.0, 0.0),
+              child: Center(
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      'New Lab Group',
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 40.0,
+                    ),
+                    TextFormField(
+                      controller: nameLabGroupController,
+                      decoration: InputDecoration(
+                        hintText: 'Enter Lab Group Name',
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 20.0),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Colors.blueAccent, width: 1.5),
+                          borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Colors.blueAccent, width: 2.5),
+                          borderRadius: BorderRadius.all(Radius.circular(16.0)),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 30.0,
+                    ),
+                    FlatButton(
+                      onPressed: () {
+                        uploadNewGroup(nameLabGroupController.text);
+                        setState(() {});
+                      },
+                      color: Colors.green,
+                      child: Text('Create Group'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget loggedStatus() {
+    if (makingNewGroup) {
+      return newGroup();
+    }
     if (loggedIn == true) {
       return Scaffold(
         body: Center(
           child: Padding(
-            padding: EdgeInsets.all(80.0),
+            padding: EdgeInsets.only(top: 80.0, left: 80.0, right: 80.0),
             child: Column(
               children: <Widget>[
                 RaisedButton(
@@ -371,18 +528,13 @@ class LoggedInScreenState extends State<LoggedInScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: 100.0,
+                  height: 40.0,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'Welcome',
-                      style: TextStyle(
-                        fontSize: 20.0,
-                      ),
-                    )
-                  ],
+                Text(
+                  'Welcome',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                  ),
                 ),
                 Text(
                   name,
@@ -393,14 +545,99 @@ class LoggedInScreenState extends State<LoggedInScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: 100.0,
+                  height: 15.0,
+                ),
+                Text(
+                  labGroup != ''
+                      ? (admin ? 'Admin' : 'Member') +
+                          ' of ' +
+                          labGroup +
+                          ' Lab Group'
+                      : '',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18.0,
+                  ),
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+                Visibility(
+                  visible: admin,
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: 30.0,
+                      ),
+                      Text(
+                        'Lab Group Join Code: ',
+                        style: TextStyle(
+                          fontSize: 18.0,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      Text(
+                        adminCode,
+                        style: TextStyle(
+                          fontSize: 30.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green[800],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Visibility(
+                  visible: labGroup == '',
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        'Enter Lab Group Code: ',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 20.0,
+                        ),
+                      ),
+                      TextFormField(
+                        key: _formKey,
+                        controller: codeController,
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          FlatButton(
+                            onPressed: () {
+                              setState(() {
+                                makingNewGroup = true;
+                              });
+                              ;
+                            },
+                            color: Colors.green,
+                            child: Text('New Group'),
+                          ),
+                          FlatButton(
+                            onPressed: () {
+                              joinGroup(codeController.text);
+                            },
+                            color: Colors.blue,
+                            child: Text('Join Group'),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
         ),
       );
-    } else if (loggedIn == false) {
+    } else {
       return loginPage();
     }
   }

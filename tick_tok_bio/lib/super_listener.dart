@@ -124,4 +124,12 @@ class SuperListener {
   static void posSubDispose() {
     mapPage.positionSubDispose();
   }
+
+  static bool getAdmin() {
+    return logPage.getAdmin();
+  }
+
+  static String getLabGroup() {
+    return logPage.getLabGroup();
+  }
 }

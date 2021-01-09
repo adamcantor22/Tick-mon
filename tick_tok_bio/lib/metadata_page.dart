@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:tick_tok_bio/file_downloader.dart';
 import 'decorationInfo.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -14,13 +15,19 @@ import 'package:weather/weather_library.dart';
 import 'gps_tracking.dart';
 import 'package:tick_tok_bio/helper.dart';
 import 'package:tick_tok_bio/logged_in_screen.dart';
+import 'file_uploader.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 //These are the three boolean values used to determine which screen we are currently on
 bool viewingDrags = true;
 bool viewingData = false;
 bool editingData = false;
+bool adminPage = false;
 
 bool changesMade = false;
+
+bool groupAdmin = false;
+String labGroup = '';
 
 bool siteSelected = false;
 bool moistureSelected = false;
@@ -84,6 +91,7 @@ class MetadataSectionState extends State<MetadataSection> {
   Map<String, dynamic> syncMap = Map<String, bool>();
   File syncFile;
   bool firstEdit = false;
+  Map<String, Map<String, String>> adminMap;
 
   List habitatList = <String>[
     'Select Habitat',
@@ -126,6 +134,8 @@ class MetadataSectionState extends State<MetadataSection> {
   void initState() {
     super.initState();
     SuperListener.setPages(dPage: this);
+    groupAdmin = SuperListener.getAdmin();
+    labGroup = SuperListener.getLabGroup();
     getDirList().then((d) {
       dir = d;
       createFilePaths();
@@ -138,6 +148,7 @@ class MetadataSectionState extends State<MetadataSection> {
     setState(() {
       viewingDrags = true;
       viewingData = false;
+      adminPage = false;
       editingData = false;
     });
   }
@@ -146,6 +157,8 @@ class MetadataSectionState extends State<MetadataSection> {
   Widget pageBody() {
     if (loadingData) {
       return loadingWait();
+    } else if (adminPage == true) {
+      return adminViewDrags();
     } else if (viewingDrags == true) {
       return viewDrags();
     } else if (viewingData == true) {
@@ -199,6 +212,43 @@ class MetadataSectionState extends State<MetadataSection> {
       dragList = tmpList;
     });
   }
+
+  void adminDrags() async {
+    var tmpList = new List<Widget>();
+    FileDownloader down = new FileDownloader();
+    labGroup = SuperListener.getLabGroup();
+    adminMap = await down.getFilenames(labGroup);
+    adminMap.forEach((key, value) {
+      String name =
+          '${value['site']} ${value['person'].substring(0, 3).toUpperCase()} ${key.substring(0, 10)}';
+      Widget tmp = adminDragMenu(name, value['jsonUrl'], value['gpxUrl']);
+      tmpList.add(tmp);
+    });
+
+    setState(() {
+      dragList = tmpList;
+      loadingData = false;
+    });
+  }
+
+//  void adminSearch(String val) {
+//    var tmpList = new List<Widget>();
+//    adminMap.forEach((key, value) {
+//      if (val == '' ||
+//          value['site'].toLowerCase().contains(val) ||
+//          value['person'].toLowerCase().contains(val) ||
+//          key.toLowerCase().contains(val)) {
+//        String name =
+//            '${value['site']} ${value['person'].substring(0, 3).toUpperCase()} ${key.substring(0, 10)}';
+//        Widget tmp = adminDragMenu(name, value['url']);
+//        tmpList.add(tmp);
+//      }
+//    });
+//
+//    setState(() {
+//      dragList = tmpList;
+//    });
+//  }
 
   void deleteFiles() async {
     for (FileSystemEntity f in fileList) {
@@ -374,15 +424,96 @@ class MetadataSectionState extends State<MetadataSection> {
   }
 
   Future<bool> attemptFileUploads(String name) async {
+    labGroup = SuperListener.getLabGroup();
     editingFilename = name;
     bool ret = true;
     File file1 = File('${gpxDir.path}/$editingFilename.gpx');
     File file2 = File('${jsonDir.path}/$editingFilename.json');
     FileUploader uploader = new FileUploader();
     String s1 = await uploader.fileUpload(file1, '$editingFilename.gpx');
-    String s2 = await uploader.fileUpload(file2, '$editingFilename.json');
+    String s2 = await uploader.fileUpload(
+      file2,
+      '$editingFilename.json',
+      personName: fileContent['Name'],
+      siteName: fileContent['Site'],
+      labGroup: labGroup,
+    );
     if (s1 == 'error' || s2 == 'error') ret = false;
     return ret;
+  }
+
+  launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  Widget adminDragMenu(String name, String jsonUrl, String gpxUrl) {
+    return Container(
+      height: 70.0,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+        child: Card(
+          elevation: 6.0,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 0.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontSize: 22.0,
+                  ),
+                ),
+                Row(
+                  children: <Widget>[
+                    FlatButton(
+                      onPressed: () {
+                        launchURL(jsonUrl);
+                      },
+                      color: Colors.green,
+                      child: Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.file_download,
+                            color: Colors.white,
+                          ),
+                          Text(
+                            '.json',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    FlatButton(
+                      onPressed: () {
+                        launchURL(gpxUrl);
+                      },
+                      color: Colors.green,
+                      child: Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.file_download,
+                            color: Colors.white,
+                          ),
+                          Text(
+                            '.gpx',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   //This function allows for the creation of cards to represent each drag's data.
@@ -402,6 +533,7 @@ class MetadataSectionState extends State<MetadataSection> {
         setState(() {
           editingFilename = name;
           getFile(name);
+          adminPage = false;
           viewingData = true;
           viewingDrags = false;
         });
@@ -627,6 +759,7 @@ class MetadataSectionState extends State<MetadataSection> {
     setState(() {
       print('CHANGING TO EDIT MODE');
       firstEdit = true;
+      adminPage = false;
       viewingDrags = false;
       viewingData = false;
       editingData = true;
@@ -710,9 +843,48 @@ class MetadataSectionState extends State<MetadataSection> {
     }
   }
 
+  Widget adminViewDrags() {
+    TextEditingController controller;
+    return Scaffold(
+      drawerScrimColor: Colors.red,
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        title: Text(
+          'Admin Page',
+          style: TextStyle(
+            fontSize: 25.0,
+          ),
+        ),
+        centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.gavel),
+            onPressed: () {
+              drags();
+              setState(() {
+                adminPage = false;
+                viewingData = false;
+                viewingDrags = true;
+                editingData = false;
+              });
+            },
+          ),
+        ],
+      ),
+      body: Container(
+        color: Colors.grey[200],
+        child: ListView(
+          padding: EdgeInsets.only(top: 15.0),
+          children: getDragList(),
+        ),
+      ),
+    );
+  }
+
   //This is the screen that appears if on clicks over to the metaData tag.
   //It is populated with a bunch of clickable cards, each represents a drag which has been done.
   Widget viewDrags() {
+    groupAdmin = SuperListener.getAdmin();
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -722,6 +894,24 @@ class MetadataSectionState extends State<MetadataSection> {
           ),
         ),
         centerTitle: true,
+        actions: <Widget>[
+          Visibility(
+            visible: groupAdmin,
+            child: IconButton(
+              icon: Icon(Icons.gavel),
+              onPressed: () {
+                adminDrags();
+                setState(() {
+                  loadingData = true;
+                  adminPage = true;
+                  viewingData = false;
+                  viewingDrags = false;
+                  editingData = false;
+                });
+              },
+            ),
+          ),
+        ],
       ),
       body: Container(
         color: Colors.grey[200],
@@ -770,6 +960,7 @@ class MetadataSectionState extends State<MetadataSection> {
             onPressed: () {
               setState(() {
                 viewingData = false;
+                adminPage = false;
                 viewingDrags = true;
               });
             },
@@ -867,8 +1058,10 @@ class MetadataSectionState extends State<MetadataSection> {
       print('No such gpx file');
     }
 
+    adminPage = false;
     viewingData = false;
     viewingDrags = true;
+
     drags();
   }
 
@@ -876,6 +1069,7 @@ class MetadataSectionState extends State<MetadataSection> {
     setState(() {
       editingData = false;
       viewingDrags = false;
+      adminPage = false;
       viewingData = true;
     });
   }
@@ -906,6 +1100,7 @@ class MetadataSectionState extends State<MetadataSection> {
                   setState(() {
                     editingData = false;
                     viewingDrags = false;
+                    adminPage = false;
                     viewingData = true;
                   });
                 }
@@ -1097,6 +1292,7 @@ class MetadataSectionState extends State<MetadataSection> {
                       setState(() {
                         editingData = false;
                         viewingData = false;
+                        adminPage = false;
                         viewingDrags = true;
                       });
                     }
@@ -1119,9 +1315,18 @@ class MetadataSectionState extends State<MetadataSection> {
   }
 
   Future<void> sendJsonToCloud() async {
+    labGroup = SuperListener.getLabGroup();
     FileUploader uploader = new FileUploader();
     File f = File('${jsonDir.path}/$editingFilename.json');
-    await uploader.fileUpload(f, '$editingFilename.json').then((val) {
+    await uploader
+        .fileUpload(
+      f,
+      '$editingFilename.json',
+      personName: fileContent['Name'],
+      siteName: fileContent['Site'],
+      labGroup: labGroup,
+    )
+        .then((val) {
       if (val == 'error') {
       } else {
         print(val);

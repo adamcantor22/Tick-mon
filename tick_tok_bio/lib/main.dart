@@ -12,6 +12,7 @@ import 'dart:async';
 import 'user_page.dart';
 import 'weather_tracker.dart';
 import 'settings_page.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 void main() {
   runApp(MyApp());
@@ -54,6 +55,7 @@ class HomePageState extends State<HomePage> {
     super.initState();
     setListeners();
     startLoadTimer();
+    Firebase.initializeApp();
   }
 
   void setListeners() {
