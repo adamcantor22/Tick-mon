@@ -132,4 +132,8 @@ class SuperListener {
   static String getLabGroup() {
     return logPage.getLabGroup();
   }
+
+  static void onFirebaseInitialized() {
+    logPage.onFirebaseInitialized();
+  }
 }

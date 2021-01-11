@@ -29,7 +29,7 @@ class LoggedInScreen extends StatefulWidget {
 class LoggedInScreenState extends State<LoggedInScreen> {
   bool temperatureState = false;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth _auth;
 
   final _formKey = GlobalKey<FormState>();
   final userController = TextEditingController();
@@ -49,6 +49,10 @@ class LoggedInScreenState extends State<LoggedInScreen> {
     super.initState();
     SuperListener.setPages(lPage: this);
     print('LOGGED IN PAGE INITIALIZED');
+  }
+
+  void onFirebaseInitialized() {
+    _auth = FirebaseAuth.instance;
     getPrefs(email);
   }
 

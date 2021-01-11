@@ -53,9 +53,11 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    setListeners();
-    startLoadTimer();
-    Firebase.initializeApp();
+    Firebase.initializeApp().then((value) {
+      SuperListener.onFirebaseInitialized();
+      setListeners();
+      startLoadTimer();
+    });
   }
 
   void setListeners() {
