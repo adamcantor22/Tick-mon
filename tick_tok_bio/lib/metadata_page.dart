@@ -452,15 +452,14 @@ class MetadataSectionState extends State<MetadataSection> {
 
   Widget adminDragMenu(String name, String jsonUrl, String gpxUrl) {
     return Container(
-      height: 70.0,
+      height: 100.0,
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
         child: Card(
           elevation: 6.0,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 0.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            padding: EdgeInsets.fromLTRB(5.0, 8.0, 5.0, 0.0),
+            child: Column(
               children: <Widget>[
                 Text(
                   name,
@@ -469,6 +468,7 @@ class MetadataSectionState extends State<MetadataSection> {
                   ),
                 ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     FlatButton(
                       onPressed: () {
@@ -476,6 +476,7 @@ class MetadataSectionState extends State<MetadataSection> {
                       },
                       color: Colors.green,
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           Icon(
                             Icons.file_download,
@@ -487,6 +488,9 @@ class MetadataSectionState extends State<MetadataSection> {
                           ),
                         ],
                       ),
+                    ),
+                    SizedBox(
+                      width: 40.0,
                     ),
                     FlatButton(
                       onPressed: () {

@@ -169,22 +169,20 @@ class LoggedInScreenState extends State<LoggedInScreen> {
 
   Future<String> signInWithGoogle() async {
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
-    print('THIS HAS COMPLEED');
+    print('THIS HAS COMPLETED');
 
     final GoogleSignInAuthentication googleSignInAuthentication =
         await googleSignInAccount.authentication;
 
-//    print('THIS IS AN SOSOSOOSS');
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
+    final AuthCredential credential = GoogleAuthProvider.credential(
         idToken: googleSignInAuthentication.idToken,
         accessToken: googleSignInAuthentication.accessToken);
-//    print('THIS IS AN SOSOSOOSS');
+
     final UserCredential authResult =
         await _auth.signInWithCredential(credential);
-//    print('THIS IS AN SOSOSOOSS');
+
     final User user = authResult.user;
-//    print('THIS IS AN SOSOSOOSS');
-//
+
     if (user.displayName != null) {
       setState(() {
         name = user.displayName;
@@ -219,6 +217,8 @@ class LoggedInScreenState extends State<LoggedInScreen> {
   void signOutGoogle() async {
     await googleSignIn.signOut();
     setState(() {
+      name = null;
+      email = null;
       loggedIn = false;
     });
   }
@@ -370,6 +370,7 @@ class LoggedInScreenState extends State<LoggedInScreen> {
   }
 
   void joinGroup(String code) async {
+    bool userFound = false;
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     CollectionReference docs = firestore.collection('lab_groups');
     QuerySnapshot qs = await docs.get();
@@ -381,16 +382,19 @@ class LoggedInScreenState extends State<LoggedInScreen> {
         QuerySnapshot qsUsers = await users.get();
         qsUsers.docs.forEach((doc) {
           if (doc.data()['email'] == email) {
+            userFound = true;
             users
                 .doc(doc.id)
                 .set({'email': email, 'lab_group': labGroup, 'admin': false});
-            setState(() {
-              loggedIn = true;
-              admin = false;
-            });
           }
         });
-
+        if (!userFound) {
+          users.add({'email': email, 'lab_group': labGroup, 'admin': false});
+        }
+        setState(() {
+          loggedIn = true;
+          admin = false;
+        });
         return;
       }
     });
@@ -408,20 +412,23 @@ class LoggedInScreenState extends State<LoggedInScreen> {
     labGroup = name;
     adminCode = code;
 
+    bool userFound = false;
     CollectionReference users = firestore.collection("users");
     QuerySnapshot qsUsers = await users.get();
     qsUsers.docs.forEach((doc) {
       if (doc.data()['email'] == email) {
+        userFound = true;
         users
             .doc(doc.id)
             .set({'email': email, 'lab_group': labGroup, 'admin': true});
-        setState(() {
-          loggedIn = true;
-        });
       }
     });
 
+    if (!userFound) {
+      users.add({'email': email, 'lab_group': labGroup, 'admin': true});
+    }
     setState(() {
+      loggedIn = true;
       makingNewGroup = false;
       admin = true;
     });
