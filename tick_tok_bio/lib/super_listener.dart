@@ -136,4 +136,8 @@ class SuperListener {
   static void onFirebaseInitialized() {
     logPage.onFirebaseInitialized();
   }
+
+  static void changeAdmin() {
+    dataPage.changeAdmin();
+  }
 }

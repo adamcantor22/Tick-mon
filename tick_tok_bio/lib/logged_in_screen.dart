@@ -141,6 +141,7 @@ class LoggedInScreenState extends State<LoggedInScreen> {
         }
         if (doc['admin'] != null) {
           admin = doc['admin'];
+          SuperListener.changeAdmin();
           CollectionReference groups = firestore.collection('lab_groups');
           QuerySnapshot qsGroups = await groups.get();
           qsGroups.docs.forEach((group) {
@@ -398,6 +399,7 @@ class LoggedInScreenState extends State<LoggedInScreen> {
         setState(() {
           loggedIn = true;
           admin = false;
+          SuperListener.changeAdmin();
         });
         return;
       }
@@ -435,6 +437,7 @@ class LoggedInScreenState extends State<LoggedInScreen> {
       loggedIn = true;
       makingNewGroup = false;
       admin = true;
+      SuperListener.changeAdmin();
     });
   }
 

@@ -11,7 +11,8 @@ import 'super_listener.dart';
 import 'helper.dart';
 import 'file_uploader.dart';
 import 'weather_tracker.dart';
-import 'package:weather/weather_library.dart';
+import 'package:weather/weather.dart';
+//import 'package:weather/weather_library.dart';
 import 'gps_tracking.dart';
 import 'package:tick_tok_bio/helper.dart';
 import 'package:tick_tok_bio/logged_in_screen.dart';
@@ -153,6 +154,13 @@ class MetadataSectionState extends State<MetadataSection> {
     });
   }
 
+  void changeAdmin() {
+    setState(() {
+      groupAdmin = SuperListener.getAdmin();
+      labGroup = SuperListener.getLabGroup();
+    });
+  }
+
   //This function is the actual home of the scaffold and controls which screens will be seen on the app.
   Widget pageBody() {
     if (loadingData) {
@@ -175,11 +183,13 @@ class MetadataSectionState extends State<MetadataSection> {
     for (FileSystemEntity f in fileList) {
       String p = f.path;
       if (p.substring(p.length - 9, p.length) == 'sync.json') {
-        syncExists = true;
         String toDecode = syncFile.readAsStringSync();
-        print('To Decode: $toDecode the end');
-        syncMap = jsonDecode(toDecode);
-        break;
+        if (toDecode.length > 0) {
+          syncExists = true;
+          print('To Decode: $toDecode the end');
+          syncMap = jsonDecode(toDecode);
+          break;
+        }
       }
     }
     if (!syncExists) {

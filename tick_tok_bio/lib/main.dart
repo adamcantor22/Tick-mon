@@ -72,7 +72,7 @@ class HomePageState extends State<HomePage> {
       Duration(seconds: 3),
       (timer) {
         build(context);
-        if (!_loading) timer.cancel();
+        timer.cancel();
       },
     );
   }

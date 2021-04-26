@@ -1,14 +1,15 @@
-import 'package:weather/weather_library.dart';
+//import 'package:weather/weather_library.dart';
+import 'package:weather/weather.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:io';
 
 class WeatherTracker {
   static final _weatherAPIKey = 'd3cc8303a3a355c572388fae28684518';
   static Position _currentLocation;
-  static WeatherStation tickStation;
+  static WeatherFactory tickStation;
 
   static void startupWeather() {
-    tickStation = new WeatherStation(_weatherAPIKey);
+    tickStation = new WeatherFactory(_weatherAPIKey);
   }
 
   static void updateLocation(Position newLocation) {
@@ -19,7 +20,7 @@ class WeatherTracker {
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        final weather = await tickStation.currentWeather(
+        final weather = await tickStation.currentWeatherByLocation(
           _currentLocation.latitude,
           _currentLocation.longitude,
         );
