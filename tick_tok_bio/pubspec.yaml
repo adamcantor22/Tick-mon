@@ -12,7 +12,6 @@ dependencies:
   cloud_firestore: ^0.14.1
   google_maps_flutter:
   flutter_polyline_points:
-  location:
   gpx:
   convert: ^2.1.1
   firebase_storage: ^4.0.1
